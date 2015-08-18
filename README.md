@@ -1,2 +1,2 @@
 # arduino
-All file related to arduino development
+All files related to arduino development
