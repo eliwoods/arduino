@@ -1,26 +1,76 @@
 #ifndef ____MatrixAnimation__
 #define ____MatrixAnimation__
 
+// C/C++ libraries
 #include <stdio.h>
-#include "../RGBMatrixPanel/RGBmatrixPanel.h"
-#include "../AdafuitGFXLibrary/Adafruit_GFX.h"
+
+// Arduino Libraries
+#if ARDUINO >= 100
+ #include "Arduino.h"
+#else
+ #include <WProgram.h>
+ #include <pins_arduino.h>
+#endif
+
+////////////////////////////////////////////////////////////
+//    Need to work out including other libraries					//
+////////////////////////////////////////////////////////////
+
+// Hardware libraries
+#include "RGBmatrixPanel.h"           
+#include "Adafruit_GFX.h"
+
+// Should move this to constructor for modularity,
+// but I onlyhave this panel for now.
+#define CLK 11  // MUST be on PORTB!
+#define OE  9
+#define LAT 10
+#define A   A0
+#define B   A1
+#define C   A2
+#define D   A3
 
 class MatrixAnimation {
 
 	public:
-		MatrixAnimation();
-		~MatrixAnimation();
+		// Constructors
+		MatrixAnimation(const int xmin = 0, const int xmax = 32, const int ymin = 0, const int ymax = 32) :
+			_xmin(xmin),
+			_xmax(xmax),
+			_ymin(ymin),
+			_ymax(ymax)
+		{
+			// RGBmatrixPanel Stuff
+			_matrix = new RGBmatrixPanel(A, B, C, D, CLK, LAT, OE, false);
+			_matrix->begin();
 
-		// Random Funcitons
+			// Read in noise from unused analog port to randomly generate a seed
+			randomSeed(analogRead(4));
+
+			// Fill color arrays
+			_col_sz = new uint16_t[_xmax/4];
+			rand_color_init();
+			set_2col(_matrix->Color444(7, 0, 0), _matrix->Color444(7, 0, 7));
+		}
+		
+		~MatrixAnimation() {
+			delete _col_sz;
+			delete _matrix;
+		}
+
+		// Helper Funcitons
 		float gaus(float mu, float sigma);
+		uint8_t rand_color_init();
+		uint8_t set_2col(uint16_t col1, uint16_t col2);
+		uint8_t uramp(int16_t _x, int16_t _y);
+		uint8_t dramp(int16_t _x, int16_t _y);
 
 		// Developed 
 		uint8_t random_state();
-		uint8_t uramp(int16_t _x, int16_t _y);
-		uint8_t dramp(int16_t _x, int16_t _y);
 		uint8_t spectrum(uint8_t bits, int del);
 		uint8_t cross_sweep(uint8_t quadrant, uint8_t width, uint16_t color, int del);
-		uint16_t square_zoom(int del, uint16_t *_cols);
+		uint8_t square_zoom(int del);
+		uint8_t zoom_2col(int del);
 
 		// Needs finishing
 		uint8_t hue_cycle();
@@ -29,18 +79,20 @@ class MatrixAnimation {
 		uint8_t gol();
 		uint8_t spiral();
 
-
 	protected:
 		// For potential error handling in the future
-		uint8_t ret; 
+		uint8_t _ret; 
 
-		uint8_t xmin;
-		uint8_t xmax;
-		uint8_t ymin;
-		uint8_t ymax;
+		// Time keeping
+		int _cur_time, _prev_time;
 
-		RGBMatrixPanel *matrix;
+		uint16_t _col_2c[2]; // 2 color zoom array
+		uint16_t *_col_sz;  // random color zoom array
 
+		// Bounds of Matrix
+		uint8_t _xmin, _xmax, _ymin, _ymax;
+
+		RGBmatrixPanel *_matrix = NULL;
 };
 
 #endif
