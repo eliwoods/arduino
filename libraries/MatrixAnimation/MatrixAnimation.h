@@ -8,17 +8,15 @@
 #if ARDUINO >= 100
  #include "Arduino.h"
 #else
- #include <WProgram.h>
- #include <pins_arduino.h>
+ #include "WProgram.h"
+ #include "pins_arduino.h"
 #endif
 
-////////////////////////////////////////////////////////////
-//    Need to work out including other libraries					//
-////////////////////////////////////////////////////////////
-
 // Hardware libraries
-#include "RGBmatrixPanel.h"           
+//#include "../RGBMatrixPanel/RGBmatrixPanel.h"           
+//#include "../AdafruitGFXLibrary/Adafruit_GFX.h"
 #include "Adafruit_GFX.h"
+#include "RGBmatrixPanel.h"           
 
 // Should move this to constructor for modularity,
 // but I onlyhave this panel for now.
@@ -30,19 +28,21 @@
 #define C   A2
 #define D   A3
 
-class MatrixAnimation {
+class MatrixAnimation : public RGBmatrixPanel {
 
 	public:
 		// Constructors
 		MatrixAnimation(const int xmin = 0, const int xmax = 32, const int ymin = 0, const int ymax = 32) :
-			_xmin(xmin),
-			_xmax(xmax),
-			_ymin(ymin),
-			_ymax(ymax)
-		{
+		RGBmatrixPanel(A, B, C, D, CLK, LAT, OE, false) {
+			// Set bounds of panel (useless when we only have one, but modularity...)
+			_xmin = xmin;
+			_xmax = xmax;
+			_ymin = ymin;
+			_ymax = ymax;
+
 			// RGBmatrixPanel Stuff
-			_matrix = new RGBmatrixPanel(A, B, C, D, CLK, LAT, OE, false);
-			_matrix->begin();
+			//_matrix = new RGBmatrixPanel(A, B, C, D, CLK, LAT, OE, false);
+			this->begin();
 
 			// Read in noise from unused analog port to randomly generate a seed
 			randomSeed(analogRead(4));
@@ -50,12 +50,12 @@ class MatrixAnimation {
 			// Fill color arrays
 			_col_sz = new uint16_t[_xmax/4];
 			rand_color_init();
-			set_2col(_matrix->Color444(7, 0, 0), _matrix->Color444(7, 0, 7));
+			set_2col(this->Color444(7, 0, 0), this->Color444(7, 0, 7));
 		}
 		
 		~MatrixAnimation() {
 			delete _col_sz;
-			delete _matrix;
+			//delete _matrix;
 		}
 
 		// Helper Funcitons
@@ -92,7 +92,7 @@ class MatrixAnimation {
 		// Bounds of Matrix
 		uint8_t _xmin, _xmax, _ymin, _ymax;
 
-		RGBmatrixPanel *_matrix = NULL;
+		//RGBmatrixPanel *_matrix = NULL;
 };
 
 #endif

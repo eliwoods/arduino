@@ -1,9 +1,9 @@
-
 // author: Eli Woods
 
-#include <MatrixAnimation.h> // Animation library
-#include <RGBmatrixPanel.h>
-#include <Adafruit_GFX.h>
+#include "Adafruit_GFX.h"
+#include "RGBmatrixPanel.h"
+#include "MatrixAnimation.h" // Animation library
+
 
 // This variable controls the animations and board. There are no direct
 // calls to the the board in the source code now.
@@ -21,5 +21,6 @@ void setup() {
 void loop() {
 
   matrix.zoom_2col(100);
+  //matrix.cross_sweep(0, 2, matrix.Color444(7, 0, 7), 100);
 
 }
