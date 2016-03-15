@@ -8,8 +8,10 @@
 #define BUTTON 3
 
 // Important Light Variables
-const byte numCrcl = 5;
-bool sState = false; // Initialize board to off
+const byte numLED = 51;
+bool sState = true; // Initialize board to off
+bool *ledState = new bool[numLED];
+byte *neigh = new byte[6];
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -19,14 +21,23 @@ bool sState = false; // Initialize board to off
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(50, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(numLED, PIN, NEO_GRB + NEO_KHZ800);
 
 void setup() {
+
+  // Utility setup
+  randomSeed(analogRead(0));
+
+  // Initialize pixelStates to off
+  for (int8_t i = 0; i < numLED; i++) {
+    ledState[i] = false;
+  }
 
   // For turning this bright shit off
   pinMode(BUTTON, INPUT);
   attachInterrupt(digitalPinToInterrupt(BUTTON), pin_ISR, CHANGE);
 
+  Serial.begin(9600);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
 }
@@ -36,67 +47,168 @@ void loop() {
 
   // Check if board is supposed to be on
   if (sState) {
-    for (uint8_t i = 0; i < 10; i++) {
-      ripple_smooth(10);
+    ripple_smooth(10, 0);
+    //ripple_split(100, 0);
+    
+    byte numNeigh;
+
+    for (int i = 0; i < numLED; i++ ) {
+      numNeigh = nearestNeighbor(i, neigh, false, false);
+      for (byte j = 0; j < numNeigh; j++) {
+        if (neigh[j] == 255) {
+          continue;
+        }
+        strip.setPixelColor(neigh[j], Wheel(100));
+      }
+      strip.show();
+      delay(150);
+      for (byte j = 0; j < numNeigh; j++) {
+        if (neigh[j] == 255) {
+          continue;
+        }
+        strip.setPixelColor(neigh[j], 0);
+      }
     }
+    
   }
 
 }
 
+/////////////////
+// ANIMATIONS! //
+/////////////////
+
+// Starry night like animation
+void starry(uint8_t r_time, uint8_t hold, boolean white) {
+  // r_time : ramp time
+
+  int8_t led = random(strip.numPixels());
+
+  // Turn led on if off
+  if (white) {
+    if (strip.getPixelColor(led) == 0) {
+      for (uint8_t i = 0; i < 8; i++) {
+        strip.setPixelColor(led, strip.Color(i, i, i));
+        strip.show();
+        delay(r_time);
+      }
+      ledState[led] = true;
+    }
+    // Turn led off if on
+    else {
+      for (uint8_t i = 0; i < 8; i++) {
+        strip.setPixelColor(led, strip.Color(7 - i, 7 - i, 7 - i));
+        strip.show();
+        delay(r_time);
+      }
+      ledState[led] = false;
+    }
+    delay(hold);
+  }
+  else {
+    strip.setPixelColor(led, Wheel((byte)random(255)));
+    strip.show();
+    delay(hold);
+  }
+}
+
+// Randomly assign each pixel a color
+void chaos(uint8_t hold) {
+  for (uint8_t led = 0; led < numLED; led++) {
+    strip.setPixelColor(led, Wheel((byte)random(255)));
+  }
+  strip.show();
+  delay(hold);
+}
+
 // Ripple Smooth Color Transition
-void ripple_smooth(uint8_t hold) {
-  for (uint16_t j = 0; j < 256; j += 5) {
-    for (uint16_t i = 0; i < numCrcl; i++) {
-      setRingColor(i,  Wheel((( i * 256 / strip.numPixels()) + j) & 255));
+void ripple_smooth(uint8_t hold, byte ringStyle) {
+  byte numCrcl;
+  if (ringStyle == 0) {
+    numCrcl = 5;
+  }
+  if (ringStyle == 1) {
+    numCrcl = 4;
+  }
+
+  for (uint8_t j = 0; j < 256; j += 5) {
+    for (byte i = 0; i < numCrcl; i++) {
+      setRingColor(i,  Wheel((( i * 256 / strip.numPixels()) + j) & 255), ringStyle);
       strip.show();
       delay(hold);
     }
   }
 }
 
-void ripple_split(uint8_t hold) {
-  for (uint16_t j = 0; j < 256; j = j + 10) {
-    for (uint16_t k = 0; k < 2; k++) {
-      for (uint16_t i = 0; i < numCrcl; i = i + 2) {
-        setRingColor(i + k, Wheel(( i + j * 10) & 255));
+// Ripple every other ring.
+void ripple_split(uint8_t hold, byte ringStyle) {
+  byte numCrcl;
+  if (ringStyle == 0) {
+    numCrcl = 5;
+  }
+  if (ringStyle == 1) {
+    numCrcl = 4;
+  }
+
+  for (uint8_t j = 0; j < 256; j = j + 10) {
+    for (byte k = 0; k < 2; k++) {
+      for (byte i = 0; i < numCrcl; i = i + 2) {
+        setRingColor(i + k, Wheel(( i + j * 10) & 255), ringStyle);
       }
       strip.show();
       delay(hold);
 
       for (int i = 0; i < 5; i = i + 2) {
-        setRingColor(i + k, 0);
+        setRingColor(i + k, 0, ringStyle);
       }
 
     }
   }
 }
 
-void ripple_single_rev(uint8_t hold) {
-  for (uint16_t j = 0; j < 256; j = j + 10) {
-    for (uint16_t i = 0; i < numCrcl * 2; i++) {
+// Ripple one circle out then back in.
+void ripple_single_rev(uint8_t hold, byte ringStyle) {
+  byte numCrcl;
+  if (ringStyle == 0) {
+    numCrcl = 5;
+  }
+  if (ringStyle == 1) {
+    numCrcl = 4;
+  }
+
+  for (byte j = 0; j < 256; j = j + 10) {
+    for (byte i = 0; i < numCrcl * 2; i++) {
       if (i < 5) {
-        setRingColor(i, Wheel(( i + j * 10) & 255));
+        setRingColor(i, Wheel(( i + j * 10) & 255), ringStyle);
         strip.show();
         delay(hold);
-        setRingColor(i, 0);
+        setRingColor(i, 0, ringStyle);
       }
       else {
-        setRingColor(10 - i, Wheel(( (10 - i) + j * 10) & 255));
+        setRingColor(2 * numCrcl - i, Wheel(( (10 - i) + j * 10) & 255), ringStyle);
         strip.show();
         delay(hold);
-        setRingColor(10 - i, 0);
+        setRingColor(2 * numCrcl - i, 0, ringStyle);
       }
     }
   }
 }
 
-void ripple_single(uint8_t hold) {
-  for (uint16_t j = 0; j < 256; j = j + 10) {
-    for (uint16_t i = 0; i < numCrcl; i++) {
-      setRingColor(i, Wheel(( i + j * 10) & 255));
+void ripple_single(uint8_t hold, byte ringStyle) {
+  byte numCrcl;
+  if (ringStyle == 0) {
+    numCrcl = 5;
+  }
+  if (ringStyle == 1) {
+    numCrcl = 4;
+  }
+
+  for (byte j = 0; j < 256; j = j + 10) {
+    for (byte i = 0; i < numCrcl; i++) {
+      setRingColor(i, Wheel(( i + j * 10) & 255), ringStyle);
       strip.show();
       delay(hold);
-      setRingColor(i, 0);
+      setRingColor(i, 0, ringStyle);
     }
   }
 }
@@ -171,85 +283,6 @@ void theaterChaseRainbow(uint8_t wait) {
   }
 }
 
-// Handle all of the messy work for converting ring number to individual pixels
-void setRingColor(uint8_t ring, uint32_t color) {
-  if (ring == 0 ) {
-    strip.setPixelColor(25, color);
-  }
-  else if (ring == 1) {
-    strip.setPixelColor(9, color);
-    strip.setPixelColor(17, color);
-    strip.setPixelColor(26, color);
-    strip.setPixelColor(34, color);
-    strip.setPixelColor(41, color);
-    strip.setPixelColor(33, color);
-    strip.setPixelColor(24, color);
-    strip.setPixelColor(16, color);
 
-  }
-  else if (ring == 2) {
-    strip.setPixelColor(3, color);
-    strip.setPixelColor(10, color);
-    strip.setPixelColor(18, color);
-    strip.setPixelColor(27, color);
-    strip.setPixelColor(35, color);
-    strip.setPixelColor(42, color);
-    strip.setPixelColor(48, color);
-    strip.setPixelColor(47, color);
-    strip.setPixelColor(40, color);
-    strip.setPixelColor(32, color);
-    strip.setPixelColor(23, color);
-    strip.setPixelColor(15, color);
-    strip.setPixelColor(8, color);
-    strip.setPixelColor(2, color);
 
-  }
-  else if (ring == 3) {
-    strip.setPixelColor(1, color);
-    strip.setPixelColor(4, color);
-    strip.setPixelColor(11, color);
-    strip.setPixelColor(19, color);
-    strip.setPixelColor(28, color);
-    strip.setPixelColor(36, color);
-    strip.setPixelColor(43, color);
-    strip.setPixelColor(49, color);
-    strip.setPixelColor(46, color);
-    strip.setPixelColor(39, color);
-    strip.setPixelColor(31, color);
-    strip.setPixelColor(22, color);
-    strip.setPixelColor(14, color);
-    strip.setPixelColor(7, color);
-  }
-  else if (ring == 4) {
-    strip.setPixelColor(5, color);
-    strip.setPixelColor(12, color);
-    strip.setPixelColor(20, color);
-    strip.setPixelColor(29, color);
-    strip.setPixelColor(37, color);
-    strip.setPixelColor(44, color);
-    strip.setPixelColor(45, color);
-    strip.setPixelColor(38, color);
-    strip.setPixelColor(30, color);
-    strip.setPixelColor(21, color);
-    strip.setPixelColor(13, color);
-    strip.setPixelColor(6, color);
-    strip.setPixelColor(0, color);
-    // OFF BY ONE A:LLJKSDFHLKJSDF
-    //strip.setPixelColor(51, color);
-  }
-}
 
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
-uint32_t Wheel(byte WheelPos) {
-  WheelPos = 255 - WheelPos;
-  if (WheelPos < 85) {
-    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  }
-  if (WheelPos < 170) {
-    WheelPos -= 85;
-    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
-  WheelPos -= 170;
-  return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-}

@@ -1,8 +1,8 @@
 void pin_ISR() {
   sState != sState;
   if (!sState) {
-    for (uint8_t i = 0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, 0);
+    for (uint8_t _LED = 0; _LED < strip.numPixels(); _LED++) {
+      strip.setPixelColor(_LED, 0);
     }
   }
 }
