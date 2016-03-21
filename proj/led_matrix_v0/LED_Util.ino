@@ -1,17 +1,46 @@
+// Initialize board with random state;
+void rand_init(float chance, uint32_t color, bool rnd_color) {
+  float rnd;
+  // Set color to white if one isn't specified and we aren't grabbing
+  // random colors
+  if (color == 0 && !rnd_color) {
+    color = Wheel(255);
+  }
+  // Set led state
+  for (uint8_t led = 0; led < numLED; led++) {
+    rnd = random(100) / 99.; // Turn int into random number between 0 and 1
+    if (rnd > chance) {
+      strip.setPixelColor(led, 0);
+    }
+    else {
+      if (rnd_color) {
+        strip.setPixelColor(led, Wheel(random(256)));
+      }
+      else {
+        strip.setPixelColor(led, color);
+      }
+    }
+  }
+
+  strip.show();
+}
+
 // Return array with led indices of nearest neighbors. Will always be 6 if continuous
 // flag is used. Will be 3-6 otherwise
 byte nearestNeighbor(byte led, byte *nn, boolean continuous, boolean square) {
   // Check if led is in a edge ring. Edge ring is definted
   // as a ring with any component on the edge.
   if (!continuous) {
-    // Use ringStyle 1 because it tells us which ones will be missing nearest neighbors
-    // better than ringStyle 0
+    // For cleanup later on
+    for (byte _neigh = 0; _neigh < 6; _neigh++) {
+      nn[_neigh] = 255;
+    }
+    // Use row number to determine the neighbors we need to exclude
     if (led == 38) { // Don't ask me why I had to do this shit. Most ridiculous bug of my life..
       byte _nn[] = {30, 31, 255, 39, 255, 45};
       for (byte i = 0; i < 6; i++) {
         nn[i] = _nn[i];
       }
-      return 6;
     }
     else if (getRowNum(led) == 0) {
       byte _nn[] = {led - 1, led + 1, led + 6, led + 7};
@@ -24,7 +53,6 @@ byte nearestNeighbor(byte led, byte *nn, boolean continuous, boolean square) {
       if (led == 5) {
         nn[1] = 255;
       }
-      return 4;
     }
     else if (getRowNum(led) == 1) {
       byte _nn[] = {led - 7, led - 6, led - 1, led + 1, led + 7, led + 8};
@@ -39,7 +67,6 @@ byte nearestNeighbor(byte led, byte *nn, boolean continuous, boolean square) {
         nn[1] = 255;
         nn[3] = 255;
       }
-      return 6;
     }
     else if (getRowNum(led) == 2) {
       byte _nn[] = {led - 8, led - 7, led - 1, led + 1, led + 8, led + 9};
@@ -54,7 +81,6 @@ byte nearestNeighbor(byte led, byte *nn, boolean continuous, boolean square) {
         nn[1] = 255;
         nn[3] = 255;
       }
-      return 6;
     }
     else if (getRowNum(led) == 3) {
       byte _nn[] = {led - 9, led - 8, led - 1, led + 1, led + 8, led + 9};
@@ -71,7 +97,6 @@ byte nearestNeighbor(byte led, byte *nn, boolean continuous, boolean square) {
         nn[3] = 255;
         nn[5] = 255;
       }
-      return 6;
     }
     else if (getRowNum(led) == 4) {
       byte _nn[] = {led - 9, led - 8, led - 1, led + 1, led + 7, led + 8};
@@ -86,7 +111,6 @@ byte nearestNeighbor(byte led, byte *nn, boolean continuous, boolean square) {
         nn[3] = 255;
         nn[5] = 255;
       }
-      return 6;
     }
     else if (getRowNum(led) == 5) {
       byte _nn[] = {led - 8, led - 7, led - 1, led + 1, led + 6, led + 7};
@@ -101,7 +125,6 @@ byte nearestNeighbor(byte led, byte *nn, boolean continuous, boolean square) {
         nn[3] = 255;
         nn[5] = 255;
       }
-      return 6;
     }
     else if (getRowNum(led) == 6) {
       byte _nn[] = {led - 7, led - 6, led - 1, led + 1};
@@ -114,8 +137,31 @@ byte nearestNeighbor(byte led, byte *nn, boolean continuous, boolean square) {
       if (led == 50) {
         nn[3] = 255;
       }
-      return 4;
     }
+
+    // Now cleanup array so that all neighbors are packed to the start of the
+    // array and also return true number of nearest neighbors. Accomplish this
+    // by just sorting in ascending order, since 255 is the
+    byte _tmp, i;
+    int8_t j;
+    for (i = 1; i < 6; i++) {
+      _tmp = nn[i];
+      j = i - 1;
+      while (j >= 0 && nn[j] > _tmp) {
+        nn[j + 1] = nn[j];
+        j--;
+      }
+      nn[j + 1] = _tmp;
+
+    }
+
+    byte numNeigh = 0;
+    for (byte _neigh = 0; _neigh < 6; _neigh++) {
+      if (nn[_neigh] != 255) {
+        numNeigh++;
+      }
+    }
+    return numNeigh;
   }
 }
 
@@ -290,7 +336,7 @@ void setRingColor(uint8_t ring, uint32_t color, byte ringStyle) {
       for (int i = 49; i > 44; i--) {
         strip.setPixelColor(i, color);
       }
-      strip.setPixelColor(39, color);
+      strip.setPixelColor(38, color);
       strip.setPixelColor(30, color);
       strip.setPixelColor(21, color);
       strip.setPixelColor(13, color);

@@ -1,7 +1,22 @@
-3.0.1
+FastLED3.1.0
+============
+* Added support for the following platforms
+  * Arduino Zero
+  * Teensy LC
+  * RFDuino/nrf51822
+  * Spark Core
+* Major internal code reoganization
+* Started doxygen based documentation 
+* Lots of bug/performance fixes
+* Parallel output on various arm platforms
+* lots of new stuff
+
+FastLED3.0.2
+============
 * possibly fix issues #67 and #90 by fixing gcc 4.8.x support
 
-3.0.1
+FastLED3.0.1
+============
 * fix issue #89 w/power management pin always being on
 
 FastLED3.0
@@ -97,7 +112,7 @@ FastLED2
 * Enforce intra-frame timing for ws2801s
 * SM16716 support
 * Add #define FAST_SPI_INTERRUPTS_WRITE_PINS to make sure world is ok w/interrupts and SPI
-* Add #define FORCE_SOFTWARE_SPI for those times when you absolutely don't want to use hardware SPI, ev
+* Add #define FASTLED_FORCE_SOFTWARE_SPI for those times when you absolutely don't want to use hardware SPI, ev
 en if you're using the hardware SPI pins
 * Add pin definitions for the arduino megas - should fix ws2811 support
 * Add pin definitions for the leonardo - should fix spi support and pin mappings
