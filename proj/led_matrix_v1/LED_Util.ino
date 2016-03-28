@@ -48,8 +48,9 @@ void rand_init(float chance, uint32_t color, bool rnd_color) {
   strip.show();
 }
 
-// Return array with led indices of nearest neighbors. Will always be 6 if continuous
-// flag is used. Will be 3-6 otherwise
+// Compute array with led indices of nearest neighbors. Will always return 6 if continuous
+// flag is used. Will return 2-6 otherwise. Assumes we have hexagonal neighbors. There's probably
+// a better way to do this but who really know with this configuration.
 uint8_t nearestNeighbor(uint8_t led, uint8_t *nn, boolean continuous, boolean square) {
   // If we have a border at the edge, return the following:
   if (!continuous) {
@@ -363,7 +364,8 @@ void setRingColor(uint8_t ring, uint32_t color) {
 }
 
 // Paints a ring one led at a time, basically used for spirals right now.
-// Techincally, this is an animation, but it's more utility than animation
+// Techincally this is an animation, but it's never called in the main
+// loop so I'm calling it a utility
 void fillRing(uint8_t ring, uint32_t color, boolean rev) {
   // If forward
   if (!rev) {
