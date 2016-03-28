@@ -1,18 +1,31 @@
+// C Includes
+#include <math.h>
+
+// Arduino Includes
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
 #include <avr/power.h>
+#include <avr/interrupt.h>
 #endif
 
 // Arduino Variables
 #define PIN 6
-#define BUTTON 3
-#define POT 5
+#define REV_BUTTON 3
+#define ANIM_BUTTON 2
+#define POT 0
+
+// Variables for pin interrupts
+volatile boolean sState = false; // Used for kill switch
+volatile boolean _rev = false; // For direction of certain animations
+volatile uint8_t anim = 0; // For choosing index of animation
+volatile boolean anim_switch = false;
 
 // Important Light Variables
 const uint8_t numLED = 51;
-boolean sState = true; // Initialize board to off
+const uint8_t numCrcl = 5;
 boolean *ledState = new boolean[numLED]; // Second array for holding future states (first is built in neopixel class)
-uint8_t *neigh = new uint8_t[6]; // Store nearest neighbors
+uint32_t *cols = new uint32_t[numCrcl]; // Global random color array
+uint8_t neigh[6]; // Store nearest neighbors
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -27,20 +40,36 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(numLED, PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
 
   // Utility setup
-  randomSeed(analogRead(0));
+  Serial.begin(9600);
+  randomSeed(analogRead(5));
 
   // Initialize pixelStates to off
   for (int8_t i = 0; i < numLED; i++) {
     ledState[i] = false;
   }
 
-  // For turning this bright shit off
-  pinMode(BUTTON, INPUT);
-  attachInterrupt(digitalPinToInterrupt(BUTTON), pin_ISR, CHANGE);
+  // For reversing certain animations
+  pinMode(REV_BUTTON, INPUT);
+  Serial.print("Using pin ");
+  Serial.print(REV_BUTTON);
+  Serial.println(" as interrupt for reverse.");
+  attachInterrupt(digitalPinToInterrupt(REV_BUTTON), rev_ISR, CHANGE);
 
-  Serial.begin(9600);
+  // For chosing animation with button
+  pinMode(ANIM_BUTTON, INPUT);
+  Serial.print("Using pin ");
+  Serial.print(ANIM_BUTTON);
+  Serial.println(" as interrupt for animation choice.");
+  attachInterrupt(digitalPinToInterrupt(ANIM_BUTTON), anim_ISR, CHANGE);
+
+  // Initialize array of random colors to be cycled.
+  for (uint8_t col = 0; col < numCrcl; col++) {
+    cols[col] = wheel(random(256));
+  }
+
+  // Strip setup
   strip.begin();
-  //strip.setBrightness(100);
+  strip.setBrightness(100);
   for (uint8_t led = 0; led < numLED; led++ ) {
     strip.setPixelColor(led, 0);
   }
@@ -50,23 +79,50 @@ void setup() {
 // Just for testing functions ATM
 void loop() {
 
-  // Check if board is supposed to be on
-  //  if (sState) {
-  //random_walk(50, Wheel(random(256)), true, false);
-  //game_of_life(100, 0.33, false);
-
-  //  }
-  //ripple_smooth(0);
-  //ripple_split(1);
-  //starry(10, 10, true);
-  //ripple_single(0);
-  Serial.println(analogRead(POT));
-  delay(500);
+  // Check if we have switched the animation. Print to serial if we do
+  if (anim_switch) {
+    Serial.print("Switched animation to ");
+    Serial.println(anim);
+    anim_switch = false;
+  }
+  // Run selected animation
+  if (anim == 0) {
+    spiral(wheel(random(256)), _rev, true);
+  }
+  if (anim == 1) {
+    random_walk(wheel(random(256)), _rev, false); // Using rev as substitute for del
+  }
+  if (anim == 2) {
+    ripple_single(_rev);
+  }
 }
 
 /////////////////
 // ANIMATIONS! //
 /////////////////
+
+void spiral (uint32_t color, boolean rev, boolean del) {
+  if (!rev) {
+    for (uint8_t rng = 0; rng < numCrcl; rng++) {
+      fillRing(rng, color, false);
+    }
+    if (del) {
+      for (uint8_t rng = 0; rng < numCrcl; rng++) {
+        fillRing(rng, 0, false);
+      }
+    }
+  }
+  else {
+    for (int8_t rng = numCrcl - 1; rng >= 0; rng--) {
+      fillRing(rng, color, true);
+    }
+    if (del) {
+      for (int8_t rng = numCrcl - 1; rng >= 0; rng--) {
+        fillRing(rng, 0, true);
+      }
+    }
+  }
+}
 
 // Random Walk that turns off in an opposite order when it cannot walk any further.
 // Also can be considered the spidery fill.
@@ -89,10 +145,12 @@ void random_walk (uint32_t color, boolean del, boolean continuous) {
   uint8_t numItr = 0;
   while (true) {
 
+    //
     numNeigh = nearestNeighbor(led, neigh, false, false);
+    nextNeigh = random(numNeigh);
+
     // Attempt to grab a neighbor that is off. If we have
     // check all the neighbors and none are off, then exit the walk.
-    nextNeigh = random(numNeigh);
     if (del) {
       while (strip.getPixelColor(neigh[nextNeigh]) != 0 || neigh[nextNeigh] == 50) {
         // Set attempted pixel to 255 and resort array
@@ -148,7 +206,7 @@ void random_walk (uint32_t color, boolean del, boolean continuous) {
     if (!progress) {
       break;
     }
-    // Turn next pixel on and update strip once we've passed the checks..
+    // Turn next pixel on, and set the current pixel to its index. Then update and repeat.
     strip.setPixelColor(neigh[nextNeigh], color);
     led = neigh[nextNeigh];
     strip.show();
@@ -182,7 +240,7 @@ void random_walk (uint32_t color, boolean del, boolean continuous) {
 void game_of_life(float starting_chance, boolean continuous) {
   // First, intialize the board with random state and setup some useful variables
   uint8_t numNeigh, livNeigh, numLive;
-  rand_init(starting_chance, Wheel(50), false);
+  rand_init(starting_chance, wheel(50), false);
   numLive = 0;
   for (uint8_t led = 0; led < numLED; led++) {
     if (strip.getPixelColor(led) != 0) {
@@ -221,7 +279,7 @@ void game_of_life(float starting_chance, boolean continuous) {
     numLive = 0;
     for (uint8_t led = 0; led < numLED; led++) {
       if (ledState[led]) {
-        strip.setPixelColor(led, Wheel(50));
+        strip.setPixelColor(led, wheel(50));
         numLive++;
       }
       if (!ledState[led]) {
@@ -261,7 +319,7 @@ void starry(uint8_t r_time, boolean white) {
     delay(analogRead(POT));
   }
   else {
-    strip.setPixelColor(led, Wheel((uint8_t)random(255)));
+    strip.setPixelColor(led, wheel((uint8_t)random(255)));
     strip.show();
     delay(analogRead(POT));
   }
@@ -270,53 +328,49 @@ void starry(uint8_t r_time, boolean white) {
 // Randomly assign each pixel a color
 void chaos() {
   for (uint8_t led = 0; led < numLED; led++) {
-    strip.setPixelColor(led, Wheel((uint8_t)random(255)));
+    strip.setPixelColor(led, wheel((uint8_t)random(255)));
   }
   strip.show();
   delay(analogRead(POT));
   return;
 }
 
-// Ripple Smooth Color Transition
-void ripple_smooth(uint8_t ringStyle) {
-  uint8_t numCrcl;
-  if (ringStyle == 0) {
-    numCrcl = 5;
-  }
-  if (ringStyle == 1) {
-    numCrcl = 4;
-  }
 
-  for (uint16_t j = 0; j < 256; j += 30) {
+// Ripple Smooth Color Transition
+void ripple_smooth( boolean rndm) {
+  if (rndm) {
+    uint32_t color = wheel(random(256));
     for (uint8_t i = 0; i < numCrcl; i++) {
-      setRingColor(i,  Wheel(((256 / strip.numPixels()) + j) & 255), ringStyle);
+      setRingColor(i, color);
       strip.show();
       delay(analogRead(POT));
+    }
+  }
+  else {
+    for (uint16_t j = 0; j < 256; j += 10) {
+      for (uint8_t i = 0; i < numCrcl; i++) {
+        setRingColor(i,  wheel(((256 / strip.numPixels()) + j) & 255));
+        strip.show();
+        delay(analogRead(POT));
+      }
     }
   }
   return;
 }
 
 // Ripple every other ring.
-void ripple_split(uint8_t ringStyle) {
-  uint8_t numCrcl;
-  if (ringStyle == 0) {
-    numCrcl = 5;
-  }
-  if (ringStyle == 1) {
-    numCrcl = 4;
-  }
-
+void ripple_split() {
   for (uint16_t j = 0; j < 256; j = j + 10) {
     for (uint8_t k = 0; k < 2; k++) {
       for (uint8_t i = 0; i < numCrcl; i = i + 2) {
-        setRingColor(i + k, Wheel(( j + i * 256 / strip.numPixels()) & 255), ringStyle);
+        setRingColor(i + k, wheel(( j + i * 256 / strip.numPixels()) & 255));
       }
       strip.show();
-      delay(analogRead(POT));
+      delay(analogRead(POT) * 0.4888);
+      //Serial.println(analogRead(POT)*0.4888);
 
       for (uint8_t i = 0; i < 5; i = i + 2) {
-        setRingColor(i + k, 0, ringStyle);
+        setRingColor(i + k, 0);
       }
 
     }
@@ -325,48 +379,44 @@ void ripple_split(uint8_t ringStyle) {
 }
 
 // Ripple one circle out then back in.
-void ripple_single_rev(uint8_t ringStyle) {
-  uint8_t numCrcl;
-  if (ringStyle == 0) {
-    numCrcl = 5;
-  }
-  if (ringStyle == 1) {
-    numCrcl = 4;
-  }
-
+void ripple_single_rev() {
   for (uint16_t j = 0; j < 256; j = j + 10) {
     for (uint8_t i = 0; i < numCrcl * 2; i++) {
       if (i < 5) {
-        setRingColor(i, Wheel(( i * 256 / strip.numPixels() + j) & 255), ringStyle);
+        setRingColor(i, wheel(( i * 256 / strip.numPixels() + j) & 255));
         strip.show();
         delay(analogRead(POT));
-        setRingColor(i, 0, ringStyle);
+        setRingColor(i, 0);
       }
       else {
-        setRingColor(2 * numCrcl - i, Wheel(( (10 - i) * 256 / strip.numPixels() + j) & 255), ringStyle);
+        setRingColor(2 * numCrcl - i, wheel(( (10 - i) * 256 / strip.numPixels() + j) & 255));
         strip.show();
         delay(analogRead(POT));
-        setRingColor(2 * numCrcl - i, 0, ringStyle);
+        setRingColor(2 * numCrcl - i, 0);
       }
     }
   }
 }
 
-void ripple_single(uint8_t ringStyle) {
-  uint8_t numCrcl;
-  if (ringStyle == 0) {
-    numCrcl = 5;
+void ripple_single(boolean rev) {
+  if (!rev) {
+    for (uint16_t j = 0; j < 256; j = j + 10) {
+      for (uint8_t i = 0; i < numCrcl; i++) {
+        setRingColor(i, wheel(( i * 256 / strip.numPixels() + j) & 255));
+        strip.show();
+        delay(analogRead(POT));
+        setRingColor(i, 0);
+      }
+    }
   }
-  if (ringStyle == 1) {
-    numCrcl = 4;
-  }
-
-  for (uint16_t j = 0; j < 256; j = j + 10) {
-    for (uint8_t i = 0; i < numCrcl; i++) {
-      setRingColor(i, Wheel(( i * 256 / strip.numPixels() + j) & 255), ringStyle);
-      strip.show();
-      delay(analogRead(POT));
-      setRingColor(i, 0, ringStyle);
+  else {
+    for (uint16_t j = 0; j < 256; j = j + 10) {
+      for (int8_t i = numCrcl - 1; i >= 0; i--) {
+        setRingColor(i, wheel(( i * 256 / strip.numPixels() + j) & 255));
+        strip.show();
+        delay(analogRead(POT));
+        setRingColor(i, 0);
+      }
     }
   }
 }
@@ -385,7 +435,7 @@ void rainbow() {
 
   for (j = 0; j < 256; j++) {
     for (i = 0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, Wheel((i + j) & 255));
+      strip.setPixelColor(i, wheel((i + j) & 255));
     }
     strip.show();
     delay(analogRead(POT));
@@ -398,7 +448,7 @@ void rainbowCycle() {
 
   for (j = 0; j < 256 * 5; j++) { // 5 cycles of all colors on wheel
     for (i = 0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+      strip.setPixelColor(i, wheel(((i * 256 / strip.numPixels()) + j) & 255));
     }
     strip.show();
     delay(analogRead(POT));
@@ -428,7 +478,7 @@ void theaterChaseRainbow() {
   for (int j = 0; j < 256; j++) {   // cycle all 256 colors in the wheel
     for (int q = 0; q < 3; q++) {
       for (uint16_t i = 0; i < strip.numPixels(); i = i + 3) {
-        strip.setPixelColor(i + q, Wheel( (i + j) % 255)); //turn every third pixel on
+        strip.setPixelColor(i + q, wheel( (i + j) % 255)); //turn every third pixel on
       }
       strip.show();
 
