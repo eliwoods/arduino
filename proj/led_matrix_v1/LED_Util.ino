@@ -366,61 +366,61 @@ void setRingColor(uint8_t ring, uint32_t color) {
 // Paints a ring one led at a time, basically used for spirals right now.
 // Techincally this is an animation, but it's never called in the main
 // loop so I'm calling it a utility
-void fillRing(uint8_t ring, uint32_t color, boolean rev) {
+void fillRing(uint8_t ring, uint32_t color, uint16_t hold, boolean rev) {
   // If forward
   if (!rev) {
     if (ring == 0) {
       strip.setPixelColor(25, color);
       strip.show();
-      delay(analogRead(POT));
+      delay(hold);
     }
     else if (ring == 1) {
       for (uint8_t led = 0; led < sizeof(ring1); led++) {
         strip.setPixelColor(ring1[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 2) {
       for (uint8_t led = 0; led < sizeof(ring2); led++) {
         strip.setPixelColor(ring2[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 3) {
       for (uint8_t led = 0; led < sizeof(ring3); led++) {
         strip.setPixelColor(ring3[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 4) {
       for (uint8_t led = 0; led < sizeof(ring4); led++) {
         strip.setPixelColor(ring4[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 5) {
       for (uint8_t led = 0; led < sizeof(ring5); led++) {
         strip.setPixelColor(ring5[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 6) {
       for (uint8_t led = 0; led < sizeof(ring6); led++) {
         strip.setPixelColor(ring6[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 7) {
       for (uint8_t led = 0; led < sizeof(ring7); led++) {
         strip.setPixelColor(ring7[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
   }
@@ -429,55 +429,55 @@ void fillRing(uint8_t ring, uint32_t color, boolean rev) {
     if (ring == 0) {
       strip.setPixelColor(25, color);
       strip.show();
-      delay(analogRead(POT));
+      delay(hold);
     }
     else if (ring == 1) {
       for (int8_t led = sizeof(ring1)-1; led >= 0; led--) {
         strip.setPixelColor(ring1[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 2) {
       for (int8_t led = sizeof(ring2)-1; led >= 0; led--) {
         strip.setPixelColor(ring2[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 3) {
       for (int8_t led = sizeof(ring3)-1; led >= 0; led--) {
         strip.setPixelColor(ring3[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 4) {
       for (int8_t led = sizeof(ring4)-1; led >= 0; led--) {
         strip.setPixelColor(ring4[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 5) {
       for (int8_t led = sizeof(ring5)-1; led >= 0; led--) {
         strip.setPixelColor(ring5[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 6) {
       for (int8_t led = sizeof(ring6)-1; led >= 0; led--) {
         strip.setPixelColor(ring6[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
     else if (ring == 7) {
       for (int8_t led = sizeof(ring7)-1; led >= 0; led--) {
         strip.setPixelColor(ring7[led], color);
         strip.show();
-        delay(analogRead(POT));
+        delay(hold);
       }
     }
   }
