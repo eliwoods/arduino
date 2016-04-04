@@ -1,7 +1,6 @@
 // This is for all ISR functions which will be used to capture button input while running animations.
 
-// If the board is on, set the board state to of and wipe array clean.
-// Otherwise, set the state to on.
+// Turn off the damn thing. Debounce included below.
 void kill_ISR() {
   if(sState) {
     sState = false;
@@ -14,7 +13,15 @@ void kill_ISR() {
   }
 }
 
-// Flip reverse flag for animations that can be played in two directions
+void debounce_kill() {
+  if((int32_t)(micros()-last_micros) >= debounce_time*1000) {
+    kill_ISR();
+    last_micros = micros();
+  }
+}
+
+// Reverse the direction of an animation if applicable. Debounce function
+// included below.
 void rev_ISR() {
   if(_rev) {
     _rev = false;
@@ -24,10 +31,24 @@ void rev_ISR() {
   }
 }
 
-// Currently just one button to increment the animation being played. Having to
+void debounce_rev() {
+  if((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+    rev_ISR();
+    last_micros = micros();
+  }
+}
+
+// Increment the animation counter. This lets us switch animations. Debounce function
+// included below.
 void anim_ISR() {
   anim = (anim+1)%3;
   anim_switch = true;
 }
 
+void debounce_anim() {
+  if((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+    anim_ISR();
+    last_micros = micros();
+  }
+}
 

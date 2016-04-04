@@ -15,6 +15,8 @@
 #define POT 0
 
 // Variables for pin interrupts
+uint32_t debounce_time = 15;
+volatile uint32_t last_micros; // In milliseconds
 volatile boolean sState = false; // Used for kill switch
 volatile boolean _rev = false; // For direction of certain animations
 volatile uint8_t anim = 0; // For choosing index of animation
@@ -50,18 +52,20 @@ void setup() {
   }
 
   // For reversing certain animations
+  // Commenting out until we have hardware to support
+  /*
   pinMode(REV_BUTTON, INPUT);
   Serial.print("Using pin ");
   Serial.print(REV_BUTTON);
   Serial.println(" as interrupt for reverse.");
-  attachInterrupt(digitalPinToInterrupt(REV_BUTTON), rev_ISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(REV_BUTTON), debounce_rev, CHANGE);
 
   // For chosing animation with button
   pinMode(ANIM_BUTTON, INPUT);
   Serial.print("Using pin ");
   Serial.print(ANIM_BUTTON);
   Serial.println(" as interrupt for animation choice.");
-  attachInterrupt(digitalPinToInterrupt(ANIM_BUTTON), anim_ISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(ANIM_BUTTON), debounce_anim, CHANGE);*/
 
   // Initialize array of random colors to be cycled.
   for (uint8_t col = 0; col < maxCrcl; col++) {
@@ -80,16 +84,14 @@ void setup() {
 void loop() {
 
   /////////// SOME EXAMPLES ///////////////////
-  // ALL OPTIONS THAT ARE SET TO 200 ARE THE DELAYS IN MS
-  // CHANGE AT YOU WILL.
   // YOU'LL NEED TO UNCOMMENT THE LINES TO RUN THEM.
   //////////////////////////////////////////////
 
   global_delay = 200;
 
-  //  spiral(wheel(random(256)), global_delay, false, true);
-  //  ripple_smooth(global_delay, false);
-  //  ripple_single_rev(global_delay);
+  //  spiral(wheel(random(256)), global_delay, 1, false, true);
+  //  ripple_smooth(global_delay, 1, false);
+  //  ripple_single_rev(global_delay, 1);
   //  random_walk(wheel(random(256)), global_delay, false, false);
   //  game_of_life(global_delay, .3, false);
 
@@ -383,7 +385,6 @@ void ripple_smooth(uint16_t hold, uint8_t orientation, boolean rndm) {
       }
     }
   }
-  return;
 }
 
 // Ripple every other ring.
@@ -411,7 +412,7 @@ void ripple_split(uint16_t hold, uint8_t orientation) {
       delay(hold * 0.4888);
       //Serial.println(hold*0.4888);
 
-      for (uint8_t i = 0; i < 5; i = i + 2) {
+      for (uint8_t i = 0; i < numCrcl; i = i + 2) {
         setRingColor(i + k, 0, orientation);
       }
     }
@@ -453,7 +454,7 @@ void ripple_single_rev(uint16_t hold, uint8_t orientation) {
   }
 }
 
-void ripple_single(uint16_t hold, boolean rev, boolean orientation) {
+void ripple_single(uint16_t hold, uint8_t orientation, boolean rev) {
   // Orientation == 0 : Hexagon shaped rings
   // Orientation == 1 : Heigh based rings
   uint8_t numCrcl;
