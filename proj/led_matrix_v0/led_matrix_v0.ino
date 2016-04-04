@@ -3,6 +3,7 @@
 
 // Arduino Includes
 #include <Adafruit_NeoPixel.h>
+#include <FastLED.h>
 #ifdef __AVR__
 #include <avr/power.h>
 #include <avr/interrupt.h>
@@ -15,6 +16,8 @@
 #define POT 0
 
 // Variables for pin interrupts
+uint32_t debounce_time = 15;
+volatile uint32_t last_micros; // In milliseconds
 volatile boolean sState = false; // Used for kill switch
 volatile boolean _rev = false; // For direction of certain animations
 volatile uint8_t anim = 0; // For choosing index of animation
@@ -53,14 +56,14 @@ void setup() {
   Serial.print("Using pin ");
   Serial.print(REV_BUTTON);
   Serial.println(" as interrupt for reverse.");
-  attachInterrupt(digitalPinToInterrupt(REV_BUTTON), rev_ISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(REV_BUTTON), debounce_rev, CHANGE);
 
   // For chosing animation with button
   pinMode(ANIM_BUTTON, INPUT);
   Serial.print("Using pin ");
   Serial.print(ANIM_BUTTON);
   Serial.println(" as interrupt for animation choice.");
-  attachInterrupt(digitalPinToInterrupt(ANIM_BUTTON), anim_ISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(ANIM_BUTTON), debounce_anim, CHANGE);
 
   // Initialize array of random colors to be cycled.
   for (uint8_t col = 0; col < numCrcl; col++) {
@@ -69,7 +72,7 @@ void setup() {
 
   // Strip setup
   strip.begin();
-  strip.setBrightness(100);
+  //strip.setBrightness(100);
   for (uint8_t led = 0; led < numLED; led++ ) {
     strip.setPixelColor(led, 0);
   }
@@ -79,6 +82,7 @@ void setup() {
 // Just for testing functions ATM
 void loop() {
 
+  /*
   // Check if we have switched the animation. Print to serial if we do
   if (anim_switch) {
     Serial.print("Switched animation to ");
@@ -90,11 +94,12 @@ void loop() {
     spiral(wheel(random(256)), _rev, true);
   }
   if (anim == 1) {
-    random_walk(wheel(random(256)), _rev, false); // Using rev as substitute for del
+    random_walk(wheel(random(256)), false, false); // Using rev as substitute for del
   }
   if (anim == 2) {
     ripple_single(_rev);
-  }
+  }*/
+  random_walk(wheel(random(256)), false, false);
 }
 
 /////////////////
@@ -148,6 +153,7 @@ void random_walk (uint32_t color, boolean del, boolean continuous) {
     //
     numNeigh = nearestNeighbor(led, neigh, false, false);
     nextNeigh = random(numNeigh);
+    Serial.println(numNeigh);
 
     // Attempt to grab a neighbor that is off. If we have
     // check all the neighbors and none are off, then exit the walk.

@@ -15,7 +15,7 @@ uint32_t wheel(uint8_t WheelPos) {
 
 // Shift all the colors down one and generate a new color for the first ring
 void update_cols() {
-  for(uint8_t c = numCrcl - 1; c > 0; c--) {
+  for(uint8_t c = maxCrcl - 1; c > 0; c--) {
     cols[c] = cols[c-1];
   }
   cols[0] = wheel(random(256));

@@ -22,10 +22,11 @@ volatile boolean anim_switch = false;
 
 // Important Light Variables
 const uint8_t numLED = 97;
-const uint8_t numCrcl = 7;
+const uint8_t maxCrcl = 10;
 boolean *ledState = new boolean[numLED]; // Second array for holding future states (first is built in neopixel class)
-uint32_t *cols = new uint32_t[numCrcl]; // Global random color array
+uint32_t *cols = new uint32_t[maxCrcl]; // Global random color array
 uint8_t neigh[6]; // Store nearest neighbors
+uint16_t global_delay;
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -63,13 +64,12 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(ANIM_BUTTON), anim_ISR, CHANGE);
 
   // Initialize array of random colors to be cycled.
-  for (uint8_t col = 0; col < numCrcl; col++) {
+  for (uint8_t col = 0; col < maxCrcl; col++) {
     cols[col] = wheel(random(256));
   }
 
   // Strip setup
   strip.begin();
-  strip.setBrightness(100);
   for (uint8_t led = 0; led < numLED; led++ ) {
     strip.setPixelColor(led, 0);
   }
@@ -84,37 +84,53 @@ void loop() {
   // CHANGE AT YOU WILL.
   // YOU'LL NEED TO UNCOMMENT THE LINES TO RUN THEM.
   //////////////////////////////////////////////
-  
-  // spiral(wheel(random(256)), 200, false, true);
-  // ripple_smooth(200, false);
-  // ripple_single_rev(200);
-  // random_walk(wheel(random(256)), 200, false, false);
-  // game_of_life(200, .3, false);
-  
+
+  global_delay = 200;
+
+  //  spiral(wheel(random(256)), global_delay, false, true);
+  //  ripple_smooth(global_delay, false);
+  //  ripple_single_rev(global_delay);
+  //  random_walk(wheel(random(256)), global_delay, false, false);
+  //  game_of_life(global_delay, .3, false);
+
 }
 
 /////////////////
 // ANIMATIONS! //
 /////////////////
 
-void spiral (uint32_t color, uint16_t hold, boolean rev, boolean del) {
+void spiral (uint32_t color, uint16_t hold, uint8_t orientation, boolean rev, boolean del) {
+  // Orientation == 0 : Hexagon shaped rings
+  // Orientation == 1 : Heigh based rings
+  uint8_t numCrcl;
+  if (orientation == 0) {
+    numCrcl = 7;
+  }
+  else if (orientation == 1) {
+    numCrcl = 10;
+  }
+  else {
+    orientation = 0;
+    numCrcl = 7;
+  }
+
   if (!rev) {
     for (uint8_t rng = 0; rng < numCrcl; rng++) {
-      fillRing(hold, rng, color, false);
+      fillRing(rng, color, hold, orientation, false);
     }
     if (del) {
       for (uint8_t rng = 0; rng < numCrcl; rng++) {
-        fillRing(hold, rng, 0, false);
+        fillRing(rng, 0, hold, orientation, false);
       }
     }
   }
   else {
     for (int8_t rng = numCrcl - 1; rng >= 0; rng--) {
-      fillRing(hold, rng, color, true);
+      fillRing(rng, color, hold, orientation, true);
     }
     if (del) {
       for (int8_t rng = numCrcl - 1; rng >= 0; rng--) {
-        fillRing(hold, rng, 0, true);
+        fillRing(rng, 0, hold, orientation, true);
       }
     }
   }
@@ -333,11 +349,25 @@ void chaos(uint16_t hold) {
 
 
 // Ripple Smooth Color Transition
-void ripple_smooth(uint16_t hold, boolean rndm) {
+void ripple_smooth(uint16_t hold, uint8_t orientation, boolean rndm) {
+  // Orientation == 0 : Hexagon shaped rings
+  // Orientation == 1 : Heigh based rings
+  uint8_t numCrcl;
+  if (orientation == 0) {
+    numCrcl = 7;
+  }
+  else if (orientation == 1) {
+    numCrcl = 10;
+  }
+  else {
+    orientation = 0;
+    numCrcl = 7;
+  }
+
   if (rndm) {
     uint32_t color = wheel(random(256));
     for (uint8_t i = 0; i < numCrcl; i++) {
-      setRingColor(i, color);
+      setRingColor(i, color, orientation);
       strip.show();
       delay(hold);
     }
@@ -345,7 +375,7 @@ void ripple_smooth(uint16_t hold, boolean rndm) {
   else {
     for (uint16_t j = 0; j < 256; j += 10) {
       for (uint8_t i = 0; i < numCrcl; i++) {
-        setRingColor(i,  wheel(((256 / strip.numPixels()) + j) & 255));
+        setRingColor(i,  wheel(((256 / strip.numPixels()) + j) & 255), orientation);
         strip.show();
         delay(hold);
       }
@@ -355,63 +385,104 @@ void ripple_smooth(uint16_t hold, boolean rndm) {
 }
 
 // Ripple every other ring.
-void ripple_split(uint16_t hold) {
+void ripple_split(uint16_t hold, uint8_t orientation) {
+  // Orientation == 0 : Hexagon shaped rings
+  // Orientation == 1 : Heigh based rings
+  uint8_t numCrcl;
+  if (orientation == 0) {
+    numCrcl = 7;
+  }
+  else if (orientation == 1) {
+    numCrcl = 10;
+  }
+  else {
+    orientation = 0;
+    numCrcl = 7;
+  }
+
   for (uint16_t j = 0; j < 256; j = j + 10) {
     for (uint8_t k = 0; k < 2; k++) {
       for (uint8_t i = 0; i < numCrcl; i = i + 2) {
-        setRingColor(i + k, wheel(( j + i * 256 / strip.numPixels()) & 255));
+        setRingColor(i + k, wheel(( j + i * 256 / strip.numPixels()) & 255), orientation);
       }
       strip.show();
       delay(hold * 0.4888);
       //Serial.println(hold*0.4888);
 
       for (uint8_t i = 0; i < 5; i = i + 2) {
-        setRingColor(i + k, 0);
+        setRingColor(i + k, 0, orientation);
       }
-
     }
   }
-  return;
+
 }
 
 // Ripple one circle out then back in.
-void ripple_single_rev(uint16_t hold) {
+void ripple_single_rev(uint16_t hold, uint8_t orientation) {
+  // Orientation == 0 : Hexagon shaped rings
+  // Orientation == 1 : Heigh based rings
+  uint8_t numCrcl;
+  if (orientation == 0) {
+    numCrcl = 7;
+  }
+  else if (orientation == 1) {
+    numCrcl = 10;
+  }
+  else {
+    orientation = 0;
+    numCrcl = 7;
+  }
+
   for (uint16_t j = 0; j < 256; j = j + 10) {
     for (uint8_t i = 0; i < numCrcl * 2; i++) {
-      if (i < 5) {
-        setRingColor(i, wheel(( i * 256 / strip.numPixels() + j) & 255));
+      if (i < numCrcl) {
+        setRingColor(i, wheel(( i * 256 / strip.numPixels() + j) & 255), orientation);
         strip.show();
         delay(hold);
-        setRingColor(i, 0);
+        setRingColor(i, 0, orientation);
       }
       else {
-        setRingColor(2 * numCrcl - i, wheel(( (10 - i) * 256 / strip.numPixels() + j) & 255));
+        setRingColor(2 * numCrcl - i, wheel(( (10 - i) * 256 / strip.numPixels() + j) & 255), orientation);
         strip.show();
         delay(hold);
-        setRingColor(2 * numCrcl - i, 0);
+        setRingColor(2 * numCrcl - i, 0, orientation);
       }
     }
   }
 }
 
-void ripple_single(uint16_t hold, boolean rev) {
+void ripple_single(uint16_t hold, boolean rev, boolean orientation) {
+  // Orientation == 0 : Hexagon shaped rings
+  // Orientation == 1 : Heigh based rings
+  uint8_t numCrcl;
+  if (orientation == 0) {
+    numCrcl = 7;
+  }
+  else if (orientation == 1) {
+    numCrcl = 10;
+  }
+  else {
+    orientation = 0;
+    numCrcl = 7;
+  }
+
   if (!rev) {
     for (uint16_t j = 0; j < 256; j = j + 10) {
       for (uint8_t i = 0; i < numCrcl; i++) {
-        setRingColor(i, wheel(( i * 256 / strip.numPixels() + j) & 255));
+        setRingColor(i, wheel(( i * 256 / strip.numPixels() + j) & 255), orientation);
         strip.show();
         delay(hold);
-        setRingColor(i, 0);
+        setRingColor(i, 0, orientation);
       }
     }
   }
   else {
     for (uint16_t j = 0; j < 256; j = j + 10) {
       for (int8_t i = numCrcl - 1; i >= 0; i--) {
-        setRingColor(i, wheel(( i * 256 / strip.numPixels() + j) & 255));
+        setRingColor(i, wheel(( i * 256 / strip.numPixels() + j) & 255), orientation);
         strip.show();
         delay(hold);
-        setRingColor(i, 0);
+        setRingColor(i, 0, orientation);
       }
     }
   }

@@ -187,7 +187,7 @@ uint8_t nearestNeighbor(uint8_t led, uint8_t *nn, boolean continuous, boolean sq
         nn[5] = 255;
       }
     }
-     else if (getRowNum(led) == 7) {
+    else if (getRowNum(led) == 7) {
       uint8_t _nn[] = {led - 9, led - 10, led - 1, led + 1, led + 8, led + 9};
       for (uint8_t i = 0; i < 6; i++) {
         nn[i] = _nn[i];
@@ -209,7 +209,7 @@ uint8_t nearestNeighbor(uint8_t led, uint8_t *nn, boolean continuous, boolean sq
         nn[5] = 255;
       }
     }
-     else if (getRowNum(led) == 8) {
+    else if (getRowNum(led) == 8) {
       uint8_t _nn[] = {led - 9, led - 8, led - 1, led + 1};
       for (uint8_t i = 0; i < 4; i++) {
         nn[i] = _nn[i];
@@ -249,43 +249,100 @@ uint8_t nearestNeighbor(uint8_t led, uint8_t *nn, boolean continuous, boolean sq
 }
 
 // Return the ring number for a given led
-uint8_t getRingNum(uint8_t led) {
-  if (led == 48) {
-    return 0;
-  }
-  for (uint8_t _led = 0; _led < sizeof(ring1); _led++) {
-    if (ring1[_led] == led) {
-      return 1;
+uint8_t getRingNum(uint8_t led, boolean height) {
+  if (height) {
+    if (led == 48) {
+      return 0;
+    }
+    for (uint8_t _led = 0; _led < sizeof(ring1); _led++) {
+      if (ring1[_led] == led) {
+        return 1;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(e_ring2); _led++) {
+      if (e_ring2[_led] == led) {
+        return 2;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(e_ring3); _led++) {
+      if (e_ring3[_led] == led) {
+        return 3;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(e_ring4); _led++) {
+      if (e_ring4[_led] == led) {
+        return 4;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(e_ring5); _led++) {
+      if (e_ring5[_led] == led) {
+        return 5;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(e_ring6); _led++) {
+      if (e_ring6[_led] == led) {
+        return 6;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(e_ring7); _led++) {
+      if (e_ring7[_led] == led) {
+        return 7;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(e_ring8); _led++) {
+      if (e_ring8[_led] == led) {
+        return 8;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(e_ring9); _led++) {
+      if (e_ring9[_led] == led) {
+        return 9;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(e_ring10); _led++) {
+      if (e_ring10[_led] == led) {
+        return 10;
+      }
     }
   }
-  for (uint8_t _led = 0; _led < sizeof(ring2); _led++) {
-    if (ring2[_led] == led) {
-      return 2;
+  else {
+    if (led == 48) {
+      return 0;
     }
-  }
-  for (uint8_t _led = 0; _led < sizeof(ring3); _led++) {
-    if (ring3[_led] == led) {
-      return 3;
+    for (uint8_t _led = 0; _led < sizeof(ring1); _led++) {
+      if (ring1[_led] == led) {
+        return 1;
+      }
     }
-  }
-  for (uint8_t _led = 0; _led < sizeof(ring4); _led++) {
-    if (ring4[_led] == led) {
-      return 4;
+    for (uint8_t _led = 0; _led < sizeof(ring2); _led++) {
+      if (ring2[_led] == led) {
+        return 2;
+      }
     }
-  }
-  for (uint8_t _led = 0; _led < sizeof(ring5); _led++) {
-    if (ring5[_led] == led) {
-      return 5;
+    for (uint8_t _led = 0; _led < sizeof(ring3); _led++) {
+      if (ring3[_led] == led) {
+        return 3;
+      }
     }
-  }
-  for (uint8_t _led = 0; _led < sizeof(ring6); _led++) {
-    if (ring6[_led] == led) {
-      return 6;
+    for (uint8_t _led = 0; _led < sizeof(ring4); _led++) {
+      if (ring4[_led] == led) {
+        return 4;
+      }
     }
-  }
-  for (uint8_t _led = 0; _led < sizeof(ring7); _led++) {
-    if (ring7[_led] == led) {
-      return 7;
+    for (uint8_t _led = 0; _led < sizeof(ring5); _led++) {
+      if (ring5[_led] == led) {
+        return 5;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(ring6); _led++) {
+      if (ring6[_led] == led) {
+        return 6;
+      }
+    }
+    for (uint8_t _led = 0; _led < sizeof(ring7); _led++) {
+      if (ring7[_led] == led) {
+        return 7;
+      }
     }
   }
 }
@@ -322,43 +379,102 @@ uint8_t getRowNum(uint8_t led) {
 }
 
 // Paints the whole ring with desired color
-void setRingColor(uint8_t ring, uint32_t color) {
-  if (ring == 0 ) {
-    strip.setPixelColor(48, color);
-  }
-  else if (ring == 1) {
-    for (uint8_t led = 0; led < sizeof(ring1); led++) {
-      strip.setPixelColor(ring1[led], color);
+void setRingColor(uint8_t ring, uint32_t color, uint8_t orientation) {
+  // Normal hexagon shaped concentric rings
+  if (orientation == 0) {
+    if (ring == 0 ) {
+      strip.setPixelColor(48, color);
+    }
+    else if (ring == 1) {
+      for (uint8_t led = 0; led < sizeof(ring1); led++) {
+        strip.setPixelColor(ring1[led], color);
+      }
+    }
+    else if (ring == 2) {
+      for (uint8_t led = 0; led < sizeof(ring2); led++) {
+        strip.setPixelColor(ring2[led], color);
+      }
+    }
+    else if (ring == 3) {
+      for (uint8_t led = 0; led < sizeof(ring3); led++) {
+        strip.setPixelColor(ring3[led], color);
+      }
+    }
+    else if (ring == 4) {
+      for (uint8_t led = 0; led < sizeof(ring4); led++) {
+        strip.setPixelColor(ring4[led], color);
+      }
+    }
+    else if (ring == 5) {
+      for (uint8_t led = 0; led < sizeof(ring5); led++) {
+        strip.setPixelColor(ring5[led], color);
+      }
+    }
+    else if (ring == 6) {
+      for (uint8_t led = 0; led < sizeof(ring6); led++) {
+        strip.setPixelColor(ring6[led], color);
+      }
+    }
+    else if (ring == 7) {
+      for (uint8_t led = 0; led < sizeof(ring7); led++) {
+        strip.setPixelColor(ring7[led], color);
+      }
     }
   }
-  else if (ring == 2) {
-    for (uint8_t led = 0; led < sizeof(ring2); led++) {
-      strip.setPixelColor(ring2[led], color);
+  // For height based rings
+  else if (orientation == 1) {
+    if (ring == 0 ) {
+      strip.setPixelColor(48, color);
     }
-  }
-  else if (ring == 3) {
-    for (uint8_t led = 0; led < sizeof(ring3); led++) {
-      strip.setPixelColor(ring3[led], color);
+    else if (ring == 1) {
+      for (uint8_t led = 0; led < sizeof(ring1); led++) {
+        strip.setPixelColor(ring1[led], color);
+      }
     }
-  }
-  else if (ring == 4) {
-    for (uint8_t led = 0; led < sizeof(ring4); led++) {
-      strip.setPixelColor(ring4[led], color);
+    else if (ring == 2) {
+      for (uint8_t led = 0; led < sizeof(e_ring2); led++) {
+        strip.setPixelColor(e_ring2[led], color);
+      }
     }
-  }
-  else if (ring == 5) {
-    for (uint8_t led = 0; led < sizeof(ring5); led++) {
-      strip.setPixelColor(ring5[led], color);
+    else if (ring == 3) {
+      for (uint8_t led = 0; led < sizeof(e_ring3); led++) {
+        strip.setPixelColor(e_ring3[led], color);
+      }
     }
-  }
-  else if (ring == 6) {
-    for (uint8_t led = 0; led < sizeof(ring6); led++) {
-      strip.setPixelColor(ring6[led], color);
+    else if (ring == 4) {
+      for (uint8_t led = 0; led < sizeof(e_ring4); led++) {
+        strip.setPixelColor(e_ring4[led], color);
+      }
     }
-  }
-  else if (ring == 7) {
-    for (uint8_t led = 0; led < sizeof(ring7); led++) {
-      strip.setPixelColor(ring7[led], color);
+    else if (ring == 5) {
+      for (uint8_t led = 0; led < sizeof(e_ring5); led++) {
+        strip.setPixelColor(e_ring5[led], color);
+      }
+    }
+    else if (ring == 6) {
+      for (uint8_t led = 0; led < sizeof(e_ring6); led++) {
+        strip.setPixelColor(e_ring6[led], color);
+      }
+    }
+    else if (ring == 7) {
+      for (uint8_t led = 0; led < sizeof(e_ring7); led++) {
+        strip.setPixelColor(e_ring7[led], color);
+      }
+    }
+    else if (ring == 8) {
+      for (uint8_t led = 0; led < sizeof(e_ring8); led++) {
+        strip.setPixelColor(e_ring8[led], color);
+      }
+    }
+    else if (ring == 9) {
+      for (uint8_t led = 0; led < sizeof(e_ring9); led++) {
+        strip.setPixelColor(e_ring9[led], color);
+      }
+    }
+    else if (ring == 10) {
+      for (uint8_t led = 0; led < sizeof(e_ring10); led++) {
+        strip.setPixelColor(e_ring10[led], color);
+      }
     }
   }
 }
@@ -366,120 +482,281 @@ void setRingColor(uint8_t ring, uint32_t color) {
 // Paints a ring one led at a time, basically used for spirals right now.
 // Techincally this is an animation, but it's never called in the main
 // loop so I'm calling it a utility
-void fillRing(uint8_t ring, uint32_t color, uint16_t hold, boolean rev) {
-  // If forward
-  if (!rev) {
-    if (ring == 0) {
-      strip.setPixelColor(25, color);
-      strip.show();
-      delay(hold);
-    }
-    else if (ring == 1) {
-      for (uint8_t led = 0; led < sizeof(ring1); led++) {
-        strip.setPixelColor(ring1[led], color);
+void fillRing(uint8_t ring, uint32_t color, uint16_t hold, uint8_t orientation, boolean rev) {
+  // For normal concentric hexagon shaped rings
+  if (orientation == 0) {
+    // If forward
+    if (!rev) {
+      if (ring == 0) {
+        strip.setPixelColor(25, color);
         strip.show();
         delay(hold);
       }
+      else if (ring == 1) {
+        for (uint8_t led = 0; led < sizeof(ring1); led++) {
+          strip.setPixelColor(ring1[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 2) {
+        for (uint8_t led = 0; led < sizeof(ring2); led++) {
+          strip.setPixelColor(ring2[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 3) {
+        for (uint8_t led = 0; led < sizeof(ring3); led++) {
+          strip.setPixelColor(ring3[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 4) {
+        for (uint8_t led = 0; led < sizeof(ring4); led++) {
+          strip.setPixelColor(ring4[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 5) {
+        for (uint8_t led = 0; led < sizeof(ring5); led++) {
+          strip.setPixelColor(ring5[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 6) {
+        for (uint8_t led = 0; led < sizeof(ring6); led++) {
+          strip.setPixelColor(ring6[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 7) {
+        for (uint8_t led = 0; led < sizeof(ring7); led++) {
+          strip.setPixelColor(ring7[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
     }
-    else if (ring == 2) {
-      for (uint8_t led = 0; led < sizeof(ring2); led++) {
-        strip.setPixelColor(ring2[led], color);
+    // if reversed
+    else {
+      if (ring == 0) {
+        strip.setPixelColor(25, color);
         strip.show();
         delay(hold);
       }
-    }
-    else if (ring == 3) {
-      for (uint8_t led = 0; led < sizeof(ring3); led++) {
-        strip.setPixelColor(ring3[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 1) {
+        for (int8_t led = sizeof(ring1) - 1; led >= 0; led--) {
+          strip.setPixelColor(ring1[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
-    }
-    else if (ring == 4) {
-      for (uint8_t led = 0; led < sizeof(ring4); led++) {
-        strip.setPixelColor(ring4[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 2) {
+        for (int8_t led = sizeof(ring2) - 1; led >= 0; led--) {
+          strip.setPixelColor(ring2[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
-    }
-    else if (ring == 5) {
-      for (uint8_t led = 0; led < sizeof(ring5); led++) {
-        strip.setPixelColor(ring5[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 3) {
+        for (int8_t led = sizeof(ring3) - 1; led >= 0; led--) {
+          strip.setPixelColor(ring3[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
-    }
-    else if (ring == 6) {
-      for (uint8_t led = 0; led < sizeof(ring6); led++) {
-        strip.setPixelColor(ring6[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 4) {
+        for (int8_t led = sizeof(ring4) - 1; led >= 0; led--) {
+          strip.setPixelColor(ring4[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
-    }
-    else if (ring == 7) {
-      for (uint8_t led = 0; led < sizeof(ring7); led++) {
-        strip.setPixelColor(ring7[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 5) {
+        for (int8_t led = sizeof(ring5) - 1; led >= 0; led--) {
+          strip.setPixelColor(ring5[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 6) {
+        for (int8_t led = sizeof(ring6) - 1; led >= 0; led--) {
+          strip.setPixelColor(ring6[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 7) {
+        for (int8_t led = sizeof(ring7) - 1; led >= 0; led--) {
+          strip.setPixelColor(ring7[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
     }
   }
-  // if reversed
-  else {
-    if (ring == 0) {
-      strip.setPixelColor(25, color);
-      strip.show();
-      delay(hold);
-    }
-    else if (ring == 1) {
-      for (int8_t led = sizeof(ring1)-1; led >= 0; led--) {
-        strip.setPixelColor(ring1[led], color);
+  // For height based rings
+  else if (orientation == 1) {
+    // If forward
+    if (!rev) {
+      if (ring == 0) {
+        strip.setPixelColor(25, color);
         strip.show();
         delay(hold);
       }
+      else if (ring == 1) {
+        for (uint8_t led = 0; led < sizeof(ring1); led++) {
+          strip.setPixelColor(ring1[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 2) {
+        for (uint8_t led = 0; led < sizeof(e_ring2); led++) {
+          strip.setPixelColor(e_ring2[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 3) {
+        for (uint8_t led = 0; led < sizeof(e_ring3); led++) {
+          strip.setPixelColor(e_ring3[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 4) {
+        for (uint8_t led = 0; led < sizeof(e_ring4); led++) {
+          strip.setPixelColor(e_ring4[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 5) {
+        for (uint8_t led = 0; led < sizeof(e_ring5); led++) {
+          strip.setPixelColor(e_ring5[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 6) {
+        for (uint8_t led = 0; led < sizeof(e_ring6); led++) {
+          strip.setPixelColor(e_ring6[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 7) {
+        for (uint8_t led = 0; led < sizeof(e_ring7); led++) {
+          strip.setPixelColor(e_ring7[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 8) {
+        for (uint8_t led = 0; led < sizeof(e_ring8); led++) {
+          strip.setPixelColor(e_ring8[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 9) {
+        for (uint8_t led = 0; led < sizeof(e_ring9); led++) {
+          strip.setPixelColor(e_ring9[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 10) {
+        for (uint8_t led = 0; led < sizeof(e_ring10); led++) {
+          strip.setPixelColor(e_ring10[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
     }
-    else if (ring == 2) {
-      for (int8_t led = sizeof(ring2)-1; led >= 0; led--) {
-        strip.setPixelColor(ring2[led], color);
+    // if reversed
+    else {
+      if (ring == 0) {
+        strip.setPixelColor(25, color);
         strip.show();
         delay(hold);
       }
-    }
-    else if (ring == 3) {
-      for (int8_t led = sizeof(ring3)-1; led >= 0; led--) {
-        strip.setPixelColor(ring3[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 1) {
+        for (int8_t led = sizeof(ring1) - 1; led >= 0; led--) {
+          strip.setPixelColor(ring1[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
-    }
-    else if (ring == 4) {
-      for (int8_t led = sizeof(ring4)-1; led >= 0; led--) {
-        strip.setPixelColor(ring4[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 2) {
+        for (int8_t led = sizeof(e_ring2) - 1; led >= 0; led--) {
+          strip.setPixelColor(e_ring2[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
-    }
-    else if (ring == 5) {
-      for (int8_t led = sizeof(ring5)-1; led >= 0; led--) {
-        strip.setPixelColor(ring5[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 3) {
+        for (int8_t led = sizeof(e_ring3) - 1; led >= 0; led--) {
+          strip.setPixelColor(e_ring3[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
-    }
-    else if (ring == 6) {
-      for (int8_t led = sizeof(ring6)-1; led >= 0; led--) {
-        strip.setPixelColor(ring6[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 4) {
+        for (int8_t led = sizeof(e_ring4) - 1; led >= 0; led--) {
+          strip.setPixelColor(e_ring4[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
-    }
-    else if (ring == 7) {
-      for (int8_t led = sizeof(ring7)-1; led >= 0; led--) {
-        strip.setPixelColor(ring7[led], color);
-        strip.show();
-        delay(hold);
+      else if (ring == 5) {
+        for (int8_t led = sizeof(e_ring5) - 1; led >= 0; led--) {
+          strip.setPixelColor(e_ring5[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 6) {
+        for (int8_t led = sizeof(e_ring6) - 1; led >= 0; led--) {
+          strip.setPixelColor(e_ring6[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 7) {
+        for (int8_t led = sizeof(e_ring7) - 1; led >= 0; led--) {
+          strip.setPixelColor(e_ring7[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 8) {
+        for (int8_t led = sizeof(e_ring8) - 1; led >= 0; led--) {
+          strip.setPixelColor(e_ring8[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 9) {
+        for (int8_t led = sizeof(e_ring9) - 1; led >= 0; led--) {
+          strip.setPixelColor(e_ring9[led], color);
+          strip.show();
+          delay(hold);
+        }
+      }
+      else if (ring == 10) {
+        for (int8_t led = sizeof(e_ring10) - 1; led >= 0; led--) {
+          strip.setPixelColor(e_ring10[led], color);
+          strip.show();
+          delay(hold);
+        }
       }
     }
   }
 }
-
