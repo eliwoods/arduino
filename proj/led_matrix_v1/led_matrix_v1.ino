@@ -114,6 +114,7 @@ void spiral (uint32_t color, uint16_t hold, uint8_t orientation, boolean rev, bo
     numCrcl = 7;
   }
 
+  // If spiral travels out from center
   if (!rev) {
     for (uint8_t rng = 0; rng < numCrcl; rng++) {
       fillRing(rng, color, hold, orientation, false);
@@ -124,6 +125,7 @@ void spiral (uint32_t color, uint16_t hold, uint8_t orientation, boolean rev, bo
       }
     }
   }
+  // If spiral travels in from outter ring
   else {
     for (int8_t rng = numCrcl - 1; rng >= 0; rng--) {
       fillRing(rng, color, hold, orientation, true);
