@@ -12,10 +12,14 @@
 #define C_POT 0 // Potentiometer for global hue
 #define PAL_INT 2 // Interrupt pin for palette switching
 //#define PAL_AUTO_INT 3 // Interrupt for autopilot palette mode
-#define ANIM_INT 3 // Interrupt pin for animation switching
+//#define ANIM_INT 3 // Interrupt pin for animation switching
+#define STROBE_INT 3 // Interrupt pin for strobe animation
+#define BLKOUT_INT 3 // Interrupt pin for blackout animation
+#define WHTOUT_INT 3 // Interrupt pin for whiteout animation
+
 
 // Variables for the LED strand
-const uint8_t frameRate = 30; // FPS
+const uint8_t frameRate = 100; // FPS
 const uint8_t maxBrightness = 200;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
 const uint8_t numLED = 30;
@@ -25,9 +29,13 @@ CRGB *leds = new CRGB[numLED];
 uint32_t debounce_time = 15;
 volatile uint32_t last_micros; // In milliseconds
 volatile boolean power_state = true; // Used for kill switch
-volatile uint8_t gPaletteCounter = 0; // For choosing index of palette
+volatile uint8_t gPaletteCounter; // For choosing index of palette
 volatile boolean palette_autopilot = false; // For choosing
 volatile uint8_t gAnimCounter; // Counter for animation
+volatile boolean dj_control = false; // Flag if dj is controlling animations
+volatile boolean run_strobe = false; // Flag for strobe interrupt animation
+volatile boolean run_blackout = false; // Flag for blackout animation
+volatile boolean run_whiteout = false; // Flag for whiteout animation
 
 // Setup and global variable delcaration for palettes
 CRGBPalette16 gPalette;
@@ -46,8 +54,6 @@ CRGB gRGB;
 const uint8_t numAnimation = 6;
 
 
-// For animation counter
-
 void setup() {
   delay(3000); // Safely power up
 
@@ -65,31 +71,46 @@ void setup() {
 
   // Initialize global color variables
   gBrightness = maxBrightness;
-  gPalette = gGradientPalettes[0];
   gBlending = LINEARBLEND;
   gHue = 0;
   gIndex = 0;
   gRGB = CRGB::Red;
+  gPaletteCounter = 0;
   gAnimCounter = 0;
 
   // Interrupt to switch palette choice
   pinMode(PAL_INT, INPUT);
   attachInterrupt(digitalPinToInterrupt(PAL_INT), debounce_palette, RISING);
 
-  // Interrupt to turn on and off palette autopilot mode
+  // Interrupt to turn on and off palette autopilot mode. Use rising edge since we only want
+  // the button press to trigger
   //pinMode(PAL_AUTO_INT, INPUT);
   //attachInterrupt(digitalPinToInterrupt(PAL_AUTO_INT), debounce_palette_auto, RISING);
 
-  // Interrupt to switch animation
-  pinMode(ANIM_INT, INPUT);
-  attachInterrupt(digitalPinToInterrupt(ANIM_INT), debounce_anim, RISING);
+  // Interrupt to switch animation. Use rising edge since we only want the button press
+  // to trigger
+  //pinMode(ANIM_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(ANIM_INT), debounce_anim, RISING);
+
+//  // Interrupt for strobe DJ animation. Use change so animation starts on button press
+//  // and ends on button release
+//  pinMode(STROBE_INT, INPUT);
+//  attachInterrupt(digitalPinToInterrupt(STROBE_INT), debounce_strobe, CHANGE);
+
+  // Interrupt for blackout DJ animation.
+  pinMode(BLKOUT_INT, INPUT);
+  attachInterrupt(digitalPinToInterrupt(BLKOUT_INT), debounce_blackout, CHANGE);
+//
+//  // Interrupt for whiteout DJ animation.
+//  pinMode(WHTOUT_INT, INPUT);
+//  attachInterrupt(digitalPinToInterrupt(WHTOUT_INT), debounce_whiteout, CHANGE);
 }
 
 void loop() {
   // Read color from potentiometer input
   gRGB = CHSV(map(analogRead(C_POT), 0, 1253, 0, 255), 255, gBrightness);
 
-  // Check the palette counter and switch acordingly
+  // Check the palette counter and switch acordingly or go into autopilot mode
   if (palette_autopilot) {
     updateGPaletteTimer();
   }
@@ -119,10 +140,55 @@ void loop() {
       break;
   }*/
 
-  theater_chase_bounce();
+  if (!dj_control) {
+    palette_mod();
+  }
 
-  // For a framerate
-  //FastLED.delay(1000./(
+  // The following are all checks for DJ animations that
+  // interrupt the normal animations for some added IN YO FACE
+  if (dj_control) {
+    if (run_strobe) {
+      strobes();
+    }
+    if (run_blackout) {
+      blackout();
+    }
+    if (run_whiteout) {
+      whiteout();
+    }
+  }
+
+  // For a framerate (probably gonna scrap this)
+  //FastLED.delay(1000./ frameRate);
+}
+
+////////////////////////////////////////////////////////////
+// DJ animations. These are meant to interrupt the normal //
+// animations and take over.                              //
+////////////////////////////////////////////////////////////
+
+// Can't be named strobe for some reason... IDK man
+void strobes() {
+  EVERY_N_MILLISECONDS_I(thisTimer, 200) {
+    thisTimer.setPeriod(map(analogRead(S_POT), 0, 1253, 100, 300));
+    fill_solid(leds, numLED, CRGB::White);
+  }
+
+  FastLED.show();
+  fadeToBlackBy(leds, numLED, 10);
+  //fill_solid(leds, numLED, CRGB::Black);
+}
+
+// Does what it says, sets every LED to black
+void blackout() {
+  fill_solid(leds, numLED, CRGB::Black);
+  FastLED.show();
+}
+
+// Same as blackout, but with white.
+void whiteout() {
+  fill_solid(leds, numLED, CRGB::White);
+  FastLED.show();
 }
 
 ///////////////////////////////////////
@@ -135,6 +201,7 @@ void palette_mod() {
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
     thisTimer.setPeriod(map(analogRead(S_POT), 0, 1253, 1, 200));
     pal_index++;
+    gHue++;
   }
 
   fill_palette(leds, numLED, pal_index, 4, gPalette, maxBrightness, gBlending);
