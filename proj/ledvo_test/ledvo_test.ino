@@ -71,8 +71,11 @@ void loop() {
     gHue++;
   }
 
-  // Check the palette counter and switch acordingly
-  updatePaletteAuto(30);
+  //////////////////////////////////////////////////////////////////////////
+  // Check the palette counter and switch acordingly. You can change this //
+  // to set how fast the palette switches.                                //
+  //////////////////////////////////////////////////////////////////////////
+  updatePaletteAuto(60);
 
   //////////////////////////////////////////
   // Update the global animation counter. //
@@ -82,22 +85,28 @@ void loop() {
     gAnimCounter = (gAnimCounter+1)%numAnimation;
   }
 
-  // Select animation to run
+  ///////////////////////////////////////////////////////////////////////
+  // Select animation to run. Change the values in their parentheses   // 
+  // to set the rate they run at. If you have a potentiometer set up   //
+  // you can go to the function definitions below to see how to change //
+  // the code to set it up to use the potentiometers input instead of  //
+  // setting the values below.                                         //
+  ///////////////////////////////////////////////////////////////////////
   switch( gAnimCounter ) {
     case 0:
-      palette_mod();
+      palette_mod(100);
       break;
     case 1:
-      fill_mod_smooth();
+      fill_mod_smooth(120);
       break;
     case 2:
-      palette_eq();
+      palette_eq(120);
       break;
     case 3:
-      theater_chase();
+      theater_chase(150);
       break;
     case 4:
-      theater_chase_bounce();
+      theater_chase_bounce(15);
       break;     
     //////////////////////////////////////////////////////////////
     // This animation is pretty crappy. I was trying to do it   //
@@ -105,7 +114,7 @@ void loop() {
     // next three lines if you want to remove it from the loop. //
     //////////////////////////////////////////////////////////////
     case 5:
-      theater_chase_mod();
+      theater_chase_mod(150);
       break;
   }
 
@@ -118,10 +127,13 @@ void loop() {
 ///////////////////////////////////////
 
 // Simple rainbow modulation shit, but its just so sleek with the FastLED ENM.
-void palette_mod() {
+void palette_mod(uint16_t mls) {
   static uint8_t pal_index = 0;
-  // Change the value here to set the rate, or uncomment below to
-  EVERY_N_MILLISECONDS_I(thisTimer, 75) {
+  /////////////////////////////////////////////////////////////////////////
+  // Set the timing here. If you have a potentiometer for the rate setup //
+  // you can uncomment the line below to read in from that.              //
+  /////////////////////////////////////////////////////////////////////////
+  EVERY_N_MILLISECONDS_I(thisTimer, mls) {
     //thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 200));
     pal_index++;
     gHue++;
@@ -133,15 +145,19 @@ void palette_mod() {
 
 // Fill the whole bar and fade to black in a smooth oscillating fashion. Also, slowly
 // work our way through the global template
-void fill_mod_smooth() {
+void fill_mod_smooth(uint8_t bpm) {
   static uint8_t brightness = 0;
   static uint8_t prev_brightness = 0;
   static uint8_t pal_index = 0;
 
   // Modulate brigthness at input dependent rate
   prev_brightness = brightness;
+  /////////////////////////////////////////////////////////////////////////
+  // Set the timing here. If you have a potentiometer for the rate setup //
+  // you can uncomment the line below to read in from that.              //
+  /////////////////////////////////////////////////////////////////////////
   //brightness = beatsin8(map(analogRead(RATE_POT), 0, 1253, 120, 10), 0, maxBrightness);
-  brightness = beatsin8(80, 0, maxBrightness);
+  brightness = beatsin8(bpm, 0, maxBrightness);
 
   // If we are about to fade to black, grab the next color in the palette
   if (brightness == 1 && (brightness - prev_brightness) < 0) {
@@ -154,7 +170,7 @@ void fill_mod_smooth() {
 }
 
 // A single equalizer type bar
-void palette_eq() {
+void palette_eq(uint8_t bpm) {
   static uint8_t pal_index = 0;
   static uint8_t lead_max = numLED / 2;
   static uint8_t lead = 0;
@@ -163,8 +179,12 @@ void palette_eq() {
   // Fill bar at input dependent rate. First record the previous lead value
   // so that we can check which diretion we are heading on the sin wave later on
   prev = lead;
+  /////////////////////////////////////////////////////////////////////////
+  // Set the timing here. If you have a potentiometer for the rate setup //
+  // you can uncomment the line below to read in from that.              //
+  /////////////////////////////////////////////////////////////////////////
   //lead = beatsin8(map(analogRead(RATE_POT), 0, 1253, 120, 10), 0, lead_max);
-  lead = beatsin8(120, 0, lead_max);
+  lead = beatsin8(bpm, 0, lead_max);
 
   // If the eq bar is about to be empty, generate a new max length to fill.
   // Also increment the index of the palette, for a little more modulation cuz
@@ -182,24 +202,22 @@ void palette_eq() {
 /////////////////////////////////////////////////////////////////////////////////////////////
 // All of the following animations are some kind of theater marquee style. This means      //
 // at the core, it's  packets of light chasing each other across the strip, although we'll //
-// change up how they chase for different animations.                                       //
+// change up how they chase for different animations.                                      //
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 // A theater chase where packets switch directions every once in a while
-void theater_chase_bounce() {
+void theater_chase_bounce(uint8_t bpm) {
   static uint8_t pal_index = 0;
   static uint8_t last_index;
   //static uint8_t bpm = map(analogRead(RATE_POT), 0 , 1253, 60, 20);
-  static uint8_t bpm = 30;
 
-  // Update global hue position
-  EVERY_N_MILLISECONDS(10) {
-    gHue++;
-  }
   // Update lead LED position at an input dependent rate
   last_index = pal_index;
+  /////////////////////////////////////////////////////////////////////////
+  // Set the timing here. If you have a potentiometer for the rate setup //
+  // you can uncomment the lines below to read in from that.             //
+  /////////////////////////////////////////////////////////////////////////
   pal_index = beatsin8(bpm);
-
   //if( pal_index == 1 && (last_index - pal_index) < 0) {
   //  bpm = map(analogRead(RATE_POT), 0 , 1253, 60, 20);
   //}
@@ -209,17 +227,16 @@ void theater_chase_bounce() {
 }
 
 // Like the bounce but packets move continuously through, not switching direction
-void theater_chase() {
+void theater_chase(uint16_t mls) {
   // Indices
   static uint8_t pal_index = 0;
 
-  // Update global hue position
-  EVERY_N_MILLISECONDS(10) {
-    gHue++;
-  }
-
   // Update lead LED position at an input dependent rate
-  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+  /////////////////////////////////////////////////////////////////////////
+  // Set the timing here. If you have a potentiometer for the rate setup //
+  // you can uncomment the line below to read in from that.              //
+  /////////////////////////////////////////////////////////////////////////
+  EVERY_N_MILLISECONDS_I(thisTimer, mls) {
     //thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 200));
     pal_index++;
   }
@@ -227,22 +244,21 @@ void theater_chase() {
   FastLED.show();
 }
 
-void theater_chase_mod() {
+void theater_chase_mod(uint16_t mls) {
   // Index shit
   static uint8_t pal_index = 0;
   static uint8_t col_inc = 0;
-
-  // Update global hue position
-  EVERY_N_MILLISECONDS(100) {
-    gHue++;
-  }
 
   // Move the palette index every 10 ms
   EVERY_N_MILLISECONDS(10) {
     pal_index++;
   }
   // Update the fill_palette spacing at an input dependent rate
-  EVERY_N_MILLISECONDS_I(thisTimer, 150) {
+  /////////////////////////////////////////////////////////////////////////
+  // Set the timing here. If you have a potentiometer for the rate setup //
+  // you can uncomment the line below to read in from that.              //
+  /////////////////////////////////////////////////////////////////////////
+  EVERY_N_MILLISECONDS_I(thisTimer, mls) {
     //thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 4000));
     col_inc++;
   }
