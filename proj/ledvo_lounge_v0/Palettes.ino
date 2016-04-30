@@ -50,13 +50,13 @@ void update_WhiteCol_p() {
 void update_ColCol_p() {
 //  fill_solid(gPalette, 8, gRGB);
 //  // Fill second color halfway up the hue scale from the first one.
-//  fill_solid(gPalette+8, 8, CHSV((map(analogRead(C_POT), 0, 1253, 0, 255)+128)%255, 255, gBrightness));
+//  fill_solid(gPalette+8, 8, CHSV((map(analogRead(HUE_POT), 0, 1253, 0, 255)+128)%255, 255, gBrightness));
   for (uint8_t i = 0; i < 16; i++) {
     if (i%2 == 0) {
       gPalette[i] = gRGB;
     }
     else {
-      gPalette[i] = CHSV((map(analogRead(C_POT), 0, 1253, 0, 255)+128)%255, 255, gBrightness);
+      gPalette[i] = CHSV((map(analogRead(HUE_POT), 0, 1253, 0, 255)+128)%255, 255, gBrightness);
     }
   }
 }

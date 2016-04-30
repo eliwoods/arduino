@@ -6,16 +6,23 @@
 #include <avr/interrupt.h>
 #endif
 
-// Pin Variables
+// Analog Pins
 #define LED_IN 6
-#define S_POT 0 // Potentiometer for animation rate
-#define C_POT 0 // Potentiometer for global hue
-#define PAL_INT 2 // Interrupt pin for palette switching
-//#define PAL_AUTO_INT 3 // Interrupt for autopilot palette mode
-//#define ANIM_INT 3 // Interrupt pin for animation switching
+#define RATE_POT 0 // Potentiometer for animation rate
+#define HUE_POT 0 // Potentiometer for global hue
+#define VAL_POT 0 // Potentiometer for global brightness
+
+// Digital Pins
+#define PAL_INC_INT 2 // Interrupt pin for palette incrementing
+#define PAL_DEC_INT 2 // Interrupt pin for palette decrementing
+#define PAL_AUTO_INT 3 // Interrupt for autopilot palette mode
+#define ANIM_INC_INT 3 // Interrupt pin for animation incrementing
+#define ANIM_DEC_INT 3 // Interrupt pin for animation decrementing
+#define ANIM_AUTO_INT 3 // Interrupt pin for animation autopilot
 #define STROBE_INT 3 // Interrupt pin for strobe animation
 #define BLKOUT_INT 3 // Interrupt pin for blackout animation
 #define WHTOUT_INT 3 // Interrupt pin for whiteout animation
+#define REVERS_INT 3 // Interrupt pin for reversing animations
 
 
 // Variables for the LED strand
@@ -25,23 +32,25 @@ uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENT
 const uint8_t numLED = 30;
 CRGB *leds = new CRGB[numLED];
 
-// Variables for pin interrupts
+// Variables for pin interrupts (there's a lot of these babies)
 uint32_t debounce_time = 15;
 volatile uint32_t last_micros; // In milliseconds
 volatile boolean power_state = true; // Used for kill switch
 volatile uint8_t gPaletteCounter; // For choosing index of palette
-volatile boolean palette_autopilot = false; // For choosing
+volatile boolean palette_autopilot = false; // Flag for auto cycling palettes
 volatile uint8_t gAnimCounter; // Counter for animation
+volatile boolean anim_autopilot = false; // Flag for auto cycling animations
 volatile boolean dj_control = false; // Flag if dj is controlling animations
 volatile boolean run_strobe = false; // Flag for strobe interrupt animation
 volatile boolean run_blackout = false; // Flag for blackout animation
 volatile boolean run_whiteout = false; // Flag for whiteout animation
+volatile boolean anim_reverse = false; // Flag for running animations in reverse
 
 // Setup and global variable delcaration for palettes
 CRGBPalette16 gPalette;
 TBlendType gBlending;
 uint8_t gIndex; // Global Palette Index
-uint8_t gHue; // Global Hue Index
+
 
 extern const uint8_t numPalettes;
 extern const TProgmemRGBGradientPalettePtr gGradientPalettes[];
@@ -49,10 +58,10 @@ extern const TProgmemPalette16 WhiteBlack_p PROGMEM;
 
 // To control hue globally through a potentiometer input
 CRGB gRGB;
+uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
 const uint8_t numAnimation = 6;
-
 
 void setup() {
   delay(3000); // Safely power up
@@ -78,37 +87,60 @@ void setup() {
   gPaletteCounter = 0;
   gAnimCounter = 0;
 
-  // Interrupt to switch palette choice
-  pinMode(PAL_INT, INPUT);
-  attachInterrupt(digitalPinToInterrupt(PAL_INT), debounce_palette, RISING);
+  // Interrupts to switch palette choice
+  pinMode(PAL_INC_INT, INPUT);
+  attachInterrupt(digitalPinToInterrupt(PAL_INC_INT), debounce_palette_inc, RISING);
 
-  // Interrupt to turn on and off palette autopilot mode. Use rising edge since we only want
-  // the button press to trigger
+//  pinMode(PAL_DEC_INT, INPUT);
+//  attachInterrupt(digitalPinToInterrupt(PAL_DEC_INT), debounce_palette_dec, RISING);
+
+  // Interrupt to turn on and off palette autopilot mode. Use change since the button
+  // will be latching
   //pinMode(PAL_AUTO_INT, INPUT);
-  //attachInterrupt(digitalPinToInterrupt(PAL_AUTO_INT), debounce_palette_auto, RISING);
+  //attachInterrupt(digitalPinToInterrupt(PAL_AUTO_INT), debounce_palette_auto, CHANGE);
 
-  // Interrupt to switch animation. Use rising edge since we only want the button press
-  // to trigger
-  //pinMode(ANIM_INT, INPUT);
-  //attachInterrupt(digitalPinToInterrupt(ANIM_INT), debounce_anim, RISING);
+  // Interrupts to switch animation
+  //pinMode(ANIM_INC_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(ANIM_INC_INT), debounce_anim_inc, RISING);
+
+//  pinMode(ANIM_DEC_INT, INPUT);
+//  attachInterrupt(digitalPinToInterrupt(ANIM_DEC_INT), debounce_anim_dec, RISING);
+
+  // Interrupt to turn on and off animation autopilot mode. Use change since button
+  // will be latching.
+  pinMode(ANIM_AUTO_INT, INPUT);
+  attachInterrupt(digitalPinToInterrupt(ANIM_AUTO_INT), debounce_anim_auto, CHANGE);
 
 //  // Interrupt for strobe DJ animation. Use change so animation starts on button press
 //  // and ends on button release
 //  pinMode(STROBE_INT, INPUT);
 //  attachInterrupt(digitalPinToInterrupt(STROBE_INT), debounce_strobe, CHANGE);
 
-  // Interrupt for blackout DJ animation.
-  pinMode(BLKOUT_INT, INPUT);
-  attachInterrupt(digitalPinToInterrupt(BLKOUT_INT), debounce_blackout, CHANGE);
-//
-//  // Interrupt for whiteout DJ animation.
+//  // Interrupt for blackout DJ animation. Look for change so we can hold and release
+//  pinMode(BLKOUT_INT, INPUT);
+//  attachInterrupt(digitalPinToInterrupt(BLKOUT_INT), debounce_blackout, CHANGE);
+
+//  // Interrupt for whiteout DJ animation. Look for change so we can hold and release
 //  pinMode(WHTOUT_INT, INPUT);
 //  attachInterrupt(digitalPinToInterrupt(WHTOUT_INT), debounce_whiteout, CHANGE);
+
+  // Interrupt for reversing animation direction. Look for change since this will
+  // be a latching button
+  pinMode(REVERS_INT, INPUT);
+  attachInterrupt(digitalPinToInterrupt(REVERS_INT), debounce_anim_reverse, CHANGE);
 }
 
 void loop() {
+  // Read in global brightness value
+  gBrightness = map(analogRead(VAL_POT), 0, 1253, 0, maxBrightness);
+  
   // Read color from potentiometer input
-  gRGB = CHSV(map(analogRead(C_POT), 0, 1253, 0, 255), 255, gBrightness);
+  gRGB = CHSV(map(analogRead(HUE_POT), 0, 1253, 0, 255), 255, gBrightness);
+
+  // Increment global hue index for extra groovy rainbows
+  EVERY_N_MILLISECONDS(10) {
+    gHue++;
+  }
 
   // Check the palette counter and switch acordingly or go into autopilot mode
   if (palette_autopilot) {
@@ -119,29 +151,27 @@ void loop() {
   }
 
   // Select animation to run, or go in autopilot
-  /*switch( gAnimCounter ) {
-    case 0:
-      palette_mod();
-      break;
-    case 1:
-      fill_mod_smooth();
-      break;
-    case 2:
-      palette_eq();
-      break;
-    case 3:
-      theater_chase();
-      break;
-    case 4:
-      theater_chase_bounce();
-      break;
-    case 5:
-      theater_chase_mod();
-      break;
-  }*/
-
   if (!dj_control) {
-    palette_mod();
+    switch( gAnimCounter ) {
+      case 0:
+        palette_mod();
+        break;
+      case 1:
+        fill_mod_smooth();
+        break;
+      case 2:
+        palette_eq();
+        break;
+      case 3:
+        theater_chase();
+        break;
+      case 4:
+        theater_chase_bounce();
+        break;
+      case 5:
+        theater_chase_mod();
+        break;
+    }
   }
 
   // The following are all checks for DJ animations that
@@ -170,7 +200,7 @@ void loop() {
 // Can't be named strobe for some reason... IDK man
 void strobes() {
   EVERY_N_MILLISECONDS_I(thisTimer, 200) {
-    thisTimer.setPeriod(map(analogRead(S_POT), 0, 1253, 100, 300));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 100, 300));
     fill_solid(leds, numLED, CRGB::White);
   }
 
@@ -199,7 +229,7 @@ void whiteout() {
 void palette_mod() {
   static uint8_t pal_index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
-    thisTimer.setPeriod(map(analogRead(S_POT), 0, 1253, 1, 200));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 200));
     pal_index++;
     gHue++;
   }
@@ -222,7 +252,7 @@ void fill_mod_smooth() {
 
   // Modulate brigthness at input dependent rate
   prev_brightness = brightness;
-  //brightness = beatsin8(map(analogRead(S_POT), 0, 1253, 120, 10), 0, maxBrightness);
+  //brightness = beatsin8(map(analogRead(RATE_POT), 0, 1253, 120, 10), 0, maxBrightness);
   brightness = beatsin8(80, 0, maxBrightness);
 
   // If we are about to fade to black, grab the next color in the palette
@@ -245,7 +275,7 @@ void palette_eq() {
   // Fill bar at input dependent rate. First record the previous lead value
   // so that we can check which diretion we are heading on the sin wave later on
   prev = lead;
-  //lead = beatsin8(map(analogRead(S_POT), 0, 1253, 120, 10), 0, lead_max);
+  //lead = beatsin8(map(analogRead(RATE_POT), 0, 1253, 120, 10), 0, lead_max);
   lead = beatsin8(120, 0, lead_max);
 
   // If the eq bar is about to be empty, generate a new max length to fill.
@@ -267,44 +297,50 @@ void palette_eq() {
 // change up how they chase in different animations.                                     //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+// Simple theater chase where packets move continuously
+void theater_chase() {
+  // Indices
+  static uint8_t pal_index = 0;
+
+  // Update lead LED position at an input dependent rate
+  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 200));
+    pal_index++;
+  }
+  fill_palette(leds, numLED, pal_index, 6, gPalette, maxBrightness, gBlending);
+  FastLED.show();
+}
+
 // A theater chase where packets switch directions every once in a while
 void theater_chase_bounce() {
   static uint8_t pal_index = 0;
   static uint8_t last_index;
-  static uint8_t bpm = map(analogRead(S_POT), 0 , 1253, 60, 20);
+  static uint8_t bpm = map(analogRead(RATE_POT), 0 , 1253, 60, 20);
 
-  // Update global hue position
-  EVERY_N_MILLISECONDS(10) {
-    gHue++;
-  }
   // Update lead LED position at an input dependent rate
   last_index = pal_index;
   pal_index = beatsin8(bpm);
 
   if( pal_index == 1 && (last_index - pal_index) < 0) {
-    bpm = map(analogRead(S_POT), 0 , 1253, 60, 20);
+    bpm = map(analogRead(RATE_POT), 0 , 1253, 60, 20);
   }
   
   fill_palette(leds, numLED, pal_index, 4, gPalette, maxBrightness, gBlending);
   FastLED.show();
 }
 
-// Like the bounce but packets move continuously through, not switching direction
-void theater_chase() {
-  // Indices
+// A theater chase where packets switch direction every once in a while. Lets see how
+// this looks with a saw wave
+void theat_chase_saw() {
   static uint8_t pal_index = 0;
 
-  // Update global hue position
-  EVERY_N_MILLISECONDS(10) {
-    gHue++;
-  }
-
-  // Update lead LED position at an input dependent rate
+  // Increment palette index at an input dependent rate
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
-    thisTimer.setPeriod(map(analogRead(S_POT), 0, 1253, 1, 200));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 500));
     pal_index++;
   }
-  fill_palette(leds, numLED, pal_index, 6, gPalette, maxBrightness, gBlending);
+
+  fill_palette(leds, numLED, triwave8(pal_index), 4, gPalette, maxBrightness, gBlending);
   FastLED.show();
 }
 
@@ -313,18 +349,13 @@ void theater_chase_mod() {
   static uint8_t pal_index = 0;
   static uint8_t col_inc = 0;
 
-  // Update global hue position
-  EVERY_N_MILLISECONDS(100) {
-    gHue++;
-  }
-
   // Move the palette index every 10 ms
   EVERY_N_MILLISECONDS(10) {
     pal_index++;
   }
   // Update the fill_palette spacing at an input dependent rate
   EVERY_N_MILLISECONDS_I(thisTimer, 5) {
-    thisTimer.setPeriod(map(analogRead(S_POT), 0, 1253, 1, 4000));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 4000));
     col_inc++;
   }
   if (col_inc < 256 / 2) {

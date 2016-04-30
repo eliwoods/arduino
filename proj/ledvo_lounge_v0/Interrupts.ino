@@ -3,15 +3,26 @@
 // and sweet interrupt service requests and their debounce methods since all buttons are shit. Also include any
 // functions that
 
-// Increment the palette counter. This lets us switch palettes. Debounce function
-// included below.
-void palette_ISR() {
+// Increment the palette counter.
+void palette_inc_ISR() {
   gPaletteCounter = (gPaletteCounter+1)%(numPalettes+1);
 }
 
-void debounce_palette() {
+void debounce_palette_inc() {
   if((int32_t)(micros() - last_micros) >= debounce_time*1000) {
-    palette_ISR();
+    palette_inc_ISR();
+    last_micros = micros();
+  }
+}
+
+// Decrement the palette counter
+void palette_dec_ISR() {
+  gPaletteCounter = (gPaletteCounter-1)%(numPalettes+1);
+}
+
+void debounce_palette_dec() {
+  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+    palette_dec_ISR();
     last_micros = micros();
   }
 }
@@ -65,19 +76,48 @@ void palette_auto_ISR() {
 
 void debounce_palette_auto() {
   if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
-    palette_ISR();
+    palette_auto_ISR();
     last_micros = micros();
   }
 }
 
-// To let us switch animations with an input button
-void anim_ISR() {
+// Increment global animation counter
+void anim_inc_ISR() {
   gAnimCounter = (gAnimCounter+1)%numAnimation;
 }
 
-void debounce_anim() {
+void debounce_anim_inc() {
   if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
-    anim_ISR();
+    anim_inc_ISR();
+    last_micros = micros();
+  }
+}
+
+// Decrement global animation counter
+void anim_dec_ISR() {
+  gAnimCounter = (gAnimCounter-1)%numAnimation;
+}
+
+void debounce_anim_dec() {
+  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+    anim_dec_ISR();
+    last_micros = micros();
+  }
+}
+
+// Turn on or off animation autopilot
+void anim_auto_ISR() {
+  if (!anim_autopilot) {
+    anim_autopilot = true;
+  }
+  else {
+    anim_autopilot = false;
+  }
+}
+
+void debounce_anim_auto() {
+  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+    anim_auto_ISR();
     last_micros = micros();
   }
 }
@@ -135,6 +175,23 @@ void whiteout_ISR() {
 void debounce_whiteout() {
   if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
     whiteout_ISR();
+    last_micros = micros();
+  }
+}
+
+// Sets flag for reversing animations
+void anim_reverse_ISR() {
+  if (!anim_reverse) {
+    anim_reverse = true;
+  }
+  else {
+    anim_reverse = false;
+  }
+}
+
+void debounce_anim_reverse() {
+  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+    anim_reverse_ISR();
     last_micros = micros();
   }
 }
