@@ -19,7 +19,7 @@ const uint8_t maxBrightness = 200;
 //////////////////////////////////////////////////////////////
 // Set numLED to however man LEDS are in the test strand.   //
 //////////////////////////////////////////////////////////////
-const uint8_t numLED = 30;
+const uint16_t numLED = 1500;
 CRGB *leds = new CRGB[numLED];
 
 // Setup and global variable delcaration for palettes
@@ -49,7 +49,7 @@ void setup() {
   random16_add_entropy(analogRead(5));
 
   // Setup strands of LED
-  FastLED.addLeds<NEOPIXEL, LED_IN>(leds, numLED);
+  FastLED.addLeds<WS2812, LED_IN, GRB>(leds, numLED).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(maxBrightness);
   FastLED.show();
 
