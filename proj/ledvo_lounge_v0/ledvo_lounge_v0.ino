@@ -372,7 +372,7 @@ void theater_chase_mod() {
 }
 
 // Strobe on and off the palette as we animate it through it
-theater_chase_strobe() {
+void theater_chase_strobe() {
   // Indices for palette animation
   static uint8_t pal_index = 0;
 
@@ -380,7 +380,7 @@ theater_chase_strobe() {
   EVERY_N_MILLISECONDS(50) {
     pal_index++;
   }
-  fill_palette(leds, numLED, pal_index, col_inc, gPalette, maxBrightness, gBlending);
+  fill_palette(leds, numLED, pal_index, 6, gPalette, maxBrightness, gBlending);
 
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
@@ -391,7 +391,7 @@ theater_chase_strobe() {
 }
 
 // Random blocks of colors with a random width
-theater_chase_random() {
+void theater_chase_random() {
   // Vector to hold the widths, since they're randomly
   // determined, we need a vector to deal with varying sizes
   static std::vector<uint8_t> packet_widths;  
@@ -415,8 +415,10 @@ theater_chase_random() {
       pal_index += 16;
     }
 
-    // Now loop through the vectors and fill the     
-
+    // Now loop through the vectors and fill the strand
+    for (uint8_t vec_index = 0; vec_index < packet_widths.size(); vec_index++) {
+      
+    }
     
   }
   
