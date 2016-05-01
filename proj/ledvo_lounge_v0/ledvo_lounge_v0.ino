@@ -1,5 +1,7 @@
 // LED libraries
 #include <FastLED.h>
+#include <StandardCplusplus.h>
+#include <vector>
 
 // Arduino Libraries
 #ifdef __AVR__
@@ -87,52 +89,52 @@ void setup() {
   gPaletteCounter = 0;
   gAnimCounter = 0;
 
-  // Interrupts to switch palette choice
-  pinMode(PAL_INC_INT, INPUT);
-  attachInterrupt(digitalPinToInterrupt(PAL_INC_INT), debounce_palette_inc, RISING);
+  //// Interrupts to switch palette choice
+  //pinMode(PAL_INC_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(PAL_INC_INT), debounce_palette_inc, RISING);
 
-//  pinMode(PAL_DEC_INT, INPUT);
-//  attachInterrupt(digitalPinToInterrupt(PAL_DEC_INT), debounce_palette_dec, RISING);
+  //pinMode(PAL_DEC_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(PAL_DEC_INT), debounce_palette_dec, RISING);
 
-  // Interrupt to turn on and off palette autopilot mode. Use change since the button
-  // will be latching
-  //pinMode(PAL_AUTO_INT, INPUT);
-  //attachInterrupt(digitalPinToInterrupt(PAL_AUTO_INT), debounce_palette_auto, CHANGE);
+  //// Interrupt to turn on and off palette autopilot mode. Use change since the button
+  //// will be latching
+  ////pinMode(PAL_AUTO_INT, INPUT);
+  ////attachInterrupt(digitalPinToInterrupt(PAL_AUTO_INT), debounce_palette_auto, CHANGE);
 
-  // Interrupts to switch animation
-  //pinMode(ANIM_INC_INT, INPUT);
-  //attachInterrupt(digitalPinToInterrupt(ANIM_INC_INT), debounce_anim_inc, RISING);
+  //// Interrupts to switch animation
+  ////pinMode(ANIM_INC_INT, INPUT);
+  ////attachInterrupt(digitalPinToInterrupt(ANIM_INC_INT), debounce_anim_inc, RISING);
 
-//  pinMode(ANIM_DEC_INT, INPUT);
-//  attachInterrupt(digitalPinToInterrupt(ANIM_DEC_INT), debounce_anim_dec, RISING);
+  //pinMode(ANIM_DEC_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(ANIM_DEC_INT), debounce_anim_dec, RISING);
 
-  // Interrupt to turn on and off animation autopilot mode. Use change since button
-  // will be latching.
-  pinMode(ANIM_AUTO_INT, INPUT);
-  attachInterrupt(digitalPinToInterrupt(ANIM_AUTO_INT), debounce_anim_auto, CHANGE);
+  //// Interrupt to turn on and off animation autopilot mode. Use change since button
+  //// will be latching.
+  //pinMode(ANIM_AUTO_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(ANIM_AUTO_INT), debounce_anim_auto, CHANGE);
 
-//  // Interrupt for strobe DJ animation. Use change so animation starts on button press
-//  // and ends on button release
-//  pinMode(STROBE_INT, INPUT);
-//  attachInterrupt(digitalPinToInterrupt(STROBE_INT), debounce_strobe, CHANGE);
+  //// Interrupt for strobe DJ animation. Use change so animation starts on button press
+  //// and ends on button release
+  //pinMode(STROBE_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(STROBE_INT), debounce_strobe, CHANGE);
 
-//  // Interrupt for blackout DJ animation. Look for change so we can hold and release
-//  pinMode(BLKOUT_INT, INPUT);
-//  attachInterrupt(digitalPinToInterrupt(BLKOUT_INT), debounce_blackout, CHANGE);
+  //// Interrupt for blackout DJ animation. Look for change so we can hold and release
+  //pinMode(BLKOUT_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(BLKOUT_INT), debounce_blackout, CHANGE);
 
-//  // Interrupt for whiteout DJ animation. Look for change so we can hold and release
-//  pinMode(WHTOUT_INT, INPUT);
-//  attachInterrupt(digitalPinToInterrupt(WHTOUT_INT), debounce_whiteout, CHANGE);
+  //// Interrupt for whiteout DJ animation. Look for change so we can hold and release
+  //pinMode(WHTOUT_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(WHTOUT_INT), debounce_whiteout, CHANGE);
 
-  // Interrupt for reversing animation direction. Look for change since this will
-  // be a latching button
-  pinMode(REVERS_INT, INPUT);
-  attachInterrupt(digitalPinToInterrupt(REVERS_INT), debounce_anim_reverse, CHANGE);
+  //// Interrupt for reversing animation direction. Look for change since this will
+  //// be a latching button
+  //pinMode(REVERS_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(REVERS_INT), debounce_anim_reverse, CHANGE);
 }
 
 void loop() {
   // Read in global brightness value
-  gBrightness = map(analogRead(VAL_POT), 0, 1253, 0, maxBrightness);
+  //gBrightness = map(analogRead(VAL_POT), 0, 1253, 0, maxBrightness);
   
   // Read color from potentiometer input
   gRGB = CHSV(map(analogRead(HUE_POT), 0, 1253, 0, 255), 255, gBrightness);
@@ -151,28 +153,30 @@ void loop() {
   }
 
   // Select animation to run, or go in autopilot
-  if (!dj_control) {
-    switch( gAnimCounter ) {
-      case 0:
-        palette_mod();
-        break;
-      case 1:
-        fill_mod_smooth();
-        break;
-      case 2:
-        palette_eq();
-        break;
-      case 3:
-        theater_chase();
-        break;
-      case 4:
-        theater_chase_bounce();
-        break;
-      case 5:
-        theater_chase_mod();
-        break;
-    }
-  }
+  //if (!dj_control) {
+  //  switch( gAnimCounter ) {
+  //    case 0:
+  //      palette_mod();
+  //      break;
+  //    case 1:
+  //      fill_mod_smooth();
+  //      break;
+  //    case 2:
+  //      palette_eq();
+  //      break;
+  //    case 3:
+  //      theater_chase();
+  //      break;
+  //    case 4:
+  //      theater_chase_bounce();
+  //      break;
+  //    case 5:
+  //      theater_chase_mod();
+  //      break;
+  //  }
+  //}
+
+  theater_chase_strobe();
 
   // The following are all checks for DJ animations that
   // interrupt the normal animations for some added IN YO FACE
@@ -359,10 +363,61 @@ void theater_chase_mod() {
     col_inc++;
   }
   if (col_inc < 256 / 2) {
-    fill_palette( leds, numLED, pal_index, col_inc, gPalette, maxBrightness, gBlending);
+    fill_palette(leds, numLED, pal_index, col_inc, gPalette, maxBrightness, gBlending);
   }
   else {
-    fill_palette( leds, numLED, pal_index, 256 - col_inc, gPalette, maxBrightness, gBlending);
+    fill_palette(leds, numLED, pal_index, 256 - col_inc, gPalette, maxBrightness, gBlending);
   }
   FastLED.show();
+}
+
+// Strobe on and off the palette as we animate it through it
+theater_chase_strobe() {
+  // Indices for palette animation
+  static uint8_t pal_index = 0;
+
+  // Move through the palette starting point
+  EVERY_N_MILLISECONDS(50) {
+    pal_index++;
+  }
+  fill_palette(leds, numLED, pal_index, col_inc, gPalette, maxBrightness, gBlending);
+
+  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
+    fadeToBlackBy(leds, numLED, 30);
+  }
+
+  FastLED.show();
+}
+
+// Random blocks of colors with a random width
+theater_chase_random() {
+  // Vector to hold the widths, since they're randomly
+  // determined, we need a vector to deal with varying sizes
+  static std::vector<uint8_t> packet_widths;  
+  static std::vector<CRGB> packet_colors;
+  
+  // Fill the vector the first time it's run. Use a static variable
+  // so we only have to run it once
+  static boolean first_run = false;
+  if (first_run) {
+    uint8_t rnd_width;
+    uint8_t num_filled = 0; // Keep track of how many LEDs we've filled
+    uint8_t pal_index=0;
+    while (num_filled < numLED) {
+      // Generate new packet length
+      rnd_width = random8(2, 5);
+      packet_widths.push_back(rnd_width);
+      num_fill += rnd_width;
+
+      // Assign packet a color from the current palette
+      packet_colors.push_back(gPalette[ColorFromPalette(gPalette, pal_index, gBrightness, gBlending)]);
+      pal_index += 16;
+    }
+
+    // Now loop through the vectors and fill the     
+
+    
+  }
+  
 }
