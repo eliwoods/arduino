@@ -40,11 +40,12 @@ volatile uint8_t gPaletteCounter; // For choosing index of palette
 volatile boolean palette_autopilot = false; // Flag for auto cycling palettes
 volatile uint8_t gAnimCounter; // Counter for animation
 volatile boolean anim_autopilot = false; // Flag for auto cycling animations
+volatile boolean anim_reverse = false; // Flag for running animations in reverse
 volatile boolean dj_control = false; // Flag if dj is controlling animations
 volatile boolean run_strobe = false; // Flag for strobe interrupt animation
 volatile boolean run_blackout = false; // Flag for blackout animation
 volatile boolean run_whiteout = false; // Flag for whiteout animation
-volatile boolean anim_reverse = false; // Flag for running animations in reverse
+
 
 // Setup and global variable delcaration for palettes
 CRGBPalette16 gPalette;
@@ -74,7 +75,7 @@ void setup() {
   random16_add_entropy(analogRead(5));
 
   // Setup strands of LED
-  FastLED.addLeds<NEOPIXEL, LED_IN>(leds, numLED);
+  FastLED.addLeds<WS2812, LED_IN, GRB>(leds, numLED).setCorrection(TypicalLEDStrip);;
   FastLED.setBrightness(maxBrightness);
   FastLED.show();
 
@@ -126,13 +127,13 @@ void setup() {
 
   // Interrupt for reversing animation direction. Look for change since this will
   // be a latching button
-  pinMode(REVERS_INT, INPUT);
-  attachInterrupt(digitalPinToInterrupt(REVERS_INT), debounce_anim_reverse, CHANGE);
+  //pinMode(REVERS_INT, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(REVERS_INT), debounce_anim_reverse, CHANGE);
 }
 
 void loop() {
   // Read in global brightness value
-  gBrightness = map(analogRead(VAL_POT), 0, 1253, 0, maxBrightness);
+  //gBrightness = map(analogRead(VAL_POT), 0, 1253, 0, maxBrightness);
   
   // Read color from potentiometer input
   gRGB = CHSV(map(analogRead(HUE_POT), 0, 1253, 0, 255), 255, gBrightness);
@@ -150,8 +151,15 @@ void loop() {
     updateGPalette();
   }
 
-  // Select animation to run, or go in autopilot
-  if (!dj_control) {
+  // Check if we want to autopilot the animations
+  if (anim_autopilot) {
+    EVERY_N_SECONDS(30) {
+      gAnimCounter = (gAnimCounter)%numAnimation;
+    }
+  }
+
+  // Select animation to run based on global counter
+  /*if (!dj_control) {
     switch( gAnimCounter ) {
       case 0:
         palette_mod();
@@ -172,7 +180,9 @@ void loop() {
         theater_chase_mod();
         break;
     }
-  }
+  }*/
+
+  theater_chase_bounce();
 
   // The following are all checks for DJ animations that
   // interrupt the normal animations for some added IN YO FACE
@@ -313,15 +323,20 @@ void theater_chase() {
 
 // A theater chase where packets switch directions every once in a while
 void theater_chase_bounce() {
-  static uint8_t pal_index = 0;
-  static uint8_t last_index;
+  static uint8_t pal_index = 0;  
   static uint8_t bpm = map(analogRead(RATE_POT), 0 , 1253, 60, 20);
+
+  // Some variables to help us smoothly transition between rates
+  static uint8_t last_index = 0;
+  static uint8_t last_second = 99;
+  uint8_t second = (millis()/1000)%60;
 
   // Update lead LED position at an input dependent rate
   last_index = pal_index;
-  pal_index = beatsin8(bpm);
+  pal_index = beatsin8(bpm, 0, 255);
 
-  if( pal_index == 1 && (last_index - pal_index) < 0) {
+  if( pal_index == 127 && (last_index - pal_index) < 0 && second != last_second) {
+    last_second = second;
     bpm = map(analogRead(RATE_POT), 0 , 1253, 60, 20);
   }
   
@@ -331,7 +346,7 @@ void theater_chase_bounce() {
 
 // A theater chase where packets switch direction every once in a while. Lets see how
 // this looks with a saw wave
-void theat_chase_saw() {
+void theater_chase_saw() {
   static uint8_t pal_index = 0;
 
   // Increment palette index at an input dependent rate
