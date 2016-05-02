@@ -52,7 +52,7 @@ void update_ColCol_p() {
 //  // Fill second color halfway up the hue scale from the first one.
 //  fill_solid(gPalette+8, 8, CHSV((map(analogRead(HUE_POT), 0, 1253, 0, 255)+128)%255, 255, gBrightness));
   for (uint8_t i = 0; i < 16; i++) {
-    if (i%2 == 0) {
+    if (i%4 == 0) {
       gPalette[i] = gRGB;
     }
     else {
@@ -222,45 +222,15 @@ DEFINE_GRADIENT_PALETTE( Crystal_Ice_Palace_gp ) {
   255,  92, 176, 137
 };
 
+// This has to be hand counted and updated whenever we add more palettes. There are also some predefined palettes
+// that need to get accounted for :(
+const uint8_t numPalettes = 9;
 
-// This array holds references to the palettes in PROGMEM. That way, we can define them down here instead
-// at the top cluterring it up. Any palette that gets added needs to get put in this array
-const TProgmemRGBGradientPalettePtr gGradientPalettes[] = {chroma_gp, sprinkles_gp, Crystal_Ice_Palace_gp};
-const uint8_t numGradientPalettes = sizeof(gGradientPalettes)/sizeof(TProgmemRGBGradientPalettePtr);
-
-// This has to be hand counted right now :(
-const uint8_t numPalettes = numGradientPalettes + 5;
-
-// Function that updates the global palette every N seconds
-void updateGPaletteTimer() {
-  // Use these to keep track of the time. Not very accurate since
-  // arduino has crap timing but who cares
-  uint8_t second = (millis()/1000)%(10*numPalettes);
-  static uint8_t last_second = 99;
-
-  // Since we only check the palette once every second, we need some way to
-  // know about palettes that need continuous background refreshing. The numbering
-  // will just go down the list, mirroring the order in their definitions above
-  static uint8_t refresh_pal = 0;
-
-  // Since this runs 1000x a second, make sure we're not in the same second
-  if(second != last_second) {
-    last_second = second;
-    if( second == 0)  { update_RainbowBlack_p(); refresh_pal = 0;}
-    if( second == 10) { update_WhiteRainbow_p(); refresh_pal = 1;}
-    if( second == 20) { update_WhiteCol_p(); refresh_pal = 2;}
-    if( second == 30) { update_ColCol_p(); refresh_pal = 3;}
-    if( second == 40) { update_ColLead_p(); refresh_pal = 4;}
-    // These are static palettes, make the first one set refresh_pal to our error num
-    // so we stop refreshing the background palettes
-    if( second == 50) { gPalette = WhiteBlack_p; refresh_pal = 99;}
-    if( second == 60) { gPalette = chroma_gp;}
-    if( second == 70) { gPalette = sprinkles_gp;}
-    if( second == 80) { gPalette = Crystal_Ice_Palace_gp;}
-  }
-
-  // Check if we need to refresh anything in the background
-  switch( refresh_pal ) {
+// This handles the switching of palettes based on the global palette counter. Need to add palettes to this function
+// whenever they are added up above. Declare it down here so we can get away with not having to use the Gradient Palette
+// Pointer array.
+void updateGPalette() {
+  switch(gPaletteCounter) {
     case 0:
       update_RainbowBlack_p();
       break;
@@ -276,9 +246,21 @@ void updateGPaletteTimer() {
     case 4:
       update_ColLead_p();
       break;
-    case 99:
+    case 5:
+      gPalette = WhiteBlack_p;
+      break;
+    // Have to use gGradientPalettes array because the gradient defines
+    // are below us. Maybe we should move this to the Palettes tab so we don't
+    // have to use this array shit.
+    case 6:
+      gPalette = chroma_gp;
+      break;
+    case 7:
+      gPalette = sprinkles_gp;
+      break;
+    case 8:
+      gPalette = Crystal_Ice_Palace_gp;
       break;
   }
-  
 }
 

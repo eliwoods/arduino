@@ -5,7 +5,7 @@
 
 // Increment the palette counter.
 void palette_inc_ISR() {
-  gPaletteCounter = (gPaletteCounter+1)%(numPalettes+1);
+  gPaletteCounter = (gPaletteCounter+1)%(numPalettes);
 }
 
 void debounce_palette_inc() {
@@ -17,49 +17,13 @@ void debounce_palette_inc() {
 
 // Decrement the palette counter
 void palette_dec_ISR() {
-  gPaletteCounter = (gPaletteCounter-1)%(numPalettes+1);
+  gPaletteCounter = (gPaletteCounter-1)%(numPalettes);
 }
 
 void debounce_palette_dec() {
   if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
     palette_dec_ISR();
     last_micros = micros();
-  }
-}
-
-// This actually handles the switching of the global palette based on the palette counter
-void updateGPalette() {
-  switch(gPaletteCounter) {
-    case 0:
-      update_RainbowBlack_p();
-      break;
-    case 1:
-      update_WhiteRainbow_p();
-      break;
-    case 2:
-      update_WhiteCol_p();
-      break;
-    case 3:
-      update_ColCol_p();
-      break;
-    case 4:
-      update_ColLead_p();
-      break;
-    case 5:
-      gPalette = WhiteBlack_p;
-      break;
-    // Have to use gGradientPalettes array because the gradient defines
-    // are below us. Maybe we should move this to the Palettes tab so we don't
-    // have to use this array shit.
-    case 6:
-      gPalette = gGradientPalettes[0];
-      break;
-    case 7:
-      gPalette = gGradientPalettes[1];
-      break;
-    case 8:
-      gPalette = gGradientPalettes[2];
-      break;
   }
 }
 
@@ -175,6 +139,23 @@ void whiteout_ISR() {
 void debounce_whiteout() {
   if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
     whiteout_ISR();
+    last_micros = micros();
+  }
+}
+
+// Sets flag for black strobing
+void blk_strobe_ISR() {
+  if (!run_blkstrobe) {
+    run_blkstrobe = true;
+  }
+  else {
+    run_blkstrobe = false;
+  }
+}
+
+void debounce_blk_strobe() {
+  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+    blk_strobe_ISR();
     last_micros = micros();
   }
 }
