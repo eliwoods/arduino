@@ -459,37 +459,34 @@ void fill_ramp_down() {
   FastLED.show();
 }
 
-/*void palette_eq_tri() {
+
+// FINISH THIS SHIT
+void palette_eq_tri() {
   static uint8_t pal_index = 0;
   static uint8_t lead_max = numLED / 2;
   static uint8_t lead = 0;
+  static uint8_t prev;
 
   // Fill bar at input dependent rate. First record the previous lead value
   // so that we can check which diretion we are heading on the sin wave later on
-  
+  EVERY_N_MILLISECONDS_I(thisTimer, 50) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
+  }
 
   // If the eq bar is about to be empty, generate a new max length to fill.
   // Also increment the index of the palette, for a little more modulation cuz
   // why not.
-  if (lead == 0 && (lead - prev) < 0) {   
+  if (lead == 0) {   
     pal_index+=16;
     lead_max = random8(numLED / 3, numLED); 
     
-  }
-
-  // Check for rate change here so we don't interrupt the color and length
-  // assignment
-  if (lead == 0 && (lead - prev) < 0 && last_second != second) {
-    last_second = second;
-    bpm = map(analogRead(RATE_POT), 0, 1253, 120, 10);
-    lead = 0;
   }
 
   //fill_palette(leds, lead, pal_index, 16, gPalette, maxBrightness, gBlending);
   fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   FastLED.show();
   fadeToBlackBy(leds, numLED, 20);
-}*/
+}
 
 void starry_night() {
   
