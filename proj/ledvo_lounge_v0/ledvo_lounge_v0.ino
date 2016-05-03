@@ -419,20 +419,77 @@ void theater_chase_mod() {
 
 // THESE FUNCTIONS ARE UNDER SERIOUS CONSTRUCTION!!!!!!!!! //
 
-// ELI, DO THESE NEXT THREE ON THE BUS!!!
+// Ramp the brightness up, then cut off quickly like a saw wave
 void fill_ramp_up() {
   static uint8_t brightness = 0;
   static uint8_t pal_index = 0;
+
+  // Ramp the brightness up at a input controlled rate
+  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
+    brightness++;
+  }
+
+  // Jump to next color in the gradient if we are at the bottom of the ramp
+  if (brightness == 0) {
+    pal_index += 16;
+  }
+
+  fill_solid(leds, numLED, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+  FastLED.show();
   
 }
 
 void fill_ramp_down() {
-  
+  static uint8_t brightness = 0;
+  static uint8_t pal_index = 0;
+
+  // Ramp the brightness up at a input controlled rate
+  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
+    brightness--;
+  }
+
+  // Jump to next color in the gradient if we are at the bottom of the ramp
+  if (brightness == 0) {
+    pal_index += 16;
+  }
+
+  fill_solid(leds, numLED, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+  FastLED.show();
 }
 
-void palette_eq_saw() {
+/*void palette_eq_tri() {
+  static uint8_t pal_index = 0;
+  static uint8_t lead_max = numLED / 2;
+  static uint8_t lead = 0;
+
+  // Fill bar at input dependent rate. First record the previous lead value
+  // so that we can check which diretion we are heading on the sin wave later on
   
-}
+
+  // If the eq bar is about to be empty, generate a new max length to fill.
+  // Also increment the index of the palette, for a little more modulation cuz
+  // why not.
+  if (lead == 0 && (lead - prev) < 0) {   
+    pal_index+=16;
+    lead_max = random8(numLED / 3, numLED); 
+    
+  }
+
+  // Check for rate change here so we don't interrupt the color and length
+  // assignment
+  if (lead == 0 && (lead - prev) < 0 && last_second != second) {
+    last_second = second;
+    bpm = map(analogRead(RATE_POT), 0, 1253, 120, 10);
+    lead = 0;
+  }
+
+  //fill_palette(leds, lead, pal_index, 16, gPalette, maxBrightness, gBlending);
+  fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  FastLED.show();
+  fadeToBlackBy(leds, numLED, 20);
+}*/
 
 void starry_night() {
   

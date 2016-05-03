@@ -35,7 +35,7 @@ extern const TProgmemPalette16 WhiteBlack_p PROGMEM;
 CRGB gRGB;
 
 // Variables for switching animations
-const uint8_t numAnimation = 6; // This has to be hard coded :(
+const uint8_t numAnimation = 4; // This has to be hard coded :(
 uint8_t gAnimCounter = 0;
 
 void setup() {
@@ -49,7 +49,7 @@ void setup() {
   random16_add_entropy(analogRead(5));
 
   // Setup strands of LED
-  FastLED.addLeds<WS2812, LED_IN, GRB>(leds, numLED).setCorrection( TypicalLEDStrip );
+  FastLED.addLeds<WS2812B, LED_IN, GRB>(leds, numLED).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(maxBrightness);
   FastLED.show();
 
@@ -94,26 +94,20 @@ void loop() {
   ///////////////////////////////////////////////////////////////////////
   switch( gAnimCounter ) {
     case 0:
-      palette_mod(100);
+      palette_mod(50);
       break;
     case 1:
       fill_mod_smooth(120);
       break;
     case 2:
-      palette_eq(120);
-      break;
-    case 3:
-      theater_chase(150);
-      break;
-    case 4:
-      theater_chase_bounce(15);
+      theater_chase_bounce(120);
       break;     
     //////////////////////////////////////////////////////////////
     // This animation is pretty crappy. I was trying to do it   //
     // a fancy way but it totally failed. You can delete the    //
     // next three lines if you want to remove it from the loop. //
     //////////////////////////////////////////////////////////////
-    case 5:
+    case 3:
       theater_chase_mod(150);
       break;
   }
