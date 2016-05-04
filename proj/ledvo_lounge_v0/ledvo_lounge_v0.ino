@@ -440,6 +440,8 @@ void fill_ramp_up() {
   
 }
 
+// Jump to a fully illuminated strand, then ramp down. Also like a saw wave, but
+// the opposite direction.
 void fill_ramp_down() {
   static uint8_t brightness = 0;
   static uint8_t pal_index = 0;
@@ -460,17 +462,18 @@ void fill_ramp_down() {
 }
 
 
-// FINISH THIS SHIT
+// Like palette_eq, but uses a triangular wave. This lets us have more control over the speed
+// and transition smoother between animation rates.
 void palette_eq_tri() {
   static uint8_t pal_index = 0;
-  static uint8_t lead_max = numLED / 2;
-  static uint8_t lead = 0;
-  static uint8_t prev;
+  static uint16_t lead_max = numLED / 2;
+  static uint16_t lead = 0;
 
   // Fill bar at input dependent rate. First record the previous lead value
   // so that we can check which diretion we are heading on the sin wave later on
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
+    lead = (lead+1)%(2*lead_max);
   }
 
   // If the eq bar is about to be empty, generate a new max length to fill.
@@ -479,22 +482,80 @@ void palette_eq_tri() {
   if (lead == 0) {   
     pal_index+=16;
     lead_max = random8(numLED / 3, numLED); 
-    
   }
 
-  //fill_palette(leds, lead, pal_index, 16, gPalette, maxBrightness, gBlending);
-  fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  // Fill the the bar until we get to lead_max, then work our way back down. This doesn't use
+  // triwave8 explicitly since it has a set range and we need to change the amplitude of the triangluar
+  // each time we make a "round trip"
+  if (lead < lead_max) {
+    fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else {
+    fill_solid(leds, 2*lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
   FastLED.show();
+  // Need this so that the decreasing direction animates properly
   fadeToBlackBy(leds, numLED, 20);
 }
 
-void starry_night() {
+// Pretty self explanatory. Grab a random LED and turn it on if it's off, or turn it off if it's on.
+// Rinse and repeat.
+void starry_night_flicker() {
+  // Grab a random LED
+  static uint16_t led = random16(numLED);
+
+  // Now ramp up and down the pixel at an input dependent rate
+  static uint8_t brightness = 0;
+  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 100));
+    brightness++;
+  }
+
+  // IDK if this will work like I want it to.
+  //leds[led].h = CRGB::White;
+  //leds[led].v = triwave8(brightness);
+  FastLED.show();
+
+  // If we are back to zero brightness, grab a new led to do this with
+  if (brightness == 0) {
+    led = random16(numLED);
+  }
   
 }
 
 // Fill the whole strip from left to right, then empty from left to right.
 void fill_to_empty() {
-  
+  // Index for grabbing colors from the global palette
+  static uint8_t pal_index = 0;
+
+  // Some variables for the filling animation
+  static boolean fill = true; // Flag to know which way we are filling
+  static uint16_t lead = 0;
+
+  EVERY_N_MILLISECONDS_I(thisTimer, 50) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
+    lead = (lead+1)%numLED;
+  }
+
+  // Switch fill flag if we are done filling. If we are done emptying, switch
+  // the flag and also grab the next color in the palette.
+  if(lead == 0) {
+    if (fill) {
+      fill = false;
+    }
+    else {
+      fill = true;
+      pal_index += 16;
+    }
+  }
+
+  if (fill) {
+    fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else {
+    fill_solid(leds, lead, CRGB::Black);
+  }
+  FastLED.show(); 
 }
 
 // Random blocks of colors with a random width.
