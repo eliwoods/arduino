@@ -18,12 +18,12 @@
 
 // Digital Pins
 #define LED_IN 6
-#define PAL_INC_INT 2 // Ppalette incrementing interrupt
+#define PAL_INC_INT 2 // Palette incrementing interrupt
 #define PAL_DEC_INT 2 // Palette decrementing interrupt
 #define PAL_AUTO_INT 3 // Autopilot palette mode interrupt
 #define ANIM_INC_INT 3 // Animation incrementing interrupt
 #define ANIM_DEC_INT 3 // Animation decrementing interrupt
-#define ANIM_AUTO_INT 3 // IAnimation autopilot interrupt
+#define ANIM_AUTO_INT 3 // Animation autopilot interrupt
 #define STROBE_INT 3 // Strobe animation interrupt
 #define BLKOUT_INT 3 // Blackout animation interrupt
 #define WHTOUT_INT 3 // Whiteout animation interrupt
@@ -35,7 +35,7 @@
 const uint8_t frameRate = 100; // FPS
 const uint8_t maxBrightness = 200;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
-const uint8_t numLED = 30;
+const uint8_t numLED = 60;
 CRGB *leds = new CRGB[numLED];
 
 // Variables for pin interrupts (there's a lot of these babies)
@@ -60,13 +60,14 @@ TBlendType gBlending;
 uint8_t gIndex; // Global Palette Index
 extern const uint8_t numPalettes;
 extern const TProgmemPalette16 WhiteBlack_p PROGMEM;
+extern const TProgmemPalette16 WhiteBlack2_p PROGMEM;
 
 // To control hue globally through a potentiometer input
 CRGB gRGB;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 6;
+const uint8_t numAnimation = 10;
 
 void setup() {
   delay(3000); // Safely power up
@@ -159,7 +160,7 @@ void loop() {
     updateGPalette();
   }
   else {
-    updateGPalette();
+    //updateGPalette();
   }
   
   // Check if we want to autopilot the animations
@@ -176,7 +177,7 @@ void loop() {
   }
 
   // Select animation to run based on global counter
-  if (!dj_control) {
+  /*if (!dj_control) {
     switch( gAnimCounter ) {     
       case 0:
         theater_chase();
@@ -196,8 +197,24 @@ void loop() {
       case 5:
         palette_eq();
         break;
+      case 6:
+        fill_ramp_up();
+        break;
+      case 7:
+        fill_ramp_down();
+        break;
+      case 8:
+        palette_eq_tri();
+        break;
+      case 9:
+        fill_to_empty();
+        break;
     }
-  }
+  }*/
+
+  //fill_to_empty();
+
+  theater_chase();
 
   // The following are all checks for DJ animations that
   // interrupt the normal animations for some added IN YO FACE
@@ -427,7 +444,7 @@ void fill_ramp_up() {
   // Ramp the brightness up at a input controlled rate
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
-    brightness++;
+    brightness += 16;
   }
 
   // Jump to next color in the gradient if we are at the bottom of the ramp
@@ -449,12 +466,12 @@ void fill_ramp_down() {
   // Ramp the brightness up at a input controlled rate
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
-    brightness--;
+    brightness -= 16;
   }
 
   // Jump to next color in the gradient if we are at the bottom of the ramp
   if (brightness == 0) {
-    pal_index += 16;
+    pal_index -= 16;
   }
 
   fill_solid(leds, numLED, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
@@ -480,7 +497,7 @@ void palette_eq_tri() {
   // Also increment the index of the palette, for a little more modulation cuz
   // why not.
   if (lead == 0) {   
-    pal_index+=16;
+    pal_index += 16;
     lead_max = random8(numLED / 3, numLED); 
   }
 
@@ -496,31 +513,6 @@ void palette_eq_tri() {
   FastLED.show();
   // Need this so that the decreasing direction animates properly
   fadeToBlackBy(leds, numLED, 20);
-}
-
-// Pretty self explanatory. Grab a random LED and turn it on if it's off, or turn it off if it's on.
-// Rinse and repeat.
-void starry_night_flicker() {
-  // Grab a random LED
-  static uint16_t led = random16(numLED);
-
-  // Now ramp up and down the pixel at an input dependent rate
-  static uint8_t brightness = 0;
-  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 100));
-    brightness++;
-  }
-
-  // IDK if this will work like I want it to.
-  //leds[led].h = CRGB::White;
-  //leds[led].v = triwave8(brightness);
-  FastLED.show();
-
-  // If we are back to zero brightness, grab a new led to do this with
-  if (brightness == 0) {
-    led = random16(numLED);
-  }
-  
 }
 
 // Fill the whole strip from left to right, then empty from left to right.
@@ -550,13 +542,41 @@ void fill_to_empty() {
   }
 
   if (fill) {
-    fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    //fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(leds, lead, CRGB::Red);
   }
   else {
     fill_solid(leds, lead, CRGB::Black);
   }
   FastLED.show(); 
 }
+
+
+// Pretty self explanatory. Grab a random LED and turn it on if it's off, or turn it off if it's on.
+// Rinse and repeat.
+void starry_night_flicker() {
+  // Grab a random LED
+  static uint16_t led = random16(numLED);
+
+  // Now ramp up and down the pixel at an input dependent rate
+  static uint8_t brightness = 0;
+  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 100));
+    brightness++;
+  }
+
+  // IDK if this will work like I want it to.
+  //leds[led].h = CRGB::White;
+  //leds[led].v = triwave8(brightness);
+  FastLED.show();
+
+  // If we are back to zero brightness, grab a new led to do this with
+  if (brightness == 0) {
+    led = random16(numLED);
+  }
+  
+}
+
 
 // Random blocks of colors with a random width.
 void theater_chase_random() {

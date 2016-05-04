@@ -73,6 +73,25 @@ void update_ColLead_p() {
 // since they are not modular and don't have any dependence on global variables //
 //////////////////////////////////////////////////////////////////////////////////
 
+const TProgmemPalette16 WhiteBlack2_p PROGMEM = {
+  CRGB::White,
+  CRGB::Black,
+  CRGB::White,
+  CRGB::Black,
+  CRGB::White,
+  CRGB::Black,
+  CRGB::White,
+  CRGB::Black,
+  CRGB::White,
+  CRGB::Black,
+  CRGB::White,
+  CRGB::Black,
+  CRGB::White,
+  CRGB::Black,
+  CRGB::White,
+  CRGB::Black,
+};
+
 // W|B|B|B repeating
 const TProgmemPalette16 WhiteBlack_p PROGMEM = {
   CRGB::White,
@@ -224,7 +243,7 @@ DEFINE_GRADIENT_PALETTE( Crystal_Ice_Palace_gp ) {
 
 // This has to be hand counted and updated whenever we add more palettes. There are also some predefined palettes
 // that need to get accounted for :(
-const uint8_t numPalettes = 9;
+const uint8_t numPalettes = 10;
 
 // This handles the switching of palettes based on the global palette counter. Need to add palettes to this function
 // whenever they are added up above. Declare it down here so we can get away with not having to use the Gradient Palette
@@ -261,6 +280,8 @@ void updateGPalette() {
     case 8:
       gPalette = Crystal_Ice_Palace_gp;
       break;
+    case 9:
+      gPalette = WhiteBlack2_p;
   }
 }
 
