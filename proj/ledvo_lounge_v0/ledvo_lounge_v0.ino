@@ -35,7 +35,7 @@
 const uint8_t frameRate = 100; // FPS
 const uint8_t maxBrightness = 200;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
-const uint8_t numLED = 60;
+const uint16_t numLED = 60;
 CRGB *leds = new CRGB[numLED];
 
 // Variables for pin interrupts (there's a lot of these babies)
@@ -133,7 +133,7 @@ void setup() {
   // Interrupt for strobing black over current animation.
   //pinMode(BLKSTROBE_INT, INPUT);
   //attachInterrupt(digitalPinToInterrupt(BLKSTROBE_INT), debounce_blk_strobe, RISING);
-  
+
   // Interrupt for reversing animation direction. Look for change since this will
   // be a latching button
   //pinMode(REVERS_INT, INPUT);
@@ -143,7 +143,7 @@ void setup() {
 void loop() {
   // Read in global brightness value
   //gBrightness = map(analogRead(VAL_POT), 0, 1253, 0, maxBrightness);
-  
+
   // Read color from potentiometer input
   gRGB = CHSV(map(analogRead(HUE_POT), 0, 1253, 0, 255), 255, gBrightness);
 
@@ -155,18 +155,18 @@ void loop() {
   // Check the palette counter and switch acordingly or go into autopilot mode
   if (palette_autopilot) {
     EVERY_N_SECONDS(30) {
-      gPaletteCounter = (gPaletteCounter+1)%numPalettes;
+      gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
     }
     updateGPalette();
   }
   else {
     //updateGPalette();
   }
-  
+
   // Check if we want to autopilot the animations
   if (anim_autopilot) {
     EVERY_N_SECONDS(30) {
-      gAnimCounter = (gAnimCounter+1)%numAnimation;
+      gAnimCounter = (gAnimCounter + 1) % numAnimation;
     }
   }
 
@@ -178,7 +178,7 @@ void loop() {
 
   // Select animation to run based on global counter
   /*if (!dj_control) {
-    switch( gAnimCounter ) {     
+    switch( gAnimCounter ) {
       case 0:
         theater_chase();
         break;
@@ -210,7 +210,7 @@ void loop() {
         fill_to_empty();
         break;
     }
-  }*/
+    }*/
 
   //fill_to_empty();
 
@@ -241,10 +241,10 @@ void loop() {
 
 // Can't be named strobe for some reason... IDK man
 void strobes() {
-//  EVERY_N_MILLISECONDS_I(thisTimer, 200) {
-//    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 100, 300));
-//    fill_solid(leds, numLED, CRGB::White);
-//  }
+  //  EVERY_N_MILLISECONDS_I(thisTimer, 200) {
+  //    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 100, 300));
+  //    fill_solid(leds, numLED, CRGB::White);
+  //  }
 
   EVERY_N_MILLISECONDS(200) {
     fill_solid(leds, numLED, CRGB::White);
@@ -258,9 +258,9 @@ void strobes() {
 // Strobes black over animations, or at least a crude attempt to do so
 void strobe_black() {
   EVERY_N_MILLISECONDS_I(thisTimer, 175) {
-      fill_solid(leds, numLED, CRGB::Black);
-      FastLED.show();
-      FastLED.delay(50);
+    fill_solid(leds, numLED, CRGB::Black);
+    FastLED.show();
+    FastLED.delay(50);
   }
 }
 
@@ -284,14 +284,14 @@ void whiteout() {
 // work our way through the global template
 void fill_smooth() {
   static uint8_t brightness = 0;
-  static uint8_t pal_index = 0; 
+  static uint8_t pal_index = 0;
 
   // Some variables to help us smoothly transition between rates and
   // keep track of where we are on the sinwave
   static uint8_t bpm = map(analogRead(RATE_POT), 0, 1253, 120, 10);
   static uint8_t prev_brightness = 0;
   static uint8_t last_second = 99;
-  uint8_t second = (millis()/1000)%60;
+  uint8_t second = (millis() / 1000) % 60;
 
   // Modulate brigthness at input dependent rate
   prev_brightness = brightness;
@@ -316,15 +316,15 @@ void fill_smooth() {
 // A single equalizer type bar
 void palette_eq() {
   static uint8_t pal_index = 0;
-  static uint8_t lead_max = numLED / 2;
-  static uint8_t lead = 0;
+  static uint16_t lead_max = numLED / 2;
+  static uint16_t lead = 0;
 
   // Some variables to help us smoothly transition between rates and
   // keep track of where we are on the sinwave
   static uint8_t bpm = map(analogRead(RATE_POT), 0, 1253, 120, 10);
   static uint8_t prev = 0;
   static uint8_t last_second = 99;
-  uint8_t second = (millis()/1000)%60;
+  uint8_t second = (millis() / 1000) % 60;
 
   // Fill bar at input dependent rate. First record the previous lead value
   // so that we can check which diretion we are heading on the sin wave later on
@@ -334,9 +334,9 @@ void palette_eq() {
   // If the eq bar is about to be empty, generate a new max length to fill.
   // Also increment the index of the palette, for a little more modulation cuz
   // why not.
-  if (lead == 0 && (lead - prev) < 0) {   
-    pal_index+=16;
-    lead_max = random8(numLED / 3, numLED); 
+  if (lead == 0 && (lead - prev) < 0) {
+    pal_index += 16;
+    lead_max = random8(numLED / 3, numLED);
   }
 
   // Check for rate change here so we don't interrupt the color and length
@@ -375,13 +375,13 @@ void theater_chase() {
 
 // A theater chase where packets switch directions every once in a while
 void theater_chase_bounce() {
-  static uint8_t pal_index = 0;  
+  static uint8_t pal_index = 0;
   static uint8_t bpm = map(analogRead(RATE_POT), 0 , 1253, 60, 20);
 
   // Some variables to help us smoothly transition between rates
   static uint8_t last_index = 0;
   static uint8_t last_second = 99;
-  uint8_t second = (millis()/1000)%60;
+  uint8_t second = (millis() / 1000) % 60;
 
   // Update lead LED position at an input dependent rate
   last_index = pal_index;
@@ -391,7 +391,7 @@ void theater_chase_bounce() {
     last_second = second;
     bpm = map(analogRead(RATE_POT), 0 , 1253, 60, 20);
   }
-  
+
   fill_palette(leds, numLED, pal_index, 4, gPalette, maxBrightness, gBlending);
   FastLED.show();
 }
@@ -454,7 +454,7 @@ void fill_ramp_up() {
 
   fill_solid(leds, numLED, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
   FastLED.show();
-  
+
 }
 
 // Jump to a fully illuminated strand, then ramp down. Also like a saw wave, but
@@ -490,15 +490,15 @@ void palette_eq_tri() {
   // so that we can check which diretion we are heading on the sin wave later on
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
-    lead = (lead+1)%(2*lead_max);
+    lead = (lead + 1) % (2 * lead_max);
   }
 
   // If the eq bar is about to be empty, generate a new max length to fill.
   // Also increment the index of the palette, for a little more modulation cuz
   // why not.
-  if (lead == 0) {   
+  if (lead == 0) {
     pal_index += 16;
-    lead_max = random8(numLED / 3, numLED); 
+    lead_max = random8(numLED / 3, numLED);
   }
 
   // Fill the the bar until we get to lead_max, then work our way back down. This doesn't use
@@ -508,7 +508,7 @@ void palette_eq_tri() {
     fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   }
   else {
-    fill_solid(leds, 2*lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(leds, 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   }
   FastLED.show();
   // Need this so that the decreasing direction animates properly
@@ -526,20 +526,10 @@ void fill_to_empty() {
 
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
-    lead = (lead+1)%numLED;
+    lead = (lead + 1) % numLED;
   }
 
-  // Switch fill flag if we are done filling. If we are done emptying, switch
-  // the flag and also grab the next color in the palette.
-  if(lead == 0) {
-    if (fill) {
-      fill = false;
-    }
-    else {
-      fill = true;
-      pal_index += 16;
-    }
-  }
+
 
   if (fill) {
     //fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
@@ -548,7 +538,20 @@ void fill_to_empty() {
   else {
     fill_solid(leds, lead, CRGB::Black);
   }
-  FastLED.show(); 
+  FastLED.show();
+
+  // Switch fill flag if we are done filling. If we are done emptying, switch
+  // the flag and also grab the next color in the palette. Try this in here
+  // to see if it fixes the issue of missing the switch at 0
+  if (lead == numLED - 1) {
+    if (fill) {
+      fill = false;
+    }
+    else {
+      fill = true;
+      pal_index += 16;
+    }
+  }
 }
 
 
@@ -559,22 +562,63 @@ void starry_night_flicker() {
   static uint16_t led = random16(numLED);
 
   // Now ramp up and down the pixel at an input dependent rate
-  static uint8_t brightness = 0;
+  static uint8_t brightness_counter = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 100));
-    brightness++;
+    brightness_counter += 4; // Make this ramp up a little bit faster
   }
 
-  // IDK if this will work like I want it to.
-  //leds[led].h = CRGB::White;
-  //leds[led].v = triwave8(brightness);
+  // Ramp all the channels up at the same rate achieve a single
+  // pixel white glowing effect
+  uint8_t brightness = triwave8(brightness_counter);
+  leds[led] = CRGB(brightness, brightness, brightness);
   FastLED.show();
 
   // If we are back to zero brightness, grab a new led to do this with
-  if (brightness == 0) {
+  if (brightness_counter == 0) {
     led = random16(numLED);
   }
-  
+
+}
+
+void starry_night_vector() {
+  // Vector to store the randomly chosen leds
+  static std::vector<uint16_t> stars;
+
+  // If the vector is empty, we are either running for the first time
+  // or we are on the next cycle. Either way we want to set it up
+  if (stars.size() == 0) {
+    uint8_t rnd;
+    for (uint16_t ll = 0; ll < numLED; ll++) {
+      rnd = random8();
+      // Only set ~1/3 of the leds as a star
+      if (rnd < (255 / 3)) {
+        stars.push_back(ll);
+      }
+    }
+  }
+
+  // Increase brightness at an input controlled rate
+  static uint8_t brightness_counter = 0;
+  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 150));
+    brightness_counter += 4;
+  }
+
+  // Now loop over stars and ramp their brightness up and down
+  uint8_t brightness = triwave8(brightness_counter);
+  for (uint16_t ll = 0; ll < stars.size(); ll++ ) {
+    leds[stars[ll]] = CRGB(brightness, brightness, brightness);
+  }
+
+  FastLED.show();
+
+  // Check if we are at the valley of our triwave, and clear the
+  // vector for the next set of stars if we are.
+  if (brightness_counter == 0) {
+    stars.clear();
+  }
+
 }
 
 
@@ -582,16 +626,16 @@ void starry_night_flicker() {
 void theater_chase_random() {
   // Vector to hold the widths, since they're randomly
   // determined, we need a vector to deal with varying sizes
-  static std::vector<uint8_t> packet_widths;  
+  static std::vector<uint8_t> packet_widths;
   static std::vector<CRGB> packet_colors;
-  
+
   // Fill the vector the first time it's run. Use a static variable
   // so we only have to run it once
   static boolean first_run = false;
   if (first_run) {
     uint8_t rnd_width;
     uint8_t num_filled = 0; // Keep track of how many LEDs we've filled
-    uint8_t pal_index=0;
+    uint8_t pal_index = 0;
     while (num_filled < numLED) {
       // Generate new packet length
       rnd_width = random8(2, 5);
@@ -605,9 +649,9 @@ void theater_chase_random() {
 
     // Now loop through the vectors and fill the strand
     for (uint8_t vec_index = 0; vec_index < packet_widths.size(); vec_index++) {
-      
+
     }
-    
+
   }
-  
+
 }
