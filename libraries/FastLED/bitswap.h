@@ -1,6 +1,8 @@
 #ifndef __INC_BITSWAP_H
 #define __INC_BITSWAP_H
 
+#include "FastLED.h"
+
 FASTLED_NAMESPACE_BEGIN
 
 ///@file bitswap.h
@@ -9,7 +11,7 @@ FASTLED_NAMESPACE_BEGIN
 ///@defgroup Bitswap Bit swapping/rotate
 ///Functions for doing a rotation of bits/bytes used by parallel output
 ///@{
-#ifdef FASTLED_ARM
+#if defined(FASTLED_ARM) || defined(FASTLED_ESP8266)
 /// structure representing 8 bits of access
 typedef union {
   uint8_t raw;
