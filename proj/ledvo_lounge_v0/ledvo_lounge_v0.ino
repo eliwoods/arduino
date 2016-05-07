@@ -521,7 +521,7 @@ void fill_to_empty() {
   static uint8_t pal_index = 0;
 
   // Some variables for the filling animation
-  static boolean fill = true; // Flag to know which way we are filling
+  static boolean _fill = true; // Flag to know which way we are filling
   static uint16_t lead = 0;
 
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
@@ -531,7 +531,7 @@ void fill_to_empty() {
 
 
 
-  if (fill) {
+  if (_fill) {
     //fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
     fill_solid(leds, lead, CRGB::Red);
   }
@@ -544,11 +544,11 @@ void fill_to_empty() {
   // the flag and also grab the next color in the palette. Try this in here
   // to see if it fixes the issue of missing the switch at 0
   if (lead == numLED - 1) {
-    if (fill) {
-      fill = false;
+    if (_fill) {
+      _fill = false;
     }
     else {
-      fill = true;
+      _fill = true;
       pal_index += 16;
     }
   }

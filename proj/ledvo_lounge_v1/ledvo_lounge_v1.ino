@@ -44,13 +44,16 @@
 const uint8_t frameRate = 100; // FPS
 const uint8_t maxBrightness = 200;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
+uint8_t led_5ft_strand = 90; // The size of one module
 
 // Variables for LED strands
-const uint16_t ih_LED_per_strand = 180; // 90 LED per 5' strand with 10' hexagon sides on the inside
+const uint8_t ih_LED_per_strand = 180; // 90 LED per 5' strand with 10' hexagon sides on the inside
+const uint8_t ih_LED_total = 6*ih_LED_per_strand;
 CRGBArray<ih_LED_per_strand * 6> ih_leds;
 
 const uint16_t oh_LED_per_strand = 360; // 90 LED per 5' strand with 20' hexagon sides on outside
-CRGBArray<oh_LED_per_strand> oh_leds;
+const uint16_t oh_LED_total = 6*oh_LED_per_strand;
+CRGBArray<oh_LED_per_strand*6> oh_leds;
 
 const uint16_t d_LED_per_strand = 45; // 90 LED per 5' strand with 10' diagonals
 CRGB d_leds[6][d_LED_per_strand];
@@ -97,7 +100,7 @@ void setup() {
   random16_add_entropy(analogRead(5));
 
   // Setup strands of LEDs
-  //  FastLED.addLeds<WS2812B, LED_IH, GRB>(ih_leds, ih_LED_per_strand*6);
+  //  FastLED.addLeds<WS2812B, LED_IH, GRB>(ih_leds, ih_LED_total*6);
   //  FastLED.addLeds<WS2812B, LED_OH, GRB>(oh_leds, oh_LED_per_strand*6);
   FastLED.addLeds<WS2812B, LED_D0, GRB>(d_leds[0], d_LED_per_strand);
   FastLED.addLeds<WS2812B, LED_D1, GRB>(d_leds[1], d_LED_per_strand);
@@ -186,7 +189,6 @@ void loop() {
   else {
     updateGPalette();
   }
-  update_RainbowBlack_p();
 
   // Check if we want to autopilot the animations
   if (anim_autopilot) {
@@ -209,16 +211,8 @@ void loop() {
     }*/
 
   //diagonal_eq();
-  diagonal_theater_eo();
-
-  //  static uint8_t pal_index = 0;
-  //  EVERY_N_SECONDS(1) {
-  //    pal_index += 16;
-  //  }
-  //  for (int i = 0; i < 6; i++) {
-  //    fill_solid(d_leds[i], d_LED_per_strand, ColorFromPalette(RainbowColors_p, pal_index, gBrightness));
-  //  }
-  //  FastLED.show();
+  //diagonal_theater_eo();
+  diagonal_flash_timed();
 
   // The following are all checks for DJ animations that
   // interrupt the normal animations for some added IN YO FACE
@@ -251,11 +245,11 @@ void loop() {
 // every once in a while for some added effect
 void diagonal_eq() {
   static uint8_t pal_index[] = {0, 0, 0, 0, 0, 0};
-  static uint8_t lead_max[] = {d_LED_per_strand / 2, d_LED_per_strand / 2,
-                               d_LED_per_strand / 2, d_LED_per_strand / 2,
-                               d_LED_per_strand / 2, d_LED_per_strand / 2
-                              };
-  static uint8_t lead[] = {0, 0, 0, 0, 0, 0};
+  static uint16_t lead_max[] = {d_LED_per_strand / 2, d_LED_per_strand / 2,
+                                d_LED_per_strand / 2, d_LED_per_strand / 2,
+                                d_LED_per_strand / 2, d_LED_per_strand / 2
+                               };
+  static uint16_t lead[] = {0, 0, 0, 0, 0, 0};
 
   // Fill the bars at a input dependent rate. Lets try this with a triangular wave at first
   EVERY_N_MILLISECONDS(50) {
@@ -287,6 +281,7 @@ void diagonal_eq() {
   for (uint8_t dd = 0; dd < 6; dd++ ) {
     fadeToBlackBy(d_leds[dd], d_LED_per_strand, 20);
   }
+
 }
 
 void diagonal_tri() {
@@ -336,26 +331,220 @@ void diagonal_tri() {
   }
 }
 
-// Run theater chase in opposite directions along every other strip
-void diagonal_theater_eo() {
-  static uint8_t pal_index[] = {0, 0, 0, 0, 0, 0, 0, 0};
+void diagonal_theater() {
+  static uint8_t pal_index = 0;
 
   // Move the palette index in the appropriate direction depending on
   // which strip we're on
   EVERY_N_MILLISECONDS(10) {
-    for (uint8_t dd = 0 ; dd < 6; dd++) {
-      if ( dd % 2 == 0) {
-        pal_index[dd]++;
-      }
-      else {
-        pal_index[dd]--;
-      }
+    pal_index = 0;
+  }
+
+  for (uint8_t dd = 0 ; dd < 6; dd++) {
+    theater_chase(d_leds[dd], d_LED_per_strand, pal_index);
+  }
+}
+
+// Run theater chase in opposite directions along every other strip
+void diagonal_theater_eo() {
+  // First index is for increasing, second index is for decreasing
+  static uint8_t pal_index[] = {0, 0};
+
+  // Move the palette index in the appropriate direction depending on
+  // which strip we're on
+  EVERY_N_MILLISECONDS(10) {
+    pal_index[0]++;
+    pal_index[1]--;
+  }
+
+  for (uint8_t dd = 0 ; dd < 6; dd++) {
+    if ( dd % 2 == 0 ) {
+      theater_chase(d_leds[dd], d_LED_per_strand, pal_index[0]);
+    }
+    else {
+      theater_chase(d_leds[dd], d_LED_per_strand, pal_index[1]);
     }
   }
 
-  for (uint8_t dd =0 ; dd < 6; dd++) {
-    theater_chase(d_leds[dd], d_LED_per_strand, pal_index[dd]);
+}
+
+// Flash the whole diagonal strips in various orders depending on the elapsed time. First
+// flash from 0 -> 6, then flash opposite sides, then 0 -> 6 -> 0, then ranndom strips
+void diagonal_flash_timed() {
+  static uint8_t brightness = 0;
+  static uint8_t pal_index[]  = {0, 0, 0, 0, 0, 0};
+  static uint8_t anim_set = 0;
+  static uint8_t current_strand = 0;
+  static boolean just_switched = true;
+
+  // First, keep track of how long we've been running this animation
+  /*EVERY_N_SECONDS(10) {
+    anim_set = (anim_set + 1) % 4;
+    // Reset some shit every time we switch animations
+    for (uint8_t dd = 0; dd < 6; dd++) {
+      brightness[dd] = 0;
+      current_strand = 0;
+    }
+    just_switched = true;
+    }*/
+
+  EVERY_N_MILLISECONDS(10) {
+    brightness += 16;
+    if (just_switched) {
+      just_switched = false;
+    }
   }
-  
+
+  if (!just_switched) {
+    if (brightness == 0) {
+      if (current_strand < 6) {
+        fill_solid(d_leds[current_strand], d_LED_per_strand, CRGB::Black);
+      }
+      else {
+        fill_solid(d_leds[12 - current_strand], d_LED_per_strand, CRGB::Black);
+      }
+      FastLED.show();
+      current_strand = (current_strand + 1) % 12;
+      just_switched = true;
+    }
+  }
+
+  if (current_strand < 6) {
+    fill_solid(d_leds[current_strand], d_LED_per_strand, CRGB(brightness, 0, 0));
+  }
+  else {
+    fill_solid(d_leds[12 - current_strand], d_LED_per_strand, CRGB(brightness, 0, 0));
+  }
+  FastLED.show();
+
+  // We have to use the just_switched flag in order keep the code from running over certain
+  // conditions until they have actually changed.
+  /*switch (anim_set) {
+    // Flash 0 -> 6
+    case 0:
+      EVERY_N_MILLISECONDS(10) {
+        brightness += 16;
+        if ( just_switched) {
+          just_switched = false;
+        }
+      }
+      if (!just_switched) {
+        if (brightness == 0) {
+          fill_solid(d_leds[current_strand], d_LED_per_strand, CRGB::Black);
+          FastLED.show();
+          current_strand = (current_strand + 1) % 6;
+          just_switched = true;
+        }
+      }
+      fill_solid(d_leds[current_strand], d_LED_per_strand, CRGB(brightness, 0, 0));
+      FastLED.show();
+    // Flash opposite sides 0 -> 3 (yay symmetry!!!)
+    case 1:
+      EVERY_N_MILLISECONDS(10) {
+        brightness += 16;
+        if ( just_switched) {
+          just_switched = false;
+        }
+      }
+      if (!just_switched) {
+        if (brightness == 0) {
+          fill_solid(d_leds[current_strand], d_LED_per_strand, CRGB::Black);
+          fill_solid(d_leds[current_strand + 3], d_LED_per_strand, CRGB::Black);
+          FastLED.show();
+          current_strand = (current_strand + 1) % 3;
+          just_switched = true;
+        }
+      }
+      fill_solid(d_leds[current_strand], d_LED_per_strand, CRGB(brightness, 0, 0));
+      fill_solid(d_leds[current_strand + 3], d_LED_per_strand, CRGB(brightness, 0, 0));
+      FastLED.show();
+    // Flash strands 0 -> 6 -> 0
+    case 2:
+      EVERY_N_MILLISECONDS(10) {
+        brightness += 16;
+        if (just_switched) {
+          just_switched = false;
+        }
+      }
+
+      if (!just_switched) {
+        if (brightness == 0) {
+          if (current_strand < 6) {
+            fill_solid(d_leds[current_strand], d_LED_per_strand, CRGB::Black);
+          }
+          else {
+            fill_solid(d_leds[12 - current_strand], d_LED_per_strand, CRGB::Black);
+          }
+          FastLED.show();
+          current_strand = (current_strand + 1) % 12;
+          just_switched = true;
+        }
+      }
+
+      if (current_strand < 6) {
+        fill_solid(d_leds[current_strand], d_LED_per_strand, CRGB(brightness, 0, 0));
+      }
+      else {
+        fill_solid(d_leds[12 - current_strand], d_LED_per_strand, CRGB(brightness, 0, 0));
+      }
+      FastLED.show();
+    // Flash random strands
+    case 3:
+      EVERY_N_MILLISECONDS(25) {
+        brightness[current_strand] += 16;
+      }
+      if (brightness[current_strand] == 0) {
+        current_strand = random8(6);
+      }
+      fill_solid(d_leds[current_strand], d_LED_per_strand, CRGB::Red);
+      FastLED.show();
+    }*/
+
+}
+
+//////////////////////////
+// Inner Hex Animations //
+//////////////////////////
+
+void ih_theater_eo() {
+  static uint8_t pal_index = 0;
+
+  EVERY_N_MILLISECONDS(50) {
+    pal_index++;
+  }
+
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    if (dd % 2 == 0) {
+      theater_chase(ih_leds(dd, dd + led_5ft_strand), led_5ft_strand, pal_index);
+    }
+  }
+}
+
+void ih_theater() {
+  static uint8_t pal_index = 0;
+
+  EVERY_N_MILLISECONDS(50) {
+    pal_index++;
+  }
+
+  theater_chase(ih_leds, ih_LED_total, pal_index);
+}
+
+//////////////////////////
+// Outer Hex Animations //
+//////////////////////////
+
+void oh_theater_eo() {
+  static uint8_t pal_index = 0;
+
+  EVERY_N_MILLISECONDS(50) {
+     pal_index++;
+  }
+
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    if (dd % 2 == 1) {
+      theater_chase(oh_leds(dd, dd+oh_LED_per_strand), oh_LED_per_strand, pal_index);
+    }
+  }
 }
 

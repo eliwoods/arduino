@@ -4,60 +4,60 @@
 ////////////////////////////////////////////////////////////
 
 // Can't be named strobe for some reason... IDK man
-//void strobes() {
-//  // Fill everything with white at a user controlled rate, then fade to black to
-//  // get the strobe effect that we want
-//  EVERY_N_MILLISECONDS_I(thisTimer, 150) {
-//    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1253, 50, 300));
-//    fill_solid(ih_leds, ih_LED_per_strand*6, CRGB::White);
-//    fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::White);
-//    for (uint8_t ss = 0; ss < 6; ss++) {
-//      fill_solid(d_leds[ss], d_LED_per_strand, CRGB::White);
-//    }
-//  }
-//
-//  FastLED.show();
-//  fadeToBlackBy(ih_leds, ih_LED_per_strand*6, 10);
-//  fadeToBlackBy(oh_leds, oh_LED_per_strand*6, 10);
-//  for (uint8_t ss = 0; ss < 6; ss++) {
-//    fadeToBlackBy(d_leds[ss], d_LED_per_strand, 10);
-//  }
-//}
-//
-//// Strobes black over animations. Basically we play this animation in
-//// conjunction with whatever else is running. It's not really an interrupt
-//// animation but rather another layer.
-//void strobe_black() {
-//  EVERY_N_MILLISECONDS_I(thisTimer, 175) {
-//    fill_solid(ih_leds, ih_LED_per_strand*6, CRGB::Black);
-//    fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::Black);
-//    for (uint8_t ss = 0; ss < 6; ss++ ) {
-//      fill_solid(d_leds[ss], d_LED_per_strand, CRGB::Black);
-//    }
-//    FastLED.show();
-//    FastLED.delay(50);
-//  }
-//}
-//
-//// Does what it says, sets every LED to black
-//void blackout() {
-//  fill_solid(ih_leds, ih_LED_per_strand, CRGB::Black);
-//  fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::Black);
-//  for (uint8_t ss = 0; ss < 6; ss++ ) {
-//    fill_solid(d_leds[ss], d_LED_per_strand, CRGB::Black);
-//  }
-//  FastLED.show();
-//}
-//
-//// Same as blackout, but with white.
-//void whiteout() {
-//  fill_solid(ih_leds, ih_LED_per_strand, CRGB::White);
-//  fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::White);
-//  for (uint8_t ss = 0; ss < 6; ss++ ) {
-//    fill_solid(d_leds[ss], d_LED_per_strand, CRGB::White);
-//  }
-//  FastLED.show();
-//}
+void strobes() {
+  // Fill everything with white at a user controlled rate, then fade to black to
+  // get the strobe effect that we want
+  EVERY_N_MILLISECONDS_I(thisTimer, 150) {
+    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1253, 50, 300));
+    fill_solid(ih_leds, ih_LED_total*6, CRGB::White);
+    fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::White);
+    for (uint8_t ss = 0; ss < 6; ss++) {
+      fill_solid(d_leds[ss], d_LED_per_strand, CRGB::White);
+    }
+  }
+
+  FastLED.show();
+  fadeToBlackBy(ih_leds, ih_LED_total*6, 10);
+  fadeToBlackBy(oh_leds, oh_LED_per_strand*6, 10);
+  for (uint8_t ss = 0; ss < 6; ss++) {
+    fadeToBlackBy(d_leds[ss], d_LED_per_strand, 10);
+  }
+}
+
+// Strobes black over animations. Basically we play this animation in
+// conjunction with whatever else is running. It's not really an interrupt
+// animation but rather another layer.
+void strobe_black() {
+  EVERY_N_MILLISECONDS_I(thisTimer, 175) {
+    fill_solid(ih_leds, ih_LED_total*6, CRGB::Black);
+    fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::Black);
+    for (uint8_t ss = 0; ss < 6; ss++ ) {
+      fill_solid(d_leds[ss], d_LED_per_strand, CRGB::Black);
+    }
+    FastLED.show();
+    FastLED.delay(50);
+  }
+}
+
+// Does what it says, sets every LED to black
+void blackout() {
+  fill_solid(ih_leds, ih_LED_total, CRGB::Black);
+  fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::Black);
+  for (uint8_t ss = 0; ss < 6; ss++ ) {
+    fill_solid(d_leds[ss], d_LED_per_strand, CRGB::Black);
+  }
+  FastLED.show();
+}
+
+// Same as blackout, but with white.
+void whiteout() {
+  fill_solid(ih_leds, ih_LED_total, CRGB::White);
+  fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::White);
+  for (uint8_t ss = 0; ss < 6; ss++ ) {
+    fill_solid(d_leds[ss], d_LED_per_strand, CRGB::White);
+  }
+  FastLED.show();
+}
 
 ///////////////////////////////////////
 // Some simple modulating animations //
@@ -255,25 +255,7 @@ void fill_ramp_down(CRGB *leds, uint16_t numLED) {
 
 // Like palette_eq, but uses a triangular wave. This lets us have more control over the speed
 // and transition smoother between animation rates.
-void palette_eq_tri(CRGB *leds, uint16_t numLED) {
-  static uint8_t pal_index = 0;
-  static uint16_t lead_max = numLED / 2;
-  static uint16_t lead = 0;
-
-  // Fill bar at input dependent rate. First record the previous lead value
-  // so that we can check which diretion we are heading on the sin wave later on
-  EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
-    lead = (lead + 1) % (2 * lead_max);
-  }
-
-  // If the eq bar is about to be empty, generate a new max length to fill.
-  // Also increment the index of the palette, for a little more modulation cuz
-  // why not.
-  if (lead == 0) {
-    pal_index += 16;
-    lead_max = random8(numLED / 3, numLED);
-  }
+void palette_eq_tri(CRGB *leds, uint16_t numLED, uint16_t lead, uint16_t lead_max, uint8_t pal_index) {
 
   // Fill the the bar until we get to lead_max, then work our way back down. This doesn't use
   // triwave8 explicitly since it has a set range and we need to change the amplitude of the triangluar
@@ -286,7 +268,7 @@ void palette_eq_tri(CRGB *leds, uint16_t numLED) {
   }
   FastLED.show();
   // Need this so that the decreasing direction animates properly
-  fadeToBlackBy(leds, numLED, 20);
+  fadeToBlackBy(leds, numLED, 10);
 }
 
 // Fill the whole strip from left to right, then empty from left to right.
@@ -295,7 +277,7 @@ void fill_to_empty(CRGB *leds, uint16_t numLED) {
   static uint8_t pal_index = 0;
 
   // Some variables for the filling animation
-  static boolean fill = true; // Flag to know which way we are filling
+  static boolean _fill = true; // Flag to know which way we are filling
   static uint16_t lead = 0;
 
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
@@ -303,9 +285,7 @@ void fill_to_empty(CRGB *leds, uint16_t numLED) {
     lead = (lead + 1) % numLED;
   }
 
-
-
-  if (fill) {
+  if (_fill) {
     //fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
     fill_solid(leds, lead, CRGB::Red);
   }
@@ -318,12 +298,11 @@ void fill_to_empty(CRGB *leds, uint16_t numLED) {
   // the flag and also grab the next color in the palette. Try this in here
   // to see if it fixes the issue of missing the switch at 0
   if (lead == numLED - 1) {
-    if (fill) {
-      fill = false;
+    if (_fill) {
+      _fill = false;
     }
     else {
-      fill = true;
-      pal_index += 16;
+      _fill = true;
     }
   }
 }
@@ -390,7 +369,7 @@ void starry_night_flicker(CRGB *leds, uint16_t numLED) {
     stars.clear();
   }
 
-}*/
+  }*/
 
 
 // Random blocks of colors with a random width.
@@ -425,4 +404,4 @@ void starry_night_flicker(CRGB *leds, uint16_t numLED) {
 
   }
 
-}*/
+  }*/
