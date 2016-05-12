@@ -243,7 +243,7 @@ DEFINE_GRADIENT_PALETTE( Crystal_Ice_Palace_gp ) {
 
 // This has to be hand counted and updated whenever we add more palettes. There are also some predefined palettes
 // that need to get accounted for :(
-const uint8_t numPalettes = 10;
+const uint8_t numPalettes = 11;
 
 // This handles the switching of palettes based on the global palette counter. Need to add palettes to this function
 // whenever they are added up above. Declare it down here so we can get away with not having to use the Gradient Palette

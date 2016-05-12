@@ -105,44 +105,6 @@ void debounce_strobe() {
   }
 }
 
-// Sets flag for blackout DJ animation
-void blackout_ISR() {
-  if (!run_blackout) {
-    run_blackout = true;
-    dj_control = true;
-  }
-  else {
-    run_blackout = false;
-    dj_control = false;
-  }
-}
-
-void debounce_blackout() {
-  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
-    blackout_ISR();
-    last_micros = micros();
-  }
-}
-
-// Sets flag for whiteout DJ animation
-void whiteout_ISR() {
-  if (!run_whiteout) {
-    run_whiteout = true;
-    dj_control = true;
-  }
-  else {
-    run_whiteout = false;
-    dj_control = false;
-  }
-}
-
-void debounce_whiteout() {
-  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
-    whiteout_ISR();
-    last_micros = micros();
-  }
-}
-
 // Sets flag for black strobing
 void blk_strobe_ISR() {
   if (!run_blkstrobe) {

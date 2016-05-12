@@ -7,20 +7,19 @@
 void strobes() {
   // Fill everything with white at a user controlled rate, then fade to black to
   // get the strobe effect that we want
-  EVERY_N_MILLISECONDS_I(thisTimer, 150) {
-    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1253, 50, 300));
-    fill_solid(ih_leds, ih_LED_total*6, CRGB::White);
-    fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::White);
-    for (uint8_t ss = 0; ss < 6; ss++) {
-      fill_solid(d_leds[ss], d_LED_per_strand, CRGB::White);
+  EVERY_N_MILLISECONDS(200) {
+    //thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1253, 50, 300));
+    fill_solid(ih_leds, ih_LED_total, CRGB::White);
+    fill_solid(oh_leds, oh_LED_total, CRGB::White);
+    for (uint8_t dd = 0; dd < 6; dd++) {
+      fill_solid(d_leds[dd], d_LED_num, CRGB::White);
     }
   }
-
   FastLED.show();
-  fadeToBlackBy(ih_leds, ih_LED_total*6, 10);
-  fadeToBlackBy(oh_leds, oh_LED_per_strand*6, 10);
-  for (uint8_t ss = 0; ss < 6; ss++) {
-    fadeToBlackBy(d_leds[ss], d_LED_per_strand, 10);
+  fill_solid(ih_leds, ih_LED_total, CRGB::Black);
+  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
   }
 }
 
@@ -29,10 +28,10 @@ void strobes() {
 // animation but rather another layer.
 void strobe_black() {
   EVERY_N_MILLISECONDS_I(thisTimer, 175) {
-    fill_solid(ih_leds, ih_LED_total*6, CRGB::Black);
-    fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::Black);
-    for (uint8_t ss = 0; ss < 6; ss++ ) {
-      fill_solid(d_leds[ss], d_LED_per_strand, CRGB::Black);
+    fill_solid(ih_leds, ih_LED_total, CRGB::Black);
+    fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+    for (uint8_t dd = 0; dd < 6; dd++) {
+      fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
     }
     FastLED.show();
     FastLED.delay(50);
@@ -42,9 +41,9 @@ void strobe_black() {
 // Does what it says, sets every LED to black
 void blackout() {
   fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-  fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::Black);
-  for (uint8_t ss = 0; ss < 6; ss++ ) {
-    fill_solid(d_leds[ss], d_LED_per_strand, CRGB::Black);
+  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
   }
   FastLED.show();
 }
@@ -52,9 +51,9 @@ void blackout() {
 // Same as blackout, but with white.
 void whiteout() {
   fill_solid(ih_leds, ih_LED_total, CRGB::White);
-  fill_solid(oh_leds, oh_LED_per_strand*6, CRGB::White);
-  for (uint8_t ss = 0; ss < 6; ss++ ) {
-    fill_solid(d_leds[ss], d_LED_per_strand, CRGB::White);
+  fill_solid(oh_leds, oh_LED_total, CRGB::White);
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(d_leds[dd], d_LED_num, CRGB::White);
   }
   FastLED.show();
 }
@@ -143,7 +142,7 @@ void palette_eq(CRGB *leds, uint16_t numLED) {
 
 // Simple theater chase where packets move continuously
 void theater_chase(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
-  fill_palette(leds, numLED, pal_index, 6, gPalette, maxBrightness, gBlending);
+  fill_palette(leds, numLED, pal_index, 6, gPalette, gBrightness, gBlending);
   FastLED.show();
 }
 
@@ -172,9 +171,7 @@ void theater_chase_bounce(CRGB *leds, uint16_t numLED) {
 
 // A theater chase where packets switch direction every once in a while. Lets see how
 // this looks with a saw wave
-void theater_chase_saw(CRGB *leds, uint16_t numLED) {
-  static uint8_t pal_index = 0;
-
+void theater_chase_tri(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
   // Increment palette index at an input dependent rate
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 500));
@@ -185,25 +182,12 @@ void theater_chase_saw(CRGB *leds, uint16_t numLED) {
   FastLED.show();
 }
 
-void theater_chase_mod(CRGB *leds, uint16_t numLED) {
-  // Index shit
-  static uint8_t pal_index = 0;
-  static uint8_t col_inc = 0;
-
-  // Move the palette index every 10 ms
-  EVERY_N_MILLISECONDS(10) {
-    pal_index++;
-  }
-  // Update the fill_palette spacing at an input dependent rate
-  EVERY_N_MILLISECONDS_I(thisTimer, 5) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 4000));
-    col_inc++;
-  }
+void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc) {
   if (col_inc < 256 / 2) {
-    fill_palette(leds, numLED, pal_index, col_inc, gPalette, maxBrightness, gBlending);
+    fill_palette(leds, numLED, 0, col_inc, gPalette, maxBrightness, gBlending);
   }
   else {
-    fill_palette(leds, numLED, pal_index, 256 - col_inc, gPalette, maxBrightness, gBlending);
+    fill_palette(leds, numLED, 0, 256 - col_inc, gPalette, maxBrightness, gBlending);
   }
   FastLED.show();
 }
