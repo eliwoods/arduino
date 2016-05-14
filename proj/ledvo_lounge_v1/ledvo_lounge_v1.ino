@@ -16,8 +16,7 @@
 #define VAL_POT 0 // Potentiometer for global brightness
 
 // Digital Pins for LED output
-#define LED_OH1 7
-#define LED_OH2 8
+#define LED_OH 7
 #define LED_D0 22
 #define LED_D1 24
 #define LED_D2 26
@@ -49,11 +48,11 @@ const uint16_t led_5ft_strand = 90; // The size of one module
 
 const uint16_t ih_LED_per_strand = 2 * led_5ft_strand; // 90 LED per 5' strand with 10' hexagon sides on the inside
 const uint16_t ih_LED_total = 6 * ih_LED_per_strand;
-CRGBArray<ih_LED_total> ih_leds;
+CRGB ih_leds[ih_LED_total];
 
 const uint16_t oh_LED_per_strand = 4 * led_5ft_strand; // 90 LED per 5' strand with 20' hexagon sides on outside
 const uint16_t oh_LED_total = 6 * oh_LED_per_strand;
-CRGBArray<oh_LED_total> oh_leds;
+CRGB oh_leds[oh_LED_total];
 
 const uint16_t d_LED_num = 2 * led_5ft_strand; // 90 LED per 5' strand with 10' diagonals
 CRGB d_leds[6][d_LED_num];
@@ -98,8 +97,7 @@ void setup() {
 
   // Setup strands of LEDs
   FastLED.addLeds<WS2812B, LED_IH, GRB>(ih_leds, ih_LED_total);
-  FastLED.addLeds<WS2812B, LED_OH1, GRB>(oh_leds, oh_LED_total / 2);
-  //  FastLED.addLeds<WS2812B, LED_OH2, GRB>(oh_leds+oh_LED_total/2, oh_LED_total/2);
+  FastLED.addLeds<WS2812B, LED_OH, GRB>(oh_leds, oh_LED_total / 2);
   FastLED.addLeds<WS2812B, LED_D0, GRB>(d_leds[0], d_LED_num / 2);
   FastLED.addLeds<WS2812B, LED_D1, GRB>(d_leds[1], d_LED_num);
   FastLED.addLeds<WS2812B, LED_D2, GRB>(d_leds[2], d_LED_num);
@@ -398,93 +396,13 @@ void diagonal_tri() {
   }
 }
 
-// Just runs the theater chase that's selected on the diagonals
-// theat_opt == 0 : theater_chase
-// theat_opt == 1 : theater_chase_saw
-// theat_opt == 2 : theater_chase_mod
-void diagonal_theater(uint8_t theat_opt) {
-  static uint8_t pal_index = 0;
-
-  // Check that the option is in range.
-  if (theat_opt > 3) {
-    theat_opt = 0;
-  }
-
-  // Move the palette index in the appropriate direction depending on
-  // which strip we're on
-  EVERY_N_MILLISECONDS(10) {
-    pal_index++;
-  }
-
-  if (theat_opt == 0) {
-    for (uint8_t dd = 0; dd < 6; dd++) {
-      theater_chase(d_leds[dd], d_LED_num, pal_index);
-    }
-  }
-  else if (theat_opt == 1) {
-    for (uint8_t dd = 0 ; dd < 6; dd++) {
-      theater_chase_tri(d_leds[dd], d_LED_num, pal_index);
-    }
-  }
-  else if (theat_opt == 2) {
-    for (uint8_t dd = 0 ; dd < 6; dd++) {
-      theater_chase_mod(d_leds[dd], d_LED_num, pal_index);
-    }
-  }
-}
-
-// Run theater chase in opposite directions along every other strip
-void diagonal_theater_eo(uint8_t theat_opt) {
-  // First index is for increasing, second index is for decreasing
-  static uint8_t pal_index[] = {0, 0};
-
-  // Move the palette index in the appropriate direction depending on
-  // which strip we're on
-  EVERY_N_MILLISECONDS(10) {
-    pal_index[0]++;
-    pal_index[1]--;
-  }
-
-  if (theat_opt == 0) {
-    for (uint8_t dd = 0 ; dd < 6; dd++) {
-      if ( dd % 2 == 0 ) {
-        theater_chase(d_leds[dd], d_LED_num, pal_index[0]);
-      }
-      else {
-        theater_chase(d_leds[dd], d_LED_num, pal_index[1]);
-      }
-    }
-  }
-  if (theat_opt == 1) {
-    for (uint8_t dd = 0 ; dd < 6; dd++) {
-      if ( dd % 2 == 0 ) {
-        theater_chase_tri(d_leds[dd], d_LED_num, pal_index[0]);
-      }
-      else {
-        theater_chase_tri(d_leds[dd], d_LED_num, pal_index[1]);
-      }
-    }
-  }
-  if (theat_opt == 2) {
-    for (uint8_t dd = 0 ; dd < 6; dd++) {
-      if ( dd % 2 == 0 ) {
-        theater_chase_mod(d_leds[dd], d_LED_num, pal_index[0]);
-      }
-      else {
-        theater_chase_mod(d_leds[dd], d_LED_num, pal_index[1]);
-      }
-    }
-  }
-
-}
-
-// THESE ARE THE ACTUAL FULL BODY ANIMATIONS. THESE WILL MAKE THE SLICES AND 
+// THESE ARE THE ACTUAL FULL BODY ANIMATIONS. THESE WILL MAKE THE SLICES AND
 
 // Flash the whole diagonal strips in various orders depending on the elapsed time. First
 // flash from 0 -> 6, then flash opposite sides, then 0 -> 6 -> 0, then ranndom strips
 void diagonal_flash_timed() {
   static uint8_t brightness = 0;
-  static uint8_t pal_index[]  = {0, 0, 0, 0, 0, 0};
+  static uint8_t pal_index = 0;
   static uint8_t anim_set = 0;
   static uint8_t current_strand = 0;
   static uint8_t next_strand = 0;
@@ -497,6 +415,8 @@ void diagonal_flash_timed() {
     // Reset some shit every time we switch animations
     for (uint8_t dd = 0; dd < 6; dd++) {
       fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
+      fill_solid(ih_leds, ih_LED_total, CRGB::Black);
+      fill_solid(oh_leds, oh_LED_total, CRGB::Black);
     }
     brightness = 0;
     current_strand = 0;
@@ -520,12 +440,15 @@ void diagonal_flash_timed() {
         fill_solid(oh_leds, oh_LED_total, CRGB::Black);
         FastLED.show();
         current_strand = (current_strand + 1) % 6;
+        if (current_strand == 0) {
+          pal_index += 16;
+        }
         just_switched = true;
       }
     }
-    fill_solid(d_leds[current_strand], d_LED_num, CRGB(brightness, 0, 0));
-    fill_solid(ih_leds, ih_LED_total, CRGB(brightness, 0, 0));
-    fill_solid(oh_leds, oh_LED_total, CRGB(brightness, 0, 0));
+    fill_solid(d_leds[current_strand], d_LED_num, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+    fill_solid(ih_leds, ih_LED_total, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+    fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
     FastLED.show();
   }
   // Flash opposite sides 0 -> 3 (yay symmetry!!!)
@@ -544,13 +467,16 @@ void diagonal_flash_timed() {
         fill_solid(oh_leds, oh_LED_total, CRGB::Black);
         FastLED.show();
         current_strand = (current_strand + 1) % 3;
+        if ( current_strand == 0) {
+          pal_index += 16;
+        }
         just_switched = true;
       }
     }
-    fill_solid(d_leds[current_strand], d_LED_num, CRGB(brightness, 0, 0));
-    fill_solid(d_leds[current_strand + 3], d_LED_num, CRGB(brightness, 0, 0));
-    fill_solid(ih_leds, ih_LED_total, CRGB(brightness, 0, 0));
-    fill_solid(oh_leds, oh_LED_total, CRGB(brightness, 0, 0));
+    fill_solid(d_leds[current_strand], d_LED_num, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+    fill_solid(d_leds[current_strand + 3], d_LED_num, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+    fill_solid(ih_leds, ih_LED_total, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+    fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
     FastLED.show();
   }
   // Flash strands 0 -> 6 -> 0
@@ -570,6 +496,7 @@ void diagonal_flash_timed() {
         FastLED.show();
         if (current_strand == 0) {
           flagged = false;
+          pal_index += 16;
         }
         if (current_strand == 5) {
           flagged = true;
@@ -584,9 +511,9 @@ void diagonal_flash_timed() {
       }
     }
 
-    fill_solid(d_leds[current_strand], d_LED_num, CRGB(brightness, 0, 0));
-    fill_solid(ih_leds, ih_LED_total, CRGB(brightness, 0, 0));
-    fill_solid(oh_leds, oh_LED_total, CRGB(brightness, 0, 0));
+    fill_solid(d_leds[current_strand], d_LED_num, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+    fill_solid(ih_leds, ih_LED_total, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+    fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
     FastLED.show();
   }
   // Flash random strands
@@ -608,12 +535,13 @@ void diagonal_flash_timed() {
           next_strand = random8(6);
         }
         current_strand = next_strand;
+        pal_index += 16;
         just_switched = true;
       }
     }
-    fill_solid(d_leds[current_strand], d_LED_num, CRGB(brightness, 0, 0));
-    fill_solid(ih_leds, ih_LED_total, CRGB(brightness, 0, 0));
-    fill_solid(oh_leds, oh_LED_total, CRGB(brightness, 0, 0));
+    fill_solid(d_leds[current_strand], d_LED_num, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+    fill_solid(ih_leds, ih_LED_total, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
+    fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, brightness, gBlending));
     FastLED.show();
   }
 
@@ -648,6 +576,626 @@ void theater_perim_opp(uint8_t theat_opt) {
     theater_chase_mod(oh_leds, oh_LED_total, 255 - pal_index);
   }
   FastLED.show();
+
+}
+
+// Simple theater chase animations, except that it snakes between inner perimeter,
+// diagonals, and outer perimeter. Switch the orientation every once in a while, for a little
+// added pizzaz
+void theater_saw(uint8_t theat_opt) {
+  // Incrememnt this to get the theater chase animations going.
+  static uint8_t pal_index = 0;
+
+  EVERY_N_MILLISECONDS_I(thisTimer, 50) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 200));
+    pal_index++;
+  }
+
+  // Tell us which orientation we should be using
+  static boolean orient = true;
+
+  EVERY_N_MINUTES(2) {
+    if (orient) {
+      orient = false;
+    }
+    else {
+      orient = true;
+    }
+    // Reset all the strands for a clean transition
+    reset_all();
+  }
+
+  // Now, depending on the orientation, use the variables above to actually run the
+  // animations on the selected features
+  // theat_opt == 0 : Theater Chase
+  // theat_opt == 1 : Theater Chase Bounce
+  // theat_opt == 2 : Theater Chase Mod
+  if (orient) {
+    if (theat_opt == 0) {
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if (dd % 2 == 0) {
+          theater_chase(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        else {
+          theater_chase(d_leds[dd], d_LED_num, pal_index);
+        }
+        // Now set the inner hex sides
+        theater_chase(ih_leds + ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        theater_chase(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        theater_chase(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        // Now set the outer hex sides
+        theater_chase(oh_leds, oh_LED_per_strand, pal_index);
+        theater_chase(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+        theater_chase(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+      }
+    }
+    if (theat_opt == 1) {
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if (dd % 2 == 0) {
+          theater_chase_tri(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        else {
+          theater_chase_tri(d_leds[dd], d_LED_num, pal_index);
+        }
+        // Now set the inner hex sides
+        theater_chase_tri(ih_leds + ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        theater_chase_tri(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        theater_chase_tri(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        // Now set the outer hex sides
+        theater_chase_tri(oh_leds, oh_LED_per_strand, pal_index);
+        theater_chase_tri(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+        theater_chase_tri(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+      }
+    }
+    if (theat_opt == 2) {
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if (dd % 2 == 0) {
+          theater_chase_mod(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        else {
+          theater_chase_mod(d_leds[dd], d_LED_num, pal_index);
+        }
+        // Now set the inner hex sides
+        theater_chase_mod(ih_leds + ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        theater_chase_mod(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        theater_chase_mod(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        // Now set the outer hex sides
+        theater_chase_mod(oh_leds, oh_LED_per_strand, pal_index);
+        theater_chase_mod(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+        theater_chase_mod(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+      }
+    }
+  }
+  else {
+    if (theat_opt == 0) {
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if (dd % 2 == 1) {
+          theater_chase(d_leds[dd], d_LED_num, pal_index);
+        }
+        else {
+          theater_chase(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        // Now set the inner hex sides
+        theater_chase(ih_leds, ih_LED_per_strand, pal_index);
+        theater_chase(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        theater_chase(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        // Now set the outer hex sides
+        theater_chase(oh_leds + oh_LED_per_strand, oh_LED_per_strand, pal_index);
+        theater_chase(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+        theater_chase(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+      }
+    }
+    if (theat_opt == 1) {
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if (dd % 2 == 1) {
+          theater_chase_tri(d_leds[dd], d_LED_num, pal_index);
+        }
+        else {
+          theater_chase_tri(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        // Now set the inner hex sides
+        theater_chase_tri(ih_leds, ih_LED_per_strand, pal_index);
+        theater_chase_tri(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        theater_chase_tri(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        // Now set the outer hex sides
+        theater_chase_tri(oh_leds + oh_LED_per_strand, oh_LED_per_strand, pal_index);
+        theater_chase_tri(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+        theater_chase_tri(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+      }
+    }
+    if (theat_opt == 0) {
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if (dd % 2 == 1) {
+          theater_chase_mod(d_leds[dd], d_LED_num, pal_index);
+        }
+        else {
+          theater_chase_mod(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        // Now set the inner hex sides
+        theater_chase_mod(ih_leds, ih_LED_per_strand, pal_index);
+        theater_chase_mod(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        theater_chase_mod(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+        // Now set the outer hex sides
+        theater_chase_mod(oh_leds + oh_LED_per_strand, oh_LED_per_strand, pal_index);
+        theater_chase_mod(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+        theater_chase_mod(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+      }
+    }
+  }
+  FastLED.show();
+}
+
+// Has the same overall pattern as the theater_saw, except that we illuminate whole sections,
+// slowly building up the shape. Then we go black and build it up for the other orientation.
+// Maybe we'll flash the whole shape a couple of times before switching orientations. (but not for now)
+// Can switch the color every time we switch orientation.
+void saw_solid() {
+  // Use this to track which panel we are illuminating, since there are the same number of
+  // panels regardless orientation. Also use pal_index to control the color of the illuminated
+  // panels
+  static uint8_t pan_index = 0;
+  static uint8_t pal_index = 0;
+
+  // Use these to track the orientation and if we should blackout the whole thing
+  static boolean switched = true;
+  static boolean orient = true;
+
+  // Set everything to black if we are switching orientations, or if we are running
+  // this animation for the first time
+  if (switched) {
+    reset_all();
+    switched = false;
+  }
+
+  // Increment the panel we're supposed to illuminate
+  EVERY_N_MILLISECONDS_I(thisTimer, 50) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0 , 1253, 1, 200));
+    pan_index = (pan_index + 1) % 12; // 12 Sides at a time
+  }
+
+  // Lets see how this looks by going from off to on without any ramping
+  if (pan_index == 0) {
+    fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else if (pan_index == 1) {
+    if (orient) {
+      fill_solid(oh_leds, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else {
+      fill_solid(ih_leds, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+  }
+  else if (pan_index == 2) {
+    fill_solid(d_leds[1], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else if (pan_index == 3) {
+    if (orient) {
+      fill_solid(ih_leds + ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else {
+      fill_solid(oh_leds + oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+  }
+  else if (pan_index == 4) {
+    fill_solid(d_leds[2], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else if (pan_index == 5) {
+    if (orient) {
+      fill_solid(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else {
+      fill_solid(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+  }
+  else if (pan_index == 6) {
+    fill_solid(d_leds[3], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else if (pan_index == 7) {
+    if (orient) {
+      fill_solid(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else {
+      fill_solid(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+  }
+  else if (pan_index == 8) {
+    fill_solid(d_leds[4], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else if (pan_index == 9) {
+    if (orient) {
+      fill_solid(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else {
+      fill_solid(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+  }
+  else if (pan_index == 10) {
+    fill_solid(d_leds[5], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else if (pan_index == 11) {
+    if (orient) {
+      fill_solid(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else {
+      fill_solid(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    // Now switch the orientation and set flag to reset the strands
+    if (orient) {
+      orient = false;
+    }
+    else {
+      orient = true;
+    }
+    switched = true;
+    pal_index += 16;
+  }
+
+  FastLED.show();
+}
+
+// This animation runs theater chase in loops around alternating trapazoids made up of two diagonals and
+// adjacent inner and outer hexagon panels
+void theater_trap_eo(uint8_t theat_opt) {
+  // Use this to iterate on the theater chase animations
+  static uint8_t pal_index = 0;
+
+  // So we know which trapazoids to illuminate
+  static boolean orient = true;
+
+  // Control the theater_chase animations at an input determined rate
+  EVERY_N_MILLISECONDS_I(thisTimer, 50) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 150));
+    pal_index++;
+  }
+
+  // Switch up the orientation every once in a while
+  EVERY_N_MINUTES(1) {
+    if (orient) {
+      orient = false;
+    }
+    else {
+      orient = true;
+    }
+    // Reset the strands whenever we switch
+    reset_all();
+  }
+
+  // Now run the appropriate animation on the appropriate trapazoids
+  if (orient) {
+    if (theat_opt == 0) {
+      // Diagonals
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if ( dd % 2 == 0) {
+          theater_chase(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        else {
+          theater_chase(d_leds[dd], d_LED_num, pal_index);
+        }
+      }
+      // Inner and outer perimeters
+      theater_chase(ih_leds, ih_LED_per_strand, 255 - pal_index);
+      theater_chase(oh_leds, oh_LED_per_strand, pal_index);
+
+      theater_chase(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, 255 - pal_index);
+      theater_chase(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+
+      theater_chase(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, 255 - pal_index);
+      theater_chase(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+    }
+    if (theat_opt == 1) {
+      // Diagonals
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if ( dd % 2 == 0) {
+          theater_chase_tri(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        else {
+          theater_chase_tri(d_leds[dd], d_LED_num, pal_index);
+        }
+      }
+      // Inner and outer perimeters
+      theater_chase_tri(ih_leds, ih_LED_per_strand, 255 - pal_index);
+      theater_chase_tri(oh_leds, oh_LED_per_strand, pal_index);
+
+      theater_chase_tri(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, 255 - pal_index);
+      theater_chase_tri(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+
+      theater_chase_tri(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, 255 - pal_index);
+      theater_chase_tri(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+    }
+    if (theat_opt == 2) {
+      // Diagonals
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if ( dd % 2 == 0) {
+          theater_chase_mod(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        else {
+          theater_chase_mod(d_leds[dd], d_LED_num, pal_index);
+        }
+      }
+      // Inner and outer perimeters
+      theater_chase_mod(ih_leds, ih_LED_per_strand, 255 - pal_index);
+      theater_chase_mod(oh_leds, oh_LED_per_strand, pal_index);
+
+      theater_chase_mod(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, 255 - pal_index);
+      theater_chase_mod(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+
+      theater_chase_mod(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, 255 - pal_index);
+      theater_chase_mod(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, pal_index);
+    }
+  }
+  else {
+    if (theat_opt == 0) {
+      // Diagonals
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if ( dd % 2 == 0) {
+          theater_chase(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        else {
+          theater_chase(d_leds[dd], d_LED_num, pal_index);
+        }
+      }
+      // Inner and outer perimeters
+      theater_chase(ih_leds + ih_LED_per_strand, ih_LED_per_strand, pal_index);
+      theater_chase(oh_leds + oh_LED_per_strand, oh_LED_per_strand, 255 - pal_index);
+
+      theater_chase(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+      theater_chase(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, 255 - pal_index);
+
+      theater_chase(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+      theater_chase(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, 255 - pal_index);
+    }
+    if (theat_opt == 1) {
+      // Diagonals
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if ( dd % 2 == 0) {
+          theater_chase_tri(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        else {
+          theater_chase_tri(d_leds[dd], d_LED_num, pal_index);
+        }
+      }
+      // Inner and outer perimeters
+      theater_chase_tri(ih_leds + ih_LED_per_strand, ih_LED_per_strand, pal_index);
+      theater_chase_tri(oh_leds + oh_LED_per_strand, oh_LED_per_strand, 255 - pal_index);
+
+      theater_chase_tri(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+      theater_chase_tri(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, 255 - pal_index);
+
+      theater_chase_tri(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+      theater_chase_tri(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, 255 - pal_index);
+    }
+    if (theat_opt == 2) {
+      // Diagonals
+      for (uint8_t dd = 0; dd < 6; dd++) {
+        if ( dd % 2 == 0) {
+          theater_chase_mod(d_leds[dd], d_LED_num, 255 - pal_index);
+        }
+        else {
+          theater_chase_mod(d_leds[dd], d_LED_num, pal_index);
+        }
+      }
+      // Inner and outer perimeters
+      theater_chase_mod(ih_leds + ih_LED_per_strand, ih_LED_per_strand, pal_index);
+      theater_chase_mod(oh_leds + oh_LED_per_strand, oh_LED_per_strand, 255 - pal_index);
+
+      theater_chase_mod(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+      theater_chase_mod(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, 255 - pal_index);
+
+      theater_chase_mod(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, pal_index);
+      theater_chase_mod(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, 255 - pal_index);
+    }
+  }
+}
+
+// Same idea as theater_trap, except that we illuminate the solid trapazoids and alternate
+// the subset at a user controlled rate.
+void trap_eo_solid() {
+  // Keep track of which side we are illuminating and the color of them
+  static uint8_t pan_index = 0;
+  static uint8_t pal_index = 0;
+
+
+  // Use this to select which set of animations we want to run. This way we can step through a couple
+  // different variations of the solid trapazoid shit
+  static uint8_t anim_set = 0;
+  static uint8_t num_runs = 0; // Use this to keep track of how many times we've run one set
+
+  // First flash individual trapezoids
+  if (anim_set == 0) {
+    // Control the rate at which we illuminate panels at a user controlled rate
+    EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 200));
+      pan_index = (pan_index + 1) % 6;
+
+      // Turn everything off each time we switch sides
+      reset_all();
+    }
+
+    // Check which panel we have selected and illuminate the appropriate trapazoid.
+    if (pan_index == 0) {
+      fill_solid(ih_leds, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[1], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 1) {
+      fill_solid(ih_leds + ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[1], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[2], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 2) {
+      fill_solid(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[2], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[3], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 3) {
+      fill_solid(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[3], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[4], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 4) {
+      fill_solid(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[4], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[5], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 5) {
+      fill_solid(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[5], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+
+      // Now change the color and increment the number of runs
+      pal_index += 16;
+      num_runs++;
+    }
+
+    FastLED.show();
+    // Check how many times we've looped over this set, and move onto the next if we're at that point
+    if(num_runs == 20) {
+      anim_set = 1;
+      num_runs = 0;
+      pan_index = 0;
+      reset_all();
+    }
+  }
+  // Now turn the whole structure on one trapezoid at a time. The same idea as the previous animation
+  // set except that we only run it once and we don't reset the structure after each trapezoid
+  else if (anim_set == 1) {
+    // Control the rate at which we illuminate panels at a user controlled rate
+    EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 200));
+      pan_index = (pan_index + 1) % 6;
+    }
+
+    // Check which panel we have selected and illuminate the appropriate trapazoid.
+    if (pan_index == 0) {
+      fill_solid(ih_leds, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[1], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 1) {
+      fill_solid(ih_leds + ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[1], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[2], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 2) {
+      fill_solid(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[2], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[3], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 3) {
+      fill_solid(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[3], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[4], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 4) {
+      fill_solid(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[4], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[5], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    }
+    else if (pan_index == 5) {
+      fill_solid(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[5], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+
+      // Now change the color and increment the number of runs
+      pal_index += 16;
+      num_runs++;
+    }
+
+    FastLED.show();
+    // Check how many times we've looped over this set, and move onto the next if we're at that point
+    if(num_runs == 1) {
+      anim_set = 2;
+      num_runs = 0;
+      pan_index = 0;
+      reset_all();
+    }
+  }
+  // Now flash the whole structure on and off a few times, lets say 20?
+  else if (anim_set == 2) {
+    // Control flashing at a user input rate
+    EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 200));
+      pan_index++;
+    }
+
+    if(pan_index%2 == 0){ 
+      fill_solid(ih_leds, ih_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      for(uint8_t dd = 0; dd < 6; dd++) {
+        fill_solid(d_leds[dd], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+      }
+    }
+    else {
+      reset_all();
+      // Now change the color and increment the number of times we've looped over this animation set
+      pal_index += 16;
+      num_runs++;
+    }
+    FastLED.show();
+
+    if(num_runs == 20) {
+      anim_set = 3;
+      pan_index = 0;
+      num_runs = 0;
+      reset_all();
+    }
+  }
+  // Now flash every other set of trapezoids, alternating evens and odds for about 20x as well before reseting the whole animatino loop
+  else if (anim_set == 3) {
+    // Control the flashing at a user input rate
+    EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 200));
+      pan_index++;
+
+      // Reset the whole array every time we increment
+      reset_all();
+    }
+
+    // If even, turn on all even trapezoids
+    if( pan_index%2 == 0) {
+      for(uint8_t dd= 0; dd < 6; dd++) {
+        fill_solid(d_leds[dd], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+        if(dd%2 == 0) {
+          fill_solid(ih_leds + dd*ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+          fill_solid(oh_leds + dd*oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+        }
+      }
+    }
+    // If odd, turn on all odd trapezoids
+    else {
+      for(uint8_t dd= 0; dd < 6; dd++) {
+        fill_solid(d_leds[dd], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+        if(dd%2 == 1) {
+          fill_solid(ih_leds + dd*ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+          fill_solid(oh_leds + dd*oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+        }
+      }
+      // Increment color and run counter
+      num_runs++;
+      pal_index += 16;
+    }
+
+    FastLED.show();
+
+    if(num_runs == 20) {
+      anim_set = 0;
+      num_runs = 0;
+      pan_index = 0;
+      reset_all();
+    }
+  }
 
 }
 

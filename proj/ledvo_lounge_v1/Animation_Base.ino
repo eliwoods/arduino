@@ -1,3 +1,14 @@
+// Some utility shit
+
+// Reset everything aka set everything to black
+void reset_all() {
+  fill_solid(ih_leds, ih_LED_total, CRGB::Black);
+  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+  for(uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
+  }
+}
+
 ////////////////////////////////////////////////////////////
 // DJ animations. These are meant to interrupt the normal //
 // animations and take over.                              //
