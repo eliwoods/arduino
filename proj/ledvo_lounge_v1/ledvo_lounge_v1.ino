@@ -1062,9 +1062,20 @@ void trap_eo_solid() {
       reset_all();
     }
   }
+  // Flash opposing trapezoids 2x the usual amount since it runs 2x as fast
+  else if (anim_set == 1) {
+    // Control the rotation at a user input rate
+    EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+      thisTimer.setPeriod(map(analagRead(RATE_POT), 0, 1253, 50, 200));
+      pan_index = (pan_index+1)%3;
+    }
+
+    // 
+    
+  }
   // Now turn the whole structure on one trapezoid at a time. The same idea as the previous animation
   // set except that we only run it once and we don't reset the structure after each trapezoid
-  else if (anim_set == 1) {
+  else if (anim_set == 2) {
     // Control the rate at which we illuminate panels at a user controlled rate
     EVERY_N_MILLISECONDS_I(thisTimer, 100) {
       thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 200));
@@ -1116,14 +1127,14 @@ void trap_eo_solid() {
     FastLED.show();
     // Check how many times we've looped over this set, and move onto the next if we're at that point
     if(num_runs == 1) {
-      anim_set = 2;
+      anim_set = 3;
       num_runs = 0;
       pan_index = 0;
       reset_all();
     }
   }
   // Now flash the whole structure on and off a few times, lets say 20?
-  else if (anim_set == 2) {
+  else if (anim_set == 3) {
     // Control flashing at a user input rate
     EVERY_N_MILLISECONDS_I(thisTimer, 100) {
       thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 200));
@@ -1146,14 +1157,14 @@ void trap_eo_solid() {
     FastLED.show();
 
     if(num_runs == 20) {
-      anim_set = 3;
+      anim_set = 4;
       pan_index = 0;
       num_runs = 0;
       reset_all();
     }
   }
   // Now flash every other set of trapezoids, alternating evens and odds for about 20x as well before reseting the whole animatino loop
-  else if (anim_set == 3) {
+  else if (anim_set == 5) {
     // Control the flashing at a user input rate
     EVERY_N_MILLISECONDS_I(thisTimer, 100) {
       thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 200));
