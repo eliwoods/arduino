@@ -8,9 +8,8 @@ CRGB leds[NUM_STRIPS * NUM_LED];
 
 
 // READ ME!!! //
-// These are the pins on the arduion we're using. Just attach a 5ft strip to each of the pins,
-// except for pin 25 which is going to have two 5ft strips attached to it. Then just tell me
-// what colors go to which pin number
+// These are the pins on the arduion we're using. Attach a 5ft strip to each of the pins, then just tell me
+// what colors go to which pin number. Ezpz lemon squeezy.
 // WS2811_PORTD: 25,26,27,28,14,15,29,11
 //
 
