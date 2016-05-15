@@ -35,7 +35,7 @@
 const uint8_t frameRate = 100; // FPS
 const uint8_t maxBrightness = 200;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
-const uint16_t numLED = 60;
+const uint16_t numLED = 30;
 CRGB *leds = new CRGB[numLED];
 
 // Variables for pin interrupts (there's a lot of these babies)
@@ -213,8 +213,9 @@ void loop() {
     }*/
 
   //fill_to_empty();
+  gPalette = RainbowColors_p;
+  eq_opp();
 
-  theater_chase();
 
   // The following are all checks for DJ animations that
   // interrupt the normal animations for some added IN YO FACE
@@ -279,6 +280,80 @@ void whiteout() {
 ///////////////////////////////////////
 // Some simple modulating animations //
 ///////////////////////////////////////
+
+void eq_opp() {
+  static uint8_t pal_index  = 0;
+  static uint16_t lead_max = numLED / 2;
+  static uint16_t lead = 0;
+
+
+  // Fill the bars at a input dependent rate. Lets try this with a triangular wave at first
+  EVERY_N_MILLISECONDS(50) {
+    //thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
+    lead = (lead + 1) % (lead_max * 2);
+  }
+
+  // Check if the diagonals bars are about to be empty. Increment the palette index and
+  // generate a new max length if so
+
+  if (lead == 0) {
+    pal_index += 16;
+    lead_max = random16(numLED / 6, numLED / 2); // from 1/3 length -> length
+  }
+
+  // Now actually draw the bars. Check which way we are going on the wave and either empty or fill
+  if (lead < lead_max) {
+    fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(leds + numLED - lead, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else {
+    fill_solid(leds, 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(leds + numLED - (2 * lead_max - lead) , 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+
+  FastLED.show();
+
+  fadeToBlackBy(leds, numLED, 20);
+
+
+}
+
+void eq_co() {
+  static uint8_t pal_index  = 0;
+  static uint16_t lead_max = numLED / 2;
+  static uint16_t lead = 0;
+
+
+  // Fill the bars at a input dependent rate. Lets try this with a triangular wave at first
+  EVERY_N_MILLISECONDS(50) {
+    //thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
+    lead = (lead + 1) % (lead_max * 2);
+  }
+
+  // Check if the diagonals bars are about to be empty. Increment the palette index and
+  // generate a new max length if so
+
+  if (lead == 0) {
+    pal_index += 16;
+    lead_max = random16(numLED / 6, numLED / 2); // from 1/3 length -> length
+  }
+
+  // Now actually draw the bars. Check which way we are going on the wave and either empty or fill
+  if (lead < lead_max) {
+    fill_solid(leds+(numLED/2), lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(leds + (numLED/2) - lead, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+  else {
+    fill_solid(leds, 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(leds + (numLED/2) - (2 * lead_max - lead) , 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+
+  FastLED.show();
+
+  fadeToBlackBy(leds, numLED, 20);
+
+
+}
 
 // Fill the whole bar and fade to black in a smooth oscillating fashion. Also, slowly
 // work our way through the global template
