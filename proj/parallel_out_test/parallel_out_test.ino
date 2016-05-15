@@ -1,11 +1,11 @@
 #include<FastLED.h>
 
-#define MAX_NUM_LED 180
+
 #define NUM_LED 90
 #define NUM_STRIPS 8
 
 
-CRGB leds[NUM_STRIPS * MAX_NUM_LED];
+CRGB leds[NUM_STRIPS * NUM_LED];
 
 
 // READ ME!!! //
@@ -23,7 +23,7 @@ void setup() {
   // LEDS.addLeds<WS2811_PORTA,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
   // LEDS.addLeds<WS2811_PORTB,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
   // LEDS.addLeds<WS2811_PORTD,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  LEDS.addLeds<WS2811_PORTD, NUM_STRIPS>(leds, MAX_NUM_LED);
+  LEDS.addLeds<WS2811_PORTD, NUM_STRIPS>(leds, NUM_LED);
   LEDS.setBrightness(32);
 }
 
@@ -31,9 +31,9 @@ void loop() {
 
   for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
     if(ss == 0) {
-      fill_solid(leds, MAX_NUM_LED, test[ss]);
+      fill_solid(leds, NUM_LED, test[ss]);
     }
-    fill_solid(leds + ss * MAX_NUM_LED, NUM_LED, test[ss]);
+    fill_solid(leds + ss * NUM_LED, NUM_LED, test[ss]);
   }
 
 
