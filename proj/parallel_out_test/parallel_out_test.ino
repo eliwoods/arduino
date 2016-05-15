@@ -23,7 +23,7 @@ void setup() {
   // LEDS.addLeds<WS2811_PORTA,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
   // LEDS.addLeds<WS2811_PORTB,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
   // LEDS.addLeds<WS2811_PORTD,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  LEDS.addLeds<WS2811_PORTD, NUM_STRIPS>(leds, NUM_LED);
+  LEDS.addLeds<WS2811_PORTD, NUM_STRIPS>(leds, NUM_LED).setCorrection(TypicalLEDStrip);
   LEDS.setBrightness(32);
 }
 
