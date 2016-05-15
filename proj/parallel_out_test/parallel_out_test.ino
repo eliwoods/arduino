@@ -14,10 +14,10 @@ CRGB leds[NUM_STRIPS * MAX_NUM_LED];
 // WS2811_PORTD: 25,26,27,28,14,15,29,11
 //
 
-const CRGBPalette16 test = {CRGB::Red, CRGB::Blue, CRGB::Orange, CRGB::Purple, CRGB::Yellow,
+const CRGBPalette16 test(CRGB::Red, CRGB::Blue, CRGB::Orange, CRGB::Purple, CRGB::Yellow,
                             CRGB::Green, CRGB::White, CRGB::Pink, CRGB::Black, CRGB::Black,
                             CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black
-                           };
+                           );
 
 void setup() {
   // LEDS.addLeds<WS2811_PORTA,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
