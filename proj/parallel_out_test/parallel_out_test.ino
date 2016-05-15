@@ -33,7 +33,9 @@ void loop() {
     if (ss == 0) {
       fill_solid(leds, NUM_LED, ColorFromPalette(test, ss * 16, 32, LINEARBLEND));
     }
-    fill_solid(leds + ss * NUM_LED, NUM_LED, ColorFromPalette(test, ss * 16, 32, LINEARBLEND));
+    else {
+      fill_solid(&(leds[ss * NUM_LED]), NUM_LED, ColorFromPalette(test, ss * 16, 32, LINEARBLEND));
+    }
   }
 
 
