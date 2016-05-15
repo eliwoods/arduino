@@ -15,9 +15,9 @@ CRGB leds[NUM_STRIPS * NUM_LED];
 //
 
 const CRGBPalette16 test(CRGB::Red, CRGB::Blue, CRGB::Orange, CRGB::Purple, CRGB::Yellow,
-                            CRGB::Green, CRGB::White, CRGB::Pink, CRGB::Black, CRGB::Black,
-                            CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black
-                           );
+                         CRGB::Green, CRGB::White, CRGB::Pink, CRGB::Black, CRGB::Black,
+                         CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black
+                        );
 
 void setup() {
   // LEDS.addLeds<WS2811_PORTA,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
@@ -30,10 +30,10 @@ void setup() {
 void loop() {
 
   for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
-    if(ss == 0) {
-      fill_solid(leds, NUM_LED, test[ss]);
+    if (ss == 0) {
+      fill_solid(leds, NUM_LED, ColorFromPalette(test, ss * 16, 32, LINEARBLEND));
     }
-    fill_solid(leds + ss * NUM_LED, NUM_LED, test[ss]);
+    fill_solid(leds + ss * NUM_LED, NUM_LED, ColorFromPalette(test, ss * 16, 32, LINEARBLEND));
   }
 
 
