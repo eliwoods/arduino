@@ -12,9 +12,18 @@
 
 // Analog Pins
 #define RATE_POT 0 // Potentiometer for animation rate
-#define HUE_POT 0 // Potentiometer for global hue
-#define VAL_POT 0 // Potentiometer for global brightness
+#define HUE_POT 1 // Potentiometer for global hue
+#define VAL_POT 2 // Potentiometer for global brightness
 
+// Digital Pins for LED output
+#define LED_IH 34
+#define LED_OH 7
+#define LED_D0 22
+#define LED_D1 24
+#define LED_D2 26
+#define LED_D3 28
+#define LED_D4 30
+#define LED_D5 32
 
 // Digital Pins for interrupts
 #define KILL_INT 18 // Button to turn on or off the lights
@@ -28,16 +37,24 @@
 #define BLKSTROBE_INT 3 // Black strobe interrupt
 #define REVERS_INT 17 // Reversing animations interrupt
 
-
 // Variables for the LED strand
 const uint8_t frameRate = 100; // FPS
 const uint8_t maxBrightness = 200;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
 
-const uint8_t num_strip = 8;
-const uint8_t numLED = 90;
+// Variables for LED strands
+const uint16_t led_5ft_strand = 90; // The size of one module
 
-CRGB leds[num_strip * numLED];
+const uint16_t ih_LED_per_strand = led_5ft_strand; // 90 LED per 5' strand with 10' hexagon sides on the inside
+const uint16_t ih_LED_total = ih_LED_per_strand;
+CRGB ih_leds[ih_LED_total];
+
+const uint16_t oh_LED_per_strand = led_5ft_strand; // 90 LED per 5' strand with 20' hexagon sides on outside
+const uint16_t oh_LED_total = oh_LED_per_strand;
+CRGB oh_leds[oh_LED_total];
+
+const uint16_t d_LED_num = led_5ft_strand; // 90 LED per 5' strand with 10' diagonals
+CRGB d_leds[6][d_LED_num];
 
 // Variables for pin interrupts. There's a lot of these babies ;^)
 uint32_t debounce_time = 15;
@@ -79,9 +96,16 @@ void setup() {
   random16_add_entropy(analogRead(5));
 
   // Setup strands of LEDs
-  LEDS.addLeds<WS2811_PORTD, num_strip>(leds, numLED);
-  LEDS.setBrightness(maxBrightness);
-  LEDS.show();
+  FastLED.addLeds<WS2812B, LED_IH, GRB>(ih_leds, ih_LED_total);
+  FastLED.addLeds<WS2812B, LED_OH, GRB>(oh_leds, oh_LED_total);
+  FastLED.addLeds<WS2812B, LED_D0, GRB>(d_leds[0], d_LED_num);
+  FastLED.addLeds<WS2812B, LED_D1, GRB>(d_leds[1], d_LED_num);
+  FastLED.addLeds<WS2812B, LED_D2, GRB>(d_leds[2], d_LED_num);
+  FastLED.addLeds<WS2812B, LED_D3, GRB>(d_leds[3], d_LED_num);
+  FastLED.addLeds<WS2812B, LED_D4, GRB>(d_leds[4], d_LED_num);
+  FastLED.addLeds<WS2812B, LED_D5, GRB>(d_leds[5], d_LED_num);
+  FastLED.setBrightness(maxBrightness);
+  FastLED.show();
 
   // Initialize global color variables
   gBrightness = maxBrightness;
@@ -194,7 +218,7 @@ void loop() {
   else {
     if(power_switched) {
       reset_all();
-      LEDS.show();
+      FastLED.show();
       power_switched = false;
     }
     // Do nothing.

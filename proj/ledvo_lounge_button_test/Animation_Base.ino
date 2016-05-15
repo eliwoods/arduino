@@ -2,7 +2,11 @@
 
 // Reset everything aka set everything to black
 void reset_all() {
-  fill_solid(leds, num_strip * numLED, CRGB::Black);
+  fill_solid(ih_leds, ih_LED_total, CRGB::Black);
+  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
+  }
 }
 
 ////////////////////////////////////////////////////////////
@@ -16,32 +20,53 @@ void strobes() {
   // get the strobe effect that we want
   EVERY_N_MILLISECONDS(200) {
     //thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1253, 50, 300));
-    fill_solid(leds, num_strip * numLED, CRGB::White);
+    fill_solid(ih_leds, ih_LED_total, CRGB::White);
+    fill_solid(oh_leds, oh_LED_total, CRGB::White);
+    for (uint8_t dd = 0; dd < 6; dd++) {
+      fill_solid(d_leds[dd], d_LED_num, CRGB::White);
+    }
   }
-  LEDS.show();
-  fill_solid(leds, num_strip * numLED, CRGB::Black);
+  FastLED.show();
+  fill_solid(ih_leds, ih_LED_total, CRGB::Black);
+  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
+  }
 }
 
 // Strobes black over animations. Basically we play this animation in
 // conjunction with whatever else is running. It's not really an interrupt
 // animation but rather another layer.
 void strobe_black() {
-  EVERY_N_MILLISECONDS_I(thisTimer, 175) {
-    fill_solid(leds, num_strip * numLED, CRGB::Black);
-    LEDS.show();
+  EVERY_N_MILLISECONDS(175) {
+    fill_solid(ih_leds, ih_LED_total, CRGB::Black);
+    fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+    for (uint8_t dd = 0; dd < 6; dd++) {
+      fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
+    }
+    FastLED.show();
     FastLED.delay(50);
   }
 }
 
 // Does what it says, sets every LED to black
 void blackout() {
-  fill_solid(leds, num_strip * numLED, CRGB::Black);
+  fill_solid(ih_leds, ih_LED_total, CRGB::Black);
+  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
+  }
+  FastLED.show();
 }
 
 // Same as blackout, but with white.
 void whiteout() {
-  fill_solid(leds, num_strip * numLED, CRGB::White);
-  LEDS.show();
+  fill_solid(ih_leds, ih_LED_total, CRGB::White);
+  fill_solid(oh_leds, oh_LED_total, CRGB::White);
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(d_leds[dd], d_LED_num, CRGB::White);
+  }
+  FastLED.show();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -55,17 +80,20 @@ void theater_chase() {
   static uint8_t pal_index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 500));
-    if(anim_reverse) {
+    if (anim_reverse) {
       pal_index--;
     }
     else {
       pal_index++;
     }
   }
-  for (uint8_t ss = 0; ss < num_strip; ss++) {
-    fill_palette(leds + ss * numLED, numLED, pal_index, 6, gPalette, gBrightness, gBlending);
+
+  fill_palette(ih_leds, ih_LED_total, pal_index, 6, gPalette, gBrightness, gBlending);
+  fill_palette(oh_leds, oh_LED_total, pal_index, 6, gPalette, gBrightness, gBlending);
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_palette(d_leds[dd], d_LED_num, pal_index, 6, gPalette, gBrightness, gBlending);
   }
-  LEDS.show();
+  FastLED.show();
 }
 
 // A theater chase where packets switch direction every once in a while. Lets see how
@@ -74,7 +102,7 @@ void theater_chase_tri() {
   static uint8_t pal_index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 500));
-    if(anim_reverse) {
+    if (anim_reverse) {
       pal_index--;
     }
     else {
@@ -82,29 +110,43 @@ void theater_chase_tri() {
     }
   }
 
-  for (uint8_t ss = 0; ss < num_strip; ss++) {
-    fill_palette(leds + ss * numLED, numLED, triwave8(pal_index), 6, gPalette, gBrightness, gBlending);
+  fill_palette(ih_leds, ih_LED_total, triwave8(pal_index), 6, gPalette, gBrightness, gBlending);
+  fill_palette(oh_leds, oh_LED_total, triwave8(pal_index), 6, gPalette, gBrightness, gBlending);
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_palette(d_leds[dd], d_LED_num, triwave8(pal_index), 6, gPalette, gBrightness, gBlending);
   }
-  LEDS.show();
+  FastLED.show();
 }
 
 void theater_chase_mod() {
   static uint8_t col_inc = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 500));
-    if(anim_reverse) {
+    if (anim_reverse) {
       col_inc--;
     }
     else {
       col_inc++;
     }
   }
-  for (uint8_t ss = 0; ss < num_strip; ss++) {
+  if (col_inc < 256 / 2) {
+    fill_palette(ih_leds, ih_LED_total, 0, col_inc, gPalette, maxBrightness, gBlending);
+  }
+  else {
+    fill_palette(ih_leds, ih_LED_total, 0, 256 - col_inc, gPalette, maxBrightness, gBlending);
+  }
+  if (col_inc < 256 / 2) {
+    fill_palette(oh_leds, oh_LED_total, 0, col_inc, gPalette, maxBrightness, gBlending);
+  }
+  else {
+    fill_palette(oh_leds, oh_LED_total, 0, 256 - col_inc, gPalette, maxBrightness, gBlending);
+  }
+  for (uint8_t dd = 0; dd < 6; dd++) {
     if (col_inc < 256 / 2) {
-      fill_palette(leds + ss * numLED, numLED, 0, col_inc, gPalette, maxBrightness, gBlending);
+      fill_palette(d_leds[dd], d_LED_num, 0, col_inc, gPalette, maxBrightness, gBlending);
     }
     else {
-      fill_palette(leds + ss * numLED, numLED, 0, 256 - col_inc, gPalette, maxBrightness, gBlending);
+      fill_palette(d_leds[dd], d_LED_num, 0, 256 - col_inc, gPalette, maxBrightness, gBlending);
     }
   }
   LEDS.show();
