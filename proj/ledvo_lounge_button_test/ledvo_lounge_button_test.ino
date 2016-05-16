@@ -26,20 +26,23 @@
 #define LED_D5 32
 
 // Digital Pins for interrupts
-#define KILL_INT 18 // Button to turn on or off the lights
-#define PAL_INC_INT 14 // Palette incrementing interrupt
-#define PAL_DEC_INT 15 // Palette decrementing interrupt
-#define PAL_AUTO_INT 18 // Autopilot palette mode interrupt
-#define ANIM_INC_INT 3 // Animation incrementing interrupt
-#define ANIM_DEC_INT 3 // Animation decrementing interrupt
-#define ANIM_AUTO_INT 3 // Animation autopilot interrupt
-#define STROBE_INT 16 // Strobe animation interrupt
-#define BLKSTROBE_INT 3 // Black strobe interrupt
-#define REVERS_INT 17 // Reversing animations interrupt
+// Digital Pins for interrupts
+#define KILL_INT 42 // Button to turn on or off the lights
+#define PAL_INC_INT 44 // Palette incrementing interrupt
+#define PAL_DEC_INT 48 // Palette decrementing interrupt
+#define PAL_AUTO_INT 52 // Autopilot palette mode interrupt
+#define ANIM_INC_INT 45 // Animation incrementing interrupt
+#define ANIM_DEC_INT 49 // Animation decrementing interrupt
+#define ANIM_AUTO_INT 53 // Animation autopilot interrupt
+#define STROBE_INT 50 // Strobe animation interrupt
+#define BLKSTROBE_INT 51 // Black strobe interrupt
+#define REVERS_INT 43 // Reversing animations interrupt
+// unused 46
+//unused 47
 
 // Variables for the LED strand
 const uint8_t frameRate = 100; // FPS
-const uint8_t maxBrightness = 200;
+const uint8_t maxBrightness = 100;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
 
 // Variables for LED strands
@@ -147,7 +150,7 @@ void setup() {
 
   // Interrupt for strobing black over current animation.
   pinMode(BLKSTROBE_INT, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(BLKSTROBE_INT), debounce_blk_strobe, RISING);
+  attachInterrupt(digitalPinToInterrupt(BLKSTROBE_INT), debounce_blk_strobe, CHANGE);
 
   // Interrupt for reversing animation direction. Look for change since this will
   // be a latching button
@@ -197,12 +200,13 @@ void loop() {
 
     // Select animation to run based on global counter
     if (!dj_control) {
-      switch ( gAnimCounter ) {
-        case 0:
+      if(gAnimCounter == 0) {
           theater_chase();
-        case 1:
-          theater_chase_tri();
-        case 2:
+      }
+      else if(gAnimCounter == 1) {
+          fill_all_pal();
+      }
+      else if (gAnimCounter == 2) {
           theater_chase_mod();
       }
     }
@@ -222,5 +226,6 @@ void loop() {
       power_switched = false;
     }
     // Do nothing.
+    FastLED.delay(10000);
   }
 }
