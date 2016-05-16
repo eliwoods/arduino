@@ -1,7 +1,7 @@
 #include<FastLED.h>
 
 
-#define NUM_LED 90
+#define NUM_LED 180
 #define NUM_STRIPS 8
 
 
@@ -30,12 +30,7 @@ void setup() {
 void loop() {
 
   for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
-    if (ss == 0) {
-      fill_solid(leds, NUM_LED, ColorFromPalette(test, ss * 16, 32, LINEARBLEND));
-    }
-    else {
-      fill_solid(&(leds[ss * NUM_LED]), NUM_LED, ColorFromPalette(test, ss * 16, 32, LINEARBLEND));
-    }
+    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, ColorFromPalette(test, ss * 16, 32, LINEARBLEND));
   }
 
 
