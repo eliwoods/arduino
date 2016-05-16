@@ -16,14 +16,14 @@
 #define VAL_POT 2 // Potentiometer for global brightness
 
 // Digital Pins for LED output
-#define LED_IH 34
-#define LED_OH 7
-#define LED_D0 22
-#define LED_D1 24
-#define LED_D2 26
-#define LED_D3 28
-#define LED_D4 30
-#define LED_D5 32
+#define LED_IH 25
+#define LED_OH 26
+#define LED_D0 27
+#define LED_D1 28
+#define LED_D2 14
+#define LED_D3 15
+#define LED_D4 29
+#define LED_D5 11
 
 // Digital Pins for interrupts
 // Digital Pins for interrupts
