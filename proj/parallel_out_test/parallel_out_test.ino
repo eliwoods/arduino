@@ -44,7 +44,7 @@ void setup() {
 void loop() {
 
   for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
-    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, ColorFromPalette(WhiteBlack_p, ss * 16, 32, LINEARBLEND));
+    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, WhiteBlack_p[ss]);
   }
 
 
