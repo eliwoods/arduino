@@ -220,12 +220,8 @@ void loop() {
     }
   }
   else {
-    if(power_switched) {
-      reset_all();
-      FastLED.show();
-      power_switched = false;
-    }
-    // Do nothing.
-    FastLED.delay(10000);
+    reset_all();
+    FastLED.show();
+    FastLED.delay(1000);
   }
 }
