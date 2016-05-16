@@ -14,10 +14,24 @@ CRGB leds[NUM_STRIPS * NUM_LED];
 // WS2811_PORTD: 25,26,27,28,14,15,29,11
 //
 
-const CRGBPalette16 test(CRGB::Red, CRGB::Blue, CRGB::Orange, CRGB::Purple, CRGB::Yellow,
-                         CRGB::Green, CRGB::White, CRGB::Pink, CRGB::Black, CRGB::Black,
-                         CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black
-                        );
+const TProgmemPalette16 WhiteBlack_p PROGMEM = {
+  CRGB::Red,
+  CRGB::Blue,
+  CRGB::Orange,
+  CRGB::Purple,
+  CRGB::Yellow,
+  CRGB::Green,
+  CRGB::White,
+  CRGB::Pink,
+  CRGB::White,
+  CRGB::Black,
+  CRGB::Black,
+  CRGB::Black,
+  CRGB::White,
+  CRGB::Black,
+  CRGB::Black,
+  CRGB::Black,
+};
 
 void setup() {
   // LEDS.addLeds<WS2811_PORTA,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
@@ -30,7 +44,7 @@ void setup() {
 void loop() {
 
   for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
-    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, ColorFromPalette(test, ss * 16, 32, LINEARBLEND));
+    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, ColorFromPalette(WhiteBlack_p, ss * 16, 32, LINEARBLEND));
   }
 
 
