@@ -19,7 +19,7 @@ void strobes() {
   // Fill everything with white at a user controlled rate, then fade to black to
   // get the strobe effect that we want
   EVERY_N_MILLISECONDS_I(thisTimer, 200) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 600));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 800));
     fill_solid(ih_leds, ih_LED_total, CRGB::White);
     fill_solid(oh_leds, oh_LED_total, CRGB::White);
     for (uint8_t dd = 0; dd < 6; dd++) {
@@ -39,7 +39,7 @@ void strobes() {
 // animation but rather another layer.
 void strobe_black() {
   EVERY_N_MILLISECONDS_I(thisTimer, 175) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 600));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 800));
     fill_solid(ih_leds, ih_LED_total, CRGB::Black);
     fill_solid(oh_leds, oh_LED_total, CRGB::Black);
     for (uint8_t dd = 0; dd < 6; dd++) {

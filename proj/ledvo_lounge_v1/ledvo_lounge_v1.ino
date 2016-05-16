@@ -1,10 +1,6 @@
 // LED library
 #include <FastLED.h>
 
-// C++ Libraries (yay!)
-//#include <StandardCplusplus.h>
-//#include <vector>
-
 // Arduino Libraries
 #ifdef __AVR__
 #include <avr/interrupt.h>
@@ -12,8 +8,8 @@
 
 // Analog Pins
 #define RATE_POT 0 // Potentiometer for animation rate
-#define HUE_POT 0 // Potentiometer for global hue
-#define VAL_POT 0 // Potentiometer for global brightness
+#define HUE_POT 1 // Potentiometer for global hue
+#define VAL_POT 2 // Potentiometer for global brightness
 
 // Digital Pins for LED output
 #define LED_OH 7
@@ -1011,43 +1007,9 @@ void trap_eo_solid() {
       reset_all();
     }
 
-    // Check which panel we have selected and illuminate the appropriate trapazoid.
-    if (pan_index == 0) {
-      fill_solid(ih_leds, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[1], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 1) {
-      fill_solid(ih_leds + ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[1], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[2], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 2) {
-      fill_solid(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[2], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[3], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 3) {
-      fill_solid(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[3], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[4], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 4) {
-      fill_solid(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[4], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[5], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 5) {
-      fill_solid(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[5], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-
+    // Illuminate the appropriate trapazoid.
+    draw_trapezoid(pan_index, pal_index);
+    if (pan_index == 5) {
       // Now change the color and increment the number of runs
       pal_index += 16;
       num_runs++;
@@ -1055,7 +1017,7 @@ void trap_eo_solid() {
 
     FastLED.show();
     // Check how many times we've looped over this set, and move onto the next if we're at that point
-    if(num_runs == 20) {
+    if (num_runs == 20) {
       anim_set = 1;
       num_runs = 0;
       pan_index = 0;
@@ -1067,11 +1029,11 @@ void trap_eo_solid() {
     // Control the rotation at a user input rate
     EVERY_N_MILLISECONDS_I(thisTimer, 100) {
       thisTimer.setPeriod(map(analagRead(RATE_POT), 0, 1253, 50, 200));
-      pan_index = (pan_index+1)%3;
+      pan_index = (pan_index + 1) % 3;
     }
 
-    // 
-    
+    //
+
   }
   // Now turn the whole structure on one trapezoid at a time. The same idea as the previous animation
   // set except that we only run it once and we don't reset the structure after each trapezoid
@@ -1083,50 +1045,16 @@ void trap_eo_solid() {
     }
 
     // Check which panel we have selected and illuminate the appropriate trapazoid.
-    if (pan_index == 0) {
-      fill_solid(ih_leds, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[1], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 1) {
-      fill_solid(ih_leds + ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[1], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[2], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 2) {
-      fill_solid(ih_leds + 2 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + 2 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[2], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[3], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 3) {
-      fill_solid(ih_leds + 3 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + 3 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[3], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[4], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 4) {
-      fill_solid(ih_leds + 4 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + 4 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[4], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[5], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    }
-    else if (pan_index == 5) {
-      fill_solid(ih_leds + 5 * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds + 5 * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[5], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-
-      // Now change the color and increment the number of runs
+    draw_trapezoid(pan_index, pal_index);
+    // Now change the color and increment the number of runs if we're on the last panel
+    if (pan_index == 5) {      
       pal_index += 16;
       num_runs++;
     }
 
     FastLED.show();
     // Check how many times we've looped over this set, and move onto the next if we're at that point
-    if(num_runs == 1) {
+    if (num_runs == 1) {
       anim_set = 3;
       num_runs = 0;
       pan_index = 0;
@@ -1141,12 +1069,8 @@ void trap_eo_solid() {
       pan_index++;
     }
 
-    if(pan_index%2 == 0){ 
-      fill_solid(ih_leds, ih_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      for(uint8_t dd = 0; dd < 6; dd++) {
-        fill_solid(d_leds[dd], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-      }
+    if (pan_index % 2 == 0) {
+      fill_all(pal_index);
     }
     else {
       reset_all();
@@ -1156,7 +1080,7 @@ void trap_eo_solid() {
     }
     FastLED.show();
 
-    if(num_runs == 20) {
+    if (num_runs == 20) {
       anim_set = 4;
       pan_index = 0;
       num_runs = 0;
@@ -1175,22 +1099,22 @@ void trap_eo_solid() {
     }
 
     // If even, turn on all even trapezoids
-    if( pan_index%2 == 0) {
-      for(uint8_t dd= 0; dd < 6; dd++) {
+    if ( pan_index % 2 == 0) {
+      for (uint8_t dd = 0; dd < 6; dd++) {
         fill_solid(d_leds[dd], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-        if(dd%2 == 0) {
-          fill_solid(ih_leds + dd*ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-          fill_solid(oh_leds + dd*oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+        if (dd % 2 == 0) {
+          fill_solid(ih_leds + dd * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+          fill_solid(oh_leds + dd * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
         }
       }
     }
     // If odd, turn on all odd trapezoids
     else {
-      for(uint8_t dd= 0; dd < 6; dd++) {
+      for (uint8_t dd = 0; dd < 6; dd++) {
         fill_solid(d_leds[dd], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-        if(dd%2 == 1) {
-          fill_solid(ih_leds + dd*ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-          fill_solid(oh_leds + dd*oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+        if (dd % 2 == 1) {
+          fill_solid(ih_leds + dd * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+          fill_solid(oh_leds + dd * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
         }
       }
       // Increment color and run counter
@@ -1200,7 +1124,7 @@ void trap_eo_solid() {
 
     FastLED.show();
 
-    if(num_runs == 20) {
+    if (num_runs == 20) {
       anim_set = 0;
       num_runs = 0;
       pan_index = 0;

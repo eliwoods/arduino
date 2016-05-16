@@ -4,9 +4,34 @@
 void reset_all() {
   fill_solid(ih_leds, ih_LED_total, CRGB::Black);
   fill_solid(oh_leds, oh_LED_total, CRGB::Black);
-  for(uint8_t dd = 0; dd < 6; dd++) {
+  for (uint8_t dd = 0; dd < 6; dd++) {
     fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
   }
+}
+
+void fill_all(uint8_t pal_index) {
+  fill_solid(ih_leds, ih_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(d_leds[dd], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  }
+}
+
+// Draw some basic shapes, this will use fill solid to draw them.
+
+void draw_trapezoid(uint8_t side, uint8_t palette_index) {
+  // The diagonals
+  fill_solid(d_leds[side], d_LED_num, ColorFromPalette(gPalette, palette_index, gBrightness, gBlending));
+  if (side == 5) {
+    fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, palette_index, gBrightness, gBlending));
+  }
+  else {
+    fill_solid(d_leds[0], d_LED_num, ColorFromPalette(gPalette, palette_index, gBrightness, gBlending));
+  }
+
+  // The perimeters
+  fill_solid(ih_leds + side * ih_LED_per_strand, ih_LED_per_strand, ColorFromPalette(gPalette, palette_index, gBrightness, gBlending));
+  fill_solid(oh_leds + side * oh_LED_per_strand, oh_LED_per_strand, ColorFromPalette(gPalette, palette_index, gBrightness, gBlending));
 }
 
 ////////////////////////////////////////////////////////////
