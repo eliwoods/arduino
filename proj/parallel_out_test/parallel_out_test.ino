@@ -45,9 +45,10 @@ void loop() {
 
   for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
     fill_solid(&(leds[ss*NUM_LED]), NUM_LED, WhiteBlack_p[ss]);
+    
   }
 
-
+  LEDS.setBrightness(32);
   LEDS.show();
   LEDS.delay(10);
 }
