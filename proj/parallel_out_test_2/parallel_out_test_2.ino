@@ -43,7 +43,6 @@ void setup() {
 
 void loop() {
 
-
   for (uint8_t strip = 0; strip < NUM_STRIPS; strip++) {
     for (uint8_t ll = 0; ll < NUM_LED; ll++) {
       leds[strip * NUM_LED + ll] = CHSV(strip*2*16, 192, 255);
