@@ -52,9 +52,9 @@ const uint16_t ih_LED_per_strand = 2*led_5ft_strand; // 90 LED per 5' strand wit
 const uint16_t ih_LED_total = 6*ih_LED_per_strand;
 CRGB ih_leds[ih_LED_total];
 
-const uint16_t oh_LED_per_strand = 4*led_5ft_strand; // 90 LED per 5' strand with 20' hexagon sides on outside
-const uint16_t oh_LED_total = 6*oh_LED_per_strand;
-CRGB oh_leds[oh_LED_total];
+//const uint16_t oh_LED_per_strand = 4*led_5ft_strand; // 90 LED per 5' strand with 20' hexagon sides on outside
+//const uint16_t oh_LED_total = 6*oh_LED_per_strand;
+//CRGB oh_leds[oh_LED_total];
 
 const uint16_t d_LED_num = 2*led_5ft_strand; // 90 LED per 5' strand with 10' diagonals
 CRGB d_leds[6][d_LED_num];
@@ -97,7 +97,7 @@ void setup() {
 
   // Setup strands of LEDs
   FastLED.addLeds<WS2812B, LED_IH, GRB>(ih_leds, ih_LED_total);
-  FastLED.addLeds<WS2812B, LED_OH, GRB>(oh_leds, oh_LED_total);
+  //FastLED.addLeds<WS2812B, LED_OH, GRB>(oh_leds, oh_LED_total);
   FastLED.addLeds<WS2812B, LED_D0, GRB>(d_leds[0], d_LED_num);
   FastLED.addLeds<WS2812B, LED_D1, GRB>(d_leds[1], d_LED_num);
   FastLED.addLeds<WS2812B, LED_D2, GRB>(d_leds[2], d_LED_num);
