@@ -7,9 +7,6 @@
 
 CRGB leds[NUM_STRIPS * NUM_LED];
 
-CRGB led_inter[NUM_STRIPS][NUM_LED];
-
-
 // READ ME!!! //
 // These are the pins on the arduion we're using. Attach a 5ft strip to each of the pins, then just tell me
 // what colors go to which pin number. Ezpz lemon squeezy.
@@ -35,8 +32,6 @@ const TProgmemPalette16 WhiteBlack_p PROGMEM = {
   CRGB::Black,
 };
 
-CRGBPalette16 gPalette;
-uint8_t gHue;
 
 void setup() {
   // LEDS.addLeds<WS2811_PORTA,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
@@ -51,48 +46,13 @@ void setup() {
 void loop() {
 
 
-  //  for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
-  //    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, CHSV(2*ss*16, 192, 255));
-  //  }
-
-  EVERY_N_MILLISECONDS(10) {
-    gHue++;
-  }
-
-  update_RainbowBlack_p();
-  theater_chase();
-
-  for(uint8_t strip = 0; strip < NUM_STRIPS; strip++) {
-    for(uint8_t ll = 0; ll < NUM_LED; ll++) {
-      leds[strip*NUM_LED + ll] = led_inter[strip][ll];
+  for (uint8_t strip = 0; strip < NUM_STRIPS; strip++) {
+    for (uint8_t ll = 0; ll < NUM_LED; ll++) {
+      leds[strip * NUM_LED + ll] = CHSV(strip*2*16, 192, 255);
     }
   }
 
   LEDS.show();
-  LEDS.delay(100);
+  LEDS.delay(10);
 }
 
-void theater_chase() {
-  static uint8_t pal_index = 0;
-  EVERY_N_MILLISECONDS(100) {
-    pal_index++;
-  }
-
-  for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
-    fill_palette(led_inter[ss], NUM_LED, pal_index, 6, gPalette, 60, LINEARBLEND);
-  }
-
-}
-
-// RB|B|B|B repeating
-void update_RainbowBlack_p() {
-  // Instead of blacking out, fill backgroud with rainbow, then
-  // fill every thing with black except
-  fill_rainbow(gPalette, 16, gHue, 10);
-  for (uint8_t i = 0 ; i < 16; i++) {
-    if ( i % 4 == 0) {
-      continue;
-    }
-    gPalette[i] = CRGB::Black;
-  }
-}
