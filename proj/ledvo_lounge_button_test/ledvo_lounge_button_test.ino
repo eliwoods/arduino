@@ -91,9 +91,6 @@ const uint8_t numAnimation = 3;
 void setup() {
   delay(3000); // Safely power up
 
-  // Setup serial for debugging
-  Serial.begin(57600);
-
   // Setup Random Number Generator
   random16_set_seed(4832);
   random16_add_entropy(analogRead(5));
@@ -164,7 +161,7 @@ void setup() {
 void loop() {
   // Read in global brightness value
   if (power_on) {
-    gBrightness = map(analogRead(VAL_POT), 0, 687, 0, maxBrightness);
+    gBrightness = map(analogRead(VAL_POT), 0, 687, maxBrightness, 0);
 
     // Read color from potentiometer input
     gRGB = CHSV(map(analogRead(HUE_POT), 0, 687, 0, 255), 255, gBrightness);
