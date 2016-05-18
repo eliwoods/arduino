@@ -46,11 +46,11 @@ void setup() {
 void loop() {
 
   for (uint8_t ss = 0; ss < NUM_STRIPS; ss+=16) {
-    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, ColorFromPalette(WhiteBlack_p, ss, 32, LINEARBLEND);
+    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, CHSV(ss, 192, 55));
     
   }
 
-  LEDS.setBrightness(32);
+  //LEDS.setBrightness(32);
   LEDS.show();
   LEDS.delay(10);
 }
