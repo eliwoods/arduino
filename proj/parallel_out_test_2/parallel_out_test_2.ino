@@ -46,11 +46,27 @@ void setup() {
 void loop() {
 
 
-  for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
-    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, CHSV(2*ss*16, 255, 200)); 
+//  for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
+//    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, CHSV(2*ss*16, 192, 255)); 
+//  }
+
+  static uint8_t hue = 0;
+  for (int i = 0; i < NUM_STRIPS; i++) {
+    for (int j = 0; j < NUM_LED; j++) {
+      leds[(i * NUM_LED) + j] = CHSV((32 * i) + hue + j, 192, 255);
+    }
   }
+
+  // Set the first n leds on each strip to show which strip it is
+  for (int i = 0; i < NUM_STRIPS; i++) {
+    for (int j = 0; j <= i; j++) {
+      leds[(i * NUM_LED) + j] = CRGB::Red;
+    }
+  }
+
+  hue++;
 
   //LEDS.setBrightness(32);
   LEDS.show();
-  LEDS.delay(100);
+  LEDS.delay(10);
 }
