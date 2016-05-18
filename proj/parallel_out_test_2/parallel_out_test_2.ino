@@ -7,6 +7,8 @@
 
 CRGB leds[NUM_STRIPS * NUM_LED];
 
+CRGB led_inter[NUM_STRIPS][NUM_LED];
+
 
 // READ ME!!! //
 // These are the pins on the arduion we're using. Attach a 5ft strip to each of the pins, then just tell me
@@ -60,8 +62,13 @@ void loop() {
   update_RainbowBlack_p();
   theater_chase();
 
+  for(uint8_t strip = 0; strip < NUM_STRIPS; strip++) {
+    for(uint8_t ll = 0; ll < NUM_LED; ll++) {
+      leds[strip*NUM_LED + ll] = led_inter[strip][ll];
+    }
+  }
 
-  //LEDS.setBrightness(32);
+  LEDS.show();
   LEDS.delay(100);
 }
 
@@ -71,10 +78,10 @@ void theater_chase() {
     pal_index++;
   }
 
-  for (uint8_t ss = 0; ss < NUM_STRIPS; ss ++) {
-    fill_palette(leds + (ss * NUM_LED), NUM_LED, pal_index, 6, gPalette, 60, LINEARBLEND);
+  for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
+    fill_palette(led_inter[ss], NUM_LED, pal_index, 6, gPalette, 60, LINEARBLEND);
   }
-  LEDS.show();
+
 }
 
 // RB|B|B|B repeating
