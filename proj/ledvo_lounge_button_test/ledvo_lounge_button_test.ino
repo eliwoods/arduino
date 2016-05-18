@@ -161,7 +161,7 @@ void setup() {
 void loop() {
   // Read in global brightness value
   if (power_on) {
-    gBrightness = map(analogRead(VAL_POT), 0, 687, maxBrightness, 0);
+    gBrightness = map(analogRead(VAL_POT), 0, 687, 0, maxBrightness);
 
     // Read color from potentiometer input
     gRGB = CHSV(map(analogRead(HUE_POT), 0, 687, 0, 255), 255, gBrightness);
