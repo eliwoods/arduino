@@ -48,15 +48,15 @@ uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENT
 // Variables for LED strands
 const uint16_t led_5ft_strand = 90; // The size of one module
 
-const uint16_t ih_LED_per_strand = led_5ft_strand; // 90 LED per 5' strand with 10' hexagon sides on the inside
-const uint16_t ih_LED_total = ih_LED_per_strand;
+const uint16_t ih_LED_per_strand = 2*led_5ft_strand; // 90 LED per 5' strand with 10' hexagon sides on the inside
+const uint16_t ih_LED_total = 6*ih_LED_per_strand;
 CRGB ih_leds[ih_LED_total];
 
-const uint16_t oh_LED_per_strand = led_5ft_strand; // 90 LED per 5' strand with 20' hexagon sides on outside
-const uint16_t oh_LED_total = oh_LED_per_strand;
+const uint16_t oh_LED_per_strand = 4*led_5ft_strand; // 90 LED per 5' strand with 20' hexagon sides on outside
+const uint16_t oh_LED_total = 6*oh_LED_per_strand;
 CRGB oh_leds[oh_LED_total];
 
-const uint16_t d_LED_num = led_5ft_strand; // 90 LED per 5' strand with 10' diagonals
+const uint16_t d_LED_num = 2*led_5ft_strand; // 90 LED per 5' strand with 10' diagonals
 CRGB d_leds[6][d_LED_num];
 
 // Variables for pin interrupts. There's a lot of these babies ;^)
