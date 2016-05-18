@@ -24,5 +24,3 @@ void loop() {
   LEDS.show();
   LEDS.delay(10);
 }
-
-
