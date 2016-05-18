@@ -37,7 +37,7 @@ void setup() {
   // LEDS.addLeds<WS2811_PORTA,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
   // LEDS.addLeds<WS2811_PORTB,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
   // LEDS.addLeds<WS2811_PORTD,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  LEDS.addLeds<WS2811_PORTD, NUM_STRIPS>(leds, NUM_LED).setCorrection(TypicalLEDStrip);
+  LEDS.addLeds<WS2811_PORTD, NUM_STRIPS>(leds, NUM_LED);
   LEDS.setBrightness(32);
 
   LEDS.setMaxPowerInMilliWatts(24000);
@@ -45,12 +45,12 @@ void setup() {
 
 void loop() {
 
-  for (uint8_t ss = 0; ss < NUM_STRIPS; ss+=16) {
-    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, CHSV(ss, 192, 55));
-    
+
+  for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
+    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, CHSV(ss*16, 192, 55)); 
   }
 
   //LEDS.setBrightness(32);
   LEDS.show();
-  LEDS.delay(10);
+  LEDS.delay(100);
 }
