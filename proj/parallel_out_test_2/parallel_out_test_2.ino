@@ -26,16 +26,8 @@ void loop() {
     }
   }
 
-  // Set the first n leds on each strip to show which strip it is
-  for (int i = 0; i < NUM_STRIPS; i++) {
-    for (int j = 0; j <= i; j++) {
-      leds[(i * NUM_LED) + j] = CRGB::Red;
-    }
-  }
-
   hue++;
 
   LEDS.show();
   LEDS.delay(10);
 }
-
