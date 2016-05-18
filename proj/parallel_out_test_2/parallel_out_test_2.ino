@@ -47,7 +47,7 @@ void loop() {
 
 
   for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
-    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, CHSV(ss*16, 192, 55)); 
+    fill_solid(&(leds[ss*NUM_LED]), NUM_LED, CHSV(2*ss*16, 255, 200)); 
   }
 
   //LEDS.setBrightness(32);
