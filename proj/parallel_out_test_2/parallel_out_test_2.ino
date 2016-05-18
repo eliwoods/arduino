@@ -12,9 +12,6 @@ CRGB leds[NUM_STRIPS * NUM_LED];
 //
 
 void setup() {
-  // LEDS.addLeds<WS2811_PORTA,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
-  // LEDS.addLeds<WS2811_PORTB,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP);
-  // LEDS.addLeds<WS2811_PORTD,NUM_STRIPS>(leds, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
   LEDS.addLeds<WS2811_PORTD, NUM_STRIPS>(leds, NUM_LED);
   LEDS.setBrightness(32);
 
@@ -22,12 +19,21 @@ void setup() {
 }
 
 void loop() {
-
+  static uint8_t hue = 0;
   for (int i = 0; i < NUM_STRIPS; i++) {
     for (int j = 0; j < NUM_LED; j++) {
-      leds[(i * NUM_LED) + j] = CHSV((32 * i), 192, 255);
+      leds[(i * NUM_LED) + j] = CHSV((32 * i) + hue + j, 192, 255);
     }
   }
+
+  // Set the first n leds on each strip to show which strip it is
+  for (int i = 0; i < NUM_STRIPS; i++) {
+    for (int j = 0; j <= i; j++) {
+      leds[(i * NUM_LED) + j] = CRGB::Red;
+    }
+  }
+
+  hue++;
 
   LEDS.show();
   LEDS.delay(10);
