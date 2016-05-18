@@ -164,10 +164,10 @@ void setup() {
 void loop() {
   // Read in global brightness value
   if (power_on) {
-    gBrightness = map(analogRead(VAL_POT), 0, 1253, 0, maxBrightness);
+    gBrightness = map(analogRead(VAL_POT), 0, 687, 0, maxBrightness);
 
     // Read color from potentiometer input
-    gRGB = CHSV(map(analogRead(HUE_POT), 0, 1253, 0, 255), 255, gBrightness);
+    gRGB = CHSV(map(analogRead(HUE_POT), 0, 687, 0, 255), 255, gBrightness);
 
     // Increment global hue index for extra groovy rainbows
     EVERY_N_MILLISECONDS(10) {

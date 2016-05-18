@@ -19,7 +19,7 @@ void strobes() {
   // Fill everything with white at a user controlled rate, then fade to black to
   // get the strobe effect that we want
   EVERY_N_MILLISECONDS_I(thisTimer, 200) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 800));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 50, 800));
     fill_solid(ih_leds, ih_LED_total, CRGB::White);
     fill_solid(oh_leds, oh_LED_total, CRGB::White);
     for (uint8_t dd = 0; dd < 6; dd++) {
@@ -39,7 +39,7 @@ void strobes() {
 // animation but rather another layer.
 void strobe_black() {
   EVERY_N_MILLISECONDS_I(thisTimer, 175) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 50, 800));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 50, 800));
     fill_solid(ih_leds, ih_LED_total, CRGB::Black);
     fill_solid(oh_leds, oh_LED_total, CRGB::Black);
     for (uint8_t dd = 0; dd < 6; dd++) {
@@ -80,7 +80,7 @@ void whiteout() {
 void theater_chase() {
   static uint8_t pal_index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 300));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 300));
     if (anim_reverse) {
       pal_index--;
     }
@@ -102,7 +102,7 @@ void theater_chase() {
 void theater_chase_tri() {
   static uint8_t pal_index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 300));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 300));
     if (anim_reverse) {
       pal_index--;
     }
@@ -122,7 +122,7 @@ void theater_chase_tri() {
 void fill_all_pal() {
   static uint8_t pal_index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 300));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 300));
     pal_index++;
   }
 
@@ -137,7 +137,7 @@ void fill_all_pal() {
 void theater_chase_mod() {
   static uint8_t col_inc = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 100) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 300));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 300));
     if (anim_reverse) {
       col_inc--;
     }

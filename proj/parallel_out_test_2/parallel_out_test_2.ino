@@ -11,7 +11,6 @@ void setup() {
 }
 
 void loop() {
-  
   static uint8_t hue = 0;
   for (int i = 0; i < NUM_STRIPS; i++) {
     for (int j = 0; j < NUM_LED; j++) {
