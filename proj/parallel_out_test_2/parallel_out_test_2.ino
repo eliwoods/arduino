@@ -17,8 +17,6 @@ uint8_t gHue;
 void setup() {
   LEDS.addLeds<WS2811_PORTD, NUM_STRIPS>(leds, NUM_LED);
   LEDS.setBrightness(32);
-
-  //LEDS.setMaxPowerInMilliWatts(24000);
 }
 
 void loop() {
@@ -29,6 +27,13 @@ void loop() {
 
   update_RainbowBlack_p();
   theater_chase();
+
+  static uint8_t hue = 0;
+  for (int i = 0; i < NUM_STRIPS; i++) {
+    for (int j = 0; j < NUM_LED; j++) {
+      leds[(i * NUM_LED) + j] = CHSV((32 * i) + hue + j, 192, 255);
+    }
+  }
   
   // Set the first n leds on each strip to show which strip it is
   for (int i = 0; i < NUM_STRIPS; i++) {
@@ -48,7 +53,7 @@ void theater_chase() {
     pal_index++;
   }
 
-  for (uint8_t ss = 0; ss < NUM_STRIPS; ss++) {
+  for (int ss = 0; ss < NUM_STRIPS; ss++) {
     fill_palette(&(leds[ss*NUM_LED]), NUM_LED, pal_index, 6, gPalette, 60, LINEARBLEND);
   }
 
