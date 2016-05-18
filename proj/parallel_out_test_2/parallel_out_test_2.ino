@@ -1,9 +1,7 @@
 #include<FastLED.h>
 
-
 #define NUM_LED 90
 #define NUM_STRIPS 8
-
 
 CRGB leds[NUM_STRIPS * NUM_LED];
 
