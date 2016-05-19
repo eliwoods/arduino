@@ -3,8 +3,8 @@
 // Reset everything aka set everything to black
 void reset_all() {
   fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-  //fill_solid(oh_leds, oh_LED_total, CRGB::Black);
-  for (uint8_t dd = 0; dd < 6; dd++) {
+  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+  for (uint8_t dd = 0; dd < 3; dd++) {
     fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
   }
 }
@@ -21,15 +21,15 @@ void strobes() {
   EVERY_N_MILLISECONDS_I(thisTimer, 200) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 50, 800));
     fill_solid(ih_leds, ih_LED_total, CRGB::White);
-    //fill_solid(oh_leds, oh_LED_total, CRGB::White);
-    for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(oh_leds, oh_LED_total, CRGB::White);
+    for (uint8_t dd = 0; dd < 3; dd++) {
       fill_solid(d_leds[dd], d_LED_num, CRGB::White);
     }
   }
   FastLED.show();
   fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-  //fill_solid(oh_leds, oh_LED_total, CRGB::Black);
-  for (uint8_t dd = 0; dd < 6; dd++) {
+  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+  for (uint8_t dd = 0; dd < 3; dd++) {
     fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
   }
 }
@@ -41,8 +41,8 @@ void strobe_black() {
   EVERY_N_MILLISECONDS_I(thisTimer, 175) {
     thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 50, 800));
     fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-    //fill_solid(oh_leds, oh_LED_total, CRGB::Black);
-    for (uint8_t dd = 0; dd < 6; dd++) {
+    fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+    for (uint8_t dd = 0; dd < 3; dd++) {
       fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
     }
     FastLED.show();
@@ -53,8 +53,8 @@ void strobe_black() {
 // Does what it says, sets every LED to black
 void blackout() {
   fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-  //fill_solid(oh_leds, oh_LED_total, CRGB::Black);
-  for (uint8_t dd = 0; dd < 6; dd++) {
+  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+  for (uint8_t dd = 0; dd < 3; dd++) {
     fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
   }
   FastLED.show();
@@ -64,7 +64,7 @@ void blackout() {
 void whiteout() {
   fill_solid(ih_leds, ih_LED_total, CRGB::White);
   //fill_solid(oh_leds, oh_LED_total, CRGB::White);
-  for (uint8_t dd = 0; dd < 6; dd++) {
+  for (uint8_t dd = 0; dd < 3; dd++) {
     fill_solid(d_leds[dd], d_LED_num, CRGB::White);
   }
   FastLED.show();
@@ -91,7 +91,7 @@ void theater_chase() {
 
   fill_palette(ih_leds, ih_LED_total, pal_index, 6, gPalette, gBrightness, gBlending);
   //fill_palette(oh_leds, oh_LED_total, pal_index, 6, gPalette, gBrightness, gBlending);
-  for (uint8_t dd = 0; dd < 6; dd++) {
+  for (uint8_t dd = 0; dd < 3; dd++) {
     fill_palette(d_leds[dd], d_LED_num, pal_index, 6, gPalette, gBrightness, gBlending);
   }
   FastLED.show();
@@ -112,8 +112,8 @@ void theater_chase_tri() {
   }
 
   fill_palette(ih_leds, ih_LED_total, triwave8(pal_index), 6, gPalette, gBrightness, gBlending);
-  //fill_palette(oh_leds, oh_LED_total, triwave8(pal_index), 6, gPalette, gBrightness, gBlending);
-  for (uint8_t dd = 0; dd < 6; dd++) {
+  fill_palette(oh_leds, oh_LED_total, triwave8(pal_index), 6, gPalette, gBrightness, gBlending);
+  for (uint8_t dd = 0; dd < 3; dd++) {
     fill_palette(d_leds[dd], d_LED_num, triwave8(pal_index), 6, gPalette, gBrightness, gBlending);
   }
   FastLED.show();
@@ -128,7 +128,7 @@ void fill_all_pal() {
 
   fill_solid(ih_leds, ih_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   //fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-  for(uint8_t dd = 0; dd < 6; dd++) {
+  for(uint8_t dd = 0; dd < 3; dd++) {
     fill_solid(d_leds[dd], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   }
   FastLED.show();
@@ -151,13 +151,13 @@ void theater_chase_mod() {
   else {
     fill_palette(ih_leds, ih_LED_total, 0, 256 - col_inc, gPalette, gBrightness, gBlending);
   }
-//  if (col_inc < 256 / 2) {
-//    fill_palette(oh_leds, oh_LED_total, 0, col_inc, gPalette, gBrightness, gBlending);
-//  }
-//  else {
-//    fill_palette(oh_leds, oh_LED_total, 0, 256 - col_inc, gPalette, gBrightness, gBlending);
-//  }
-  for (uint8_t dd = 0; dd < 6; dd++) {
+  if (col_inc < 256 / 2) {
+    fill_palette(oh_leds, oh_LED_total, 0, col_inc, gPalette, gBrightness, gBlending);
+  }
+  else {
+    fill_palette(oh_leds, oh_LED_total, 0, 256 - col_inc, gPalette, gBrightness, gBlending);
+  }
+  for (uint8_t dd = 0; dd < 3; dd++) {
     if (col_inc < 256 / 2) {
       fill_palette(d_leds[dd], d_LED_num, 0, col_inc, gPalette, gBrightness, gBlending);
     }

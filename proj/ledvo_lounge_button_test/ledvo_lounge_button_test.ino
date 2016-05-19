@@ -21,9 +21,9 @@
 #define LED_D0 27
 #define LED_D1 28
 #define LED_D2 14
-#define LED_D3 15
-#define LED_D4 29
-#define LED_D5 11
+//#define LED_D3 15
+//#define LED_D4 29
+//#define LED_D5 11
 
 // Digital Pins for interrupts
 // Digital Pins for interrupts
@@ -49,15 +49,15 @@ uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENT
 const uint16_t led_5ft_strand = 90; // The size of one module
 
 const uint16_t ih_LED_per_strand = 2*led_5ft_strand; // 90 LED per 5' strand with 10' hexagon sides on the inside
-const uint16_t ih_LED_total = 6*ih_LED_per_strand;
-CRGB ih_leds[ih_LED_total];
+const uint16_t ih_LED_total = 3*ih_LED_per_strand;
+CRGBArray<ih_LED_total> ih_leds;
 
-//const uint16_t oh_LED_per_strand = 4*led_5ft_strand; // 90 LED per 5' strand with 20' hexagon sides on outside
-//const uint16_t oh_LED_total = 6*oh_LED_per_strand;
-//CRGB oh_leds[oh_LED_total];
+const uint16_t oh_LED_per_strand = 4*led_5ft_strand; // 90 LED per 5' strand with 20' hexagon sides on outside
+const uint16_t oh_LED_total = 3*oh_LED_per_strand;
+CRGBArray<oh_LED_total> oh_leds;
 
 const uint16_t d_LED_num = 2*led_5ft_strand; // 90 LED per 5' strand with 10' diagonals
-CRGB d_leds[6][d_LED_num];
+CRGBArray<d_LED_num> d_leds[3];
 
 // Variables for pin interrupts. There's a lot of these babies ;^)
 uint32_t debounce_time = 15;
@@ -97,13 +97,13 @@ void setup() {
 
   // Setup strands of LEDs
   FastLED.addLeds<WS2812B, LED_IH, GRB>(ih_leds, ih_LED_total);
-  //FastLED.addLeds<WS2812B, LED_OH, GRB>(oh_leds, oh_LED_total);
+  FastLED.addLeds<WS2812B, LED_OH, GRB>(oh_leds, oh_LED_total);
   FastLED.addLeds<WS2812B, LED_D0, GRB>(d_leds[0], d_LED_num);
   FastLED.addLeds<WS2812B, LED_D1, GRB>(d_leds[1], d_LED_num);
   FastLED.addLeds<WS2812B, LED_D2, GRB>(d_leds[2], d_LED_num);
-  FastLED.addLeds<WS2812B, LED_D3, GRB>(d_leds[3], d_LED_num);
-  FastLED.addLeds<WS2812B, LED_D4, GRB>(d_leds[4], d_LED_num);
-  FastLED.addLeds<WS2812B, LED_D5, GRB>(d_leds[5], d_LED_num);
+//  FastLED.addLeds<WS2812B, LED_D3, GRB>(d_leds[3], d_LED_num);
+//  FastLED.addLeds<WS2812B, LED_D4, GRB>(d_leds[4], d_LED_num);
+//  FastLED.addLeds<WS2812B, LED_D5, GRB>(d_leds[5], d_LED_num);
   FastLED.setBrightness(maxBrightness);
   FastLED.show();
 
