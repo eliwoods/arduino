@@ -36,7 +36,7 @@ const uint8_t frameRate = 100; // FPS
 const uint8_t maxBrightness = 200;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
 const uint16_t numLED = 30;
-CRGB *leds = new CRGB[numLED];
+CRGBArray<numLED> leds;
 
 // Variables for pin interrupts (there's a lot of these babies)
 uint32_t debounce_time = 15;
@@ -212,9 +212,28 @@ void loop() {
     }
     }*/
 
+  static uint8_t ppi = 0;
+  EVERY_N_MILLISECONDS(10) {
+    ppi++;
+  }
+
   //fill_to_empty();
-  gPalette = RainbowColors_p;
-  eq_opp();
+  update_RainbowBlack_p();
+  //eq_co();
+  //theater_chase_input(leds, numLED, ppi);
+  EVERY_N_MILLISECONDS(10) {
+    static uint16_t led = random16(numLED);
+
+    // Now ramp up the brightness if the pixel is off, or ramp it down if it's on
+    if (leds[led].r == 0 && leds[led].g == 0 && leds[led].b == 0) {
+      fadeLightBy(leds+led, 1, 10);
+    }
+    else {
+      fadeToBlackBy(leds+led, 1, 10);
+    }
+    FastLED.show();
+  }
+
 
 
   // The following are all checks for DJ animations that
@@ -239,6 +258,36 @@ void loop() {
 // DJ animations. These are meant to interrupt the normal //
 // animations and take over.                              //
 ////////////////////////////////////////////////////////////
+
+// Pretty self explanatory. Grab a random LED and turn it on if it's off, or turn it off if it's on.
+// Rinse and repeat. Have to do this with a delay based method though :(
+void starry_night_flicker(CRGB *_leds, uint16_t _numLED) {
+  // Grab a random LED
+  uint16_t led = random16(_numLED);
+
+  // Now ramp up the brightness if the pixel is off, or ramp it down if it's on
+  if (_leds[led].r == 0 && _leds[led].g == 0 && _leds[led].b == 0) {
+    for (uint8_t bb = 0; bb < 256; bb += 16) {
+      _leds[led] = CRGB(bb, bb, bb);
+      FastLED.show();
+      FastLED.delay(5);
+    }
+    return;
+  }
+  else {
+    for (uint8_t bb = 255; bb >= 0; bb -= 16) {
+      _leds[led] = CRGB(bb, bb, bb);
+      FastLED.show();
+      FastLED.delay(5);
+    }
+    return;
+  }
+}
+
+void theater_chase_input(CRGB *_leds, uint16_t _numLED, uint8_t _pal_index) {
+  fill_palette(_leds, _numLED, _pal_index, 6, gPalette, gBrightness, gBlending);
+  FastLED.show();
+}
 
 // Can't be named strobe for some reason... IDK man
 void strobes() {
@@ -303,12 +352,14 @@ void eq_opp() {
 
   // Now actually draw the bars. Check which way we are going on the wave and either empty or fill
   if (lead < lead_max) {
-    fill_solid(leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    fill_solid(leds + numLED - lead, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(leds(0, numLED / 2 - 1), lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    leds(numLED - 1, numLED / 2) = leds(0, numLED / 2 - 1);
+    //fill_solid(leds(numLED-1, numLED/2), lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   }
   else {
-    fill_solid(leds, 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    fill_solid(leds + numLED - (2 * lead_max - lead) , 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(leds(0, numLED / 2 - 1), 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    leds(numLED - 1, numLED / 2) = leds(0, numLED / 2 - 1);
+    //fill_solid(leds(numLED-1, numLED/2), 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   }
 
   FastLED.show();
@@ -322,7 +373,7 @@ void eq_co() {
   static uint8_t pal_index  = 0;
   static uint16_t lead_max = numLED / 2;
   static uint16_t lead = 0;
-
+  static CRGBArray < numLED / 2 > tmp_leds;
 
   // Fill the bars at a input dependent rate. Lets try this with a triangular wave at first
   EVERY_N_MILLISECONDS(50) {
@@ -340,17 +391,17 @@ void eq_co() {
 
   // Now actually draw the bars. Check which way we are going on the wave and either empty or fill
   if (lead < lead_max) {
-    fill_solid(leds+(numLED/2), lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    fill_solid(leds + (numLED/2) - lead, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(tmp_leds, lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   }
   else {
-    fill_solid(leds, 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-    fill_solid(leds + (numLED/2) - (2 * lead_max - lead) , 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+    fill_solid(tmp_leds, 2 * lead_max - lead, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   }
 
+  leds(numLED / 2 - 1, 0) = tmp_leds;
+  leds(numLED / 2, numLED - 1) = tmp_leds;
   FastLED.show();
 
-  fadeToBlackBy(leds, numLED, 20);
+  fadeToBlackBy(tmp_leds, numLED / 2, 10);
 
 
 }
@@ -434,17 +485,28 @@ void palette_eq() {
 // change up how they chase in different animations.                                     //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+
 // Simple theater chase where packets move continuously
 void theater_chase() {
   // Indices
   static uint8_t pal_index = 0;
+  static CRGBArray < numLED / 2 > tmp_leds;
 
   // Update lead LED position at an input dependent rate
-  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 200));
+  EVERY_N_MILLISECONDS(10) {
+    //thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 200));
     pal_index++;
   }
-  fill_palette(leds, numLED, pal_index, 6, gPalette, maxBrightness, gBlending);
+  fill_palette(tmp_leds, numLED / 2, pal_index, 6, gPalette, maxBrightness, gBlending);
+
+  for (uint8_t arr = 0; arr < 2; arr++) {
+    if (arr % 2 == 0) {
+      leds(numLED / 2 * arr, numLED / 2 * (arr + 1) - 1) = tmp_leds;
+    }
+    else {
+      leds(numLED / 2 * arr, numLED / 2 * (arr + 1) - 1) = tmp_leds(numLED / 2 - 1, 0);
+    }
+  }
   FastLED.show();
 }
 
