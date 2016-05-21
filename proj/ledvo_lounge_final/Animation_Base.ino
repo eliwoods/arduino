@@ -92,6 +92,7 @@ void strobes() {
 // animation but rather another layer.
 void strobe_black() {
   EVERY_N_MILLISECONDS_I(thisTimer, 175) {
+    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 687, 50, 800));
     fill_solid(ih_leds, ih_LED_total, CRGB::Black);
     fill_solid(oh_leds, oh_LED_total, CRGB::Black);
     for (uint8_t dd = 0; dd < 3; dd++) {
@@ -114,43 +115,17 @@ void theater_chase(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
   FastLED.show();
 }
 
-// Simple theater chase, but we mirrir it at every strip
-void theater_chase_mir(CPixelView<CRGB> leds, uint8_t numStrand, uint8_t pal_index) {
-  // First fill the template strand
-  fill_palette(led_tmplt, led_strand, pal_index, 6, gPalette, gBrightness, gBlending);
-
-  // Now fill the input led array with the template, alternating at every strand
-  for (uint8_t ss = 0; ss < numStrand; ss++) {
-    if (ss % 2 == 0) {
-      leds(ss * led_strand, (ss + 1)*led_strand - 1) = led_tmplt;
-    }
-    else {
-      leds(ss * led_strand, (ss + 1)*led_strand - 1) = led_tmplt(led_strand - 1, 0);
-    }
-  }
-
-}
-
 // A theater chase where packets switch direction every once in a while. Lets see how
 // this looks with a saw wave
 void theater_chase_tri(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
-  // Increment palette index at an input dependent rate
-  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 10, 500));
-    pal_index++;
-  }
-
   fill_palette(leds, numLED, triwave(pal_index), 4, gPalette, maxBrightness, gBlending);
   FastLED.show();
 }
 
+// A glitchy style "chase". It not even really a chase, I just keep the palette static and
+// change the width of the packets. Looks kind of funky, but kind of cool too.
 void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc) {
-  if (col_inc < 256 / 2) {
-    fill_palette(leds, numLED, 0, col_inc, gPalette, maxBrightness, gBlending);
-  }
-  else {
-    fill_palette(leds, numLED, 0, 256 - col_inc, gPalette, maxBrightness, gBlending);
-  }
+  fill_palette(leds, numLED, 0, col_inc, gPalette, maxBrightness, gBlending);
   FastLED.show();
 }
 

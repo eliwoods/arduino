@@ -38,6 +38,8 @@ uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENT
 // Variables for LED strands
 const uint16_t led_strand = 90; // The size of one module
 CRGBArray<led_strand> led_tmplt; // Used for animations that we just replicate across the array
+CRGBArray<2*led_strand> led_tmplt_2; // When we need to replicate 2 strips
+CRGBArray<4*led_strand> led_tmplt_4; // When we need to replicate 4 strips
 
 const uint8_t  ih_num_strand = 6;
 const uint16_t ih_LED_total = ih_num_strand * led_strand;
