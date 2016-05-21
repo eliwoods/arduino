@@ -14,13 +14,14 @@
 #define RATE_POT 0 // Potentiometer for animation rate
 #define HUE_POT 1 // Potentiometer for global hue
 #define VAL_POT 2 // Potentiometer for global brightness
+#define DJ_POT 3
 
 // Digital Pins for LED output
-#define LED_IH 25
-#define LED_OH 26
-#define LED_D0 27
-#define LED_D1 28
-#define LED_D2 14
+#define LED_IH 22
+#define LED_OH 23
+#define LED_D0 24
+#define LED_D1 25
+#define LED_D2 26
 //#define LED_D3 15
 //#define LED_D4 29
 //#define LED_D5 11
@@ -96,11 +97,11 @@ void setup() {
   random16_add_entropy(analogRead(5));
 
   // Setup strands of LEDs
-  FastLED.addLeds<WS2812B, LED_IH, GRB>(ih_leds, ih_LED_total);
-  FastLED.addLeds<WS2812B, LED_OH, GRB>(oh_leds, oh_LED_total);
-  FastLED.addLeds<WS2812B, LED_D0, GRB>(d_leds[0], d_LED_num);
-  FastLED.addLeds<WS2812B, LED_D1, GRB>(d_leds[1], d_LED_num);
-  FastLED.addLeds<WS2812B, LED_D2, GRB>(d_leds[2], d_LED_num);
+  FastLED.addLeds<WS2812B, LED_IH, GRB>(ih_leds, led_5ft_strand);
+  FastLED.addLeds<WS2812B, LED_OH, GRB>(oh_leds, led_5ft_strand);
+  FastLED.addLeds<WS2812B, LED_D0, GRB>(d_leds[0], led_5ft_strand);
+  FastLED.addLeds<WS2812B, LED_D1, GRB>(d_leds[1], led_5ft_strand);
+  FastLED.addLeds<WS2812B, LED_D2, GRB>(d_leds[2], led_5ft_strand);
 //  FastLED.addLeds<WS2812B, LED_D3, GRB>(d_leds[3], d_LED_num);
 //  FastLED.addLeds<WS2812B, LED_D4, GRB>(d_leds[4], d_LED_num);
 //  FastLED.addLeds<WS2812B, LED_D5, GRB>(d_leds[5], d_LED_num);
