@@ -90,7 +90,7 @@ void theater_chase() {
   }
 
   fill_palette(ih_leds, ih_LED_total, pal_index, 6, gPalette, gBrightness, gBlending);
-  //fill_palette(oh_leds, oh_LED_total, pal_index, 6, gPalette, gBrightness, gBlending);
+  fill_palette(oh_leds, oh_LED_total, pal_index, 6, gPalette, gBrightness, gBlending);
   for (uint8_t dd = 0; dd < 3; dd++) {
     fill_palette(d_leds[dd], d_LED_num, pal_index, 6, gPalette, gBrightness, gBlending);
   }
@@ -127,7 +127,7 @@ void fill_all_pal() {
   }
 
   fill_solid(ih_leds, ih_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
-  //fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
+  fill_solid(oh_leds, oh_LED_total, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   for(uint8_t dd = 0; dd < 3; dd++) {
     fill_solid(d_leds[dd], d_LED_num, ColorFromPalette(gPalette, pal_index, gBrightness, gBlending));
   }
