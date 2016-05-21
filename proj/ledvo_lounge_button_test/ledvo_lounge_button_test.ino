@@ -17,11 +17,11 @@
 #define DJ_POT 3
 
 // Digital Pins for LED output
-#define LED_IH 22
-#define LED_OH 23
-#define LED_D0 24
-#define LED_D1 25
-#define LED_D2 26
+#define LED_IH 8
+#define LED_OH 9
+#define LED_D0 10
+#define LED_D1 11
+#define LED_D2 12
 //#define LED_D3 15
 //#define LED_D4 29
 //#define LED_D5 11
