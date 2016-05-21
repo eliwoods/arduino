@@ -19,13 +19,14 @@ void setup() {
 void loop() {
 
   static uint8_t hue = 0;
-  EVERY_N_MILLISECONDS(100) {
+  EVERY_N_MILLISECONDS(10) {
     hue++;
   }
 
-  theater_chase_mod(leds(15,29), 15, hue);
+  theater_chase_mod(leds(0, 14), 15, hue);
+  //theater_chase_mod(leds(15,29), 15, hue);
   
-  //leds(29, 15) = leds(0, 14);
+  leds(29, 15) = leds(0, 14);
   //theater_chase_mod(leds(29, 15), 15, hue);
   //fill_rainbow(leds, NUMLED, triwave(hue), 10);
   FastLED.show();

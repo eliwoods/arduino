@@ -46,6 +46,10 @@ void update_WhiteCol_p() {
   gPalette[12] = CRGB::Gray;
 }
 
+void update_PureCol_p() {
+  fill_solid(gPalette, 16, CHSV(gHue, 255, gBrightness));
+}
+
 // X_LEAD|X_BACK|X_BACK|X_BACK repeating
 void update_TwoCol_p() {
   for (uint8_t i = 0; i < 16; i++) {
