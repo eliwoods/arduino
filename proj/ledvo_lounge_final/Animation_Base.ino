@@ -8,11 +8,11 @@ uint8_t triwave(uint8_t in) {
     return (127 - in);
   }
   else if (in >= 128 && in < 192) {
-    return(in - 128);
+    return (in - 128);
   }
   else if (in >= 192) {
     return (255 - in);
-  } 
+  }
 }
 
 // Reset everything aka set everything to black
@@ -112,6 +112,23 @@ void strobe_black() {
 void theater_chase(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
   fill_palette(leds, numLED, pal_index, 6, gPalette, gBrightness, gBlending);
   FastLED.show();
+}
+
+// Simple theater chase, but we mirrir it at every strip
+void theater_chase_mir(CPixelView<CRGB> leds, uint8_t numStrand, uint8_t pal_index) {
+  // First fill the template strand
+  fill_palette(led_tmplt, led_strand, pal_index, 6, gPalette, gBrightness, gBlending);
+
+  // Now fill the input led array with the template, alternating at every strand
+  for (uint8_t ss = 0; ss < numStrand; ss++) {
+    if (ss % 2 == 0) {
+      leds(ss * led_strand, (ss + 1)*led_strand - 1) = led_tmplt;
+    }
+    else {
+      leds(ss * led_strand, (ss + 1)*led_strand - 1) = led_tmplt(led_strand - 1, 0);
+    }
+  }
+
 }
 
 // A theater chase where packets switch direction every once in a while. Lets see how
