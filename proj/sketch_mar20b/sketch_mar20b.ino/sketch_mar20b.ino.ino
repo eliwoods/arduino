@@ -1,6 +1,6 @@
 #include <FastLED.h>
 
-#define NUMLED 30 
+#define NUMLED 30
 
 #define LEDIN 7
 
@@ -23,26 +23,82 @@ void loop() {
     hue++;
   }
 
-  theater_chase_mod(leds(0, 14), 15, hue);
-  //theater_chase_mod(leds(15,29), 15, hue);
-  
-  leds(29, 15) = leds(0, 14);
-  //theater_chase_mod(leds(29, 15), 15, hue);
-  //fill_rainbow(leds, NUMLED, triwave(hue), 10);
-  FastLED.show();
+  trap_solid();
   //theater_chase_mod(leds, NUMLED, hue);
 
 
 }
 
+void trap_solid() {
+//  static uint8_t brightness = 0;
+  static uint8_t pal_index = 0;
+//  static uint8_t anim_set = 0;
+//  static uint8_t current_trap = 0;
+//  static uint8_t next_trap = 0;
+//  static boolean just_switched = true;
+//  static boolean flagged = false;
+//
+//  EVERY_N_MILLISECONDS(20) {
+//    //pal_index++;
+//    if (!flagged) {
+//      brightness += 16;
+//    }
+//    else {
+//      brightness -= 16;
+//    }
+//    if (just_switched) {
+//      just_switched = false;
+//    }
+//  }
+//
+//  if (!just_switched && !flagged && brightness == 0) {
+//    if ( current_trap == 2) {
+//      flagged = true;
+//      brightness = 255;
+//    }
+//    current_trap = (current_trap + 1) % 3;
+//    just_switched = true;
+//  }
+//  if (!just_switched && flagged && brightness == 15) {
+//    if (current_trap == 2) {
+//      flagged = false;
+//      brightness = 0;
+//    }
+//    else {
+//      brightness = 255;
+//    }
+//    fill_solid(leds(current_trap*10, (current_trap+1)*10-1), 10, CRGB::Black);
+//    FastLED.show();
+//    current_trap = (current_trap + 1) % 3;
+//    if(current_trap == 0) {
+//      pal_index += 12;
+//    }
+//    just_switched = true;
+//  }
+//  fill_solid(leds(current_trap * 10, (current_trap + 1) * 10 - 1), 10, ColorFromPalette(RainbowColors_p, pal_index, brightness, LINEARBLEND));
+//  FastLED.show();
+
+  EVERY_N_MILLISECONDS(10) {
+    pal_index++;
+  }
+
+  static uint8_t brightness = 0;
+
+  brightness = beatsin8(60, 0, 128);
+  leds[10] = ColorFromPalette(RainbowColors_p, pal_index, brightness, LINEARBLEND);
+  FastLED.show();
+
+
+}
+
 void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc) {
-//  if (col_inc < 256 / 2) {
-//    fill_palette(leds, numLED, 0, col_inc, RainbowColors_p, 100, LINEARBLEND);
-//  }
-//  else {
-//    fill_palette(leds, numLED, 0, 256 - col_inc, RainbowColors_p, 100, LINEARBLEND);
-//  }
-fill_palette(leds, numLED, col_inc, 6, RainbowColors_p, 100, LINEARBLEND);
+  //  if (col_inc < 256 / 2) {
+  //    fill_palette(leds, numLED, 0, col_inc, RainbowColors_p, 100, LINEARBLEND);
+  //  }
+  //  else {
+  //    fill_palette(leds, numLED, 0, 256 - col_inc, RainbowColors_p, 100, LINEARBLEND);
+  //  }
+  fill_palette(leds, numLED, col_inc, 6, RainbowColors_p, 100, LINEARBLEND);
   FastLED.show();
 }
 

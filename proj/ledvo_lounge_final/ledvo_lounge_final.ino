@@ -10,14 +10,14 @@
 #define RATE_POT 0 // Potentiometer for animation rate
 #define HUE_POT 1 // Potentiometer for global hue
 #define VAL_POT 2 // Potentiometer for global brightness
-#define DJ_POT 4
+#define DJ_POT 3 // Potentiometer for strobing DJ effects
 
 // Digital Pins for LED output
-#define LED_D0 22
-#define LED_D1 24
-#define LED_D2 26
-#define LED_IH 28
-#define LED_OH 30
+#define LED_IH 8
+#define LED_OH 9
+#define LED_D0 10
+#define LED_D1 11
+#define LED_D2 12
 
 // Digital Pins for interrupts
 #define KILL_INT 42 // Button to turn on or off the lights
@@ -38,8 +38,8 @@ uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENT
 // Variables for LED strands
 const uint16_t led_strand = 90; // The size of one module
 CRGBArray<led_strand> led_tmplt; // Used for animations that we just replicate across the array
-CRGBArray<2*led_strand> led_tmplt_2; // When we need to replicate 2 strips
-CRGBArray<4*led_strand> led_tmplt_4; // When we need to replicate 4 strips
+CRGBArray<2 * led_strand> led_tmplt_2; // When we need to replicate 2 strips
+CRGBArray<4 * led_strand> led_tmplt_4; // When we need to replicate 4 strips
 
 const uint8_t  ih_num_strand = 6;
 const uint16_t ih_LED_total = ih_num_strand * led_strand;
@@ -51,7 +51,7 @@ CRGBArray<oh_LED_total> oh_leds;
 
 const uint8_t num_diag = 3;
 const uint8_t d_num_strand_tot = 2; // 90 LED per 5' strand with 10' diagonals
-const uint16_t d_LED_num = d_num_strand_tot*led_strand;
+const uint16_t d_LED_num = d_num_strand_tot * led_strand;
 CRGBArray<d_LED_num> d_leds[num_diag];
 
 // Variables for pin interrupts. There's a lot of these babies ;^)
@@ -80,6 +80,7 @@ uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
 const uint8_t numAnimation = 10;
+uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that use chasers
 
 void setup() {
   delay(3000); // Safely power up
@@ -158,21 +159,49 @@ void loop() {
     // Read color from potentiometer input
     gHue = map(analogRead(HUE_POT), 0, 687, 0, 255);
 
-    // Check the palette counter and switch acordingly or go into autopilot mode
+    // Check the palette counter and switch acordingly or go into autopilot mode. Also run
+    // some checks that we aren't using palettes with black when we fill whole bars
     if (palette_autopilot) {
-      EVERY_N_SECONDS(5) {
+      EVERY_N_SECONDS(30) {
         gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
       }
+      // Keep us from selecting certain palettes for certain animatinos
+      if (gAnimCounter == 1 || gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 6 || gAnimCounter == 7) {
+        while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
+          gPaletteCounter++;
+        }
+      }
+      // Now update the palette with our choice
       updateGPalette();
     }
     else {
+      // Keep us from selecting certain palettes for certain animatinos
+      if (gAnimCounter == 1 || gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 6 || gAnimCounter == 7) {
+        while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
+          gPaletteCounter++;
+        }
+      }
+      // Now update the palette with our choice
       updateGPalette();
     }
 
     // Check if we want to autopilot the animations
     if (anim_autopilot) {
-      EVERY_N_SECONDS(30) {
+      EVERY_N_SECONDS(60) {
         gAnimCounter = (gAnimCounter + 1) % numAnimation;
+      }
+    }
+
+    // Update the chaser options if we are one of those animations
+    EVERY_N_SECONDS(40) {
+      if (gAnimCounter == 0) {
+        chaser_opt = (chaser_opt + 1) % 9;
+      }
+      else if (gAnimCounter == 4 || gAnimCounter == 5) {
+        chaser_opt = (chaser_opt + 1) % 6;
+      }
+      else if (gAnimCounter == 8) {
+        chaser_opt = (chaser_opt + 1) % 3;
       }
     }
 
@@ -184,7 +213,36 @@ void loop() {
 
     // Select animation to run based on global counter
     if (!dj_control) {
-
+      if (gAnimCounter == 0) {
+        theater_perim_opp(chaser_opt);
+      }
+      else if (gAnimCounter == 1) {
+        whole_eq_3();
+      }
+      else if (gAnimCounter == 2) {
+        whole_eq();
+      }
+      else if (gAnimCounter == 3) {
+        diagonal_flash_timed();
+      }
+      else if (gAnimCounter == 4) {
+        saw_chaser_0(chaser_opt);
+      }
+      else if (gAnimCounter == 5) {
+        saw_chaser_1(chaser_opt);
+      }
+      else if (gAnimCounter == 6) {
+        saw_solid_0();
+      }
+      else if (gAnimCounter == 7) {
+        saw_solid_1();
+      }
+      else if (gAnimCounter == 8) {
+        trap_solid();
+      }
+      else if (gAnimCounter == 9) {
+        all_trap_chaser(chaser_opt);
+      }
     }
 
     // The following are all checks for DJ animations that

@@ -33,7 +33,7 @@ void fill_all(uint8_t pal_index, CRGB col) {
 }
 
 // Draw some basic shapes, this will use fill solid to draw them.
-void draw_trapezoid(uint8_t side, uint8_t palette_index, CRGB col) {
+void draw_trapezoid(uint8_t side, CRGB col) {
   // The diagonals
   if (side == 0) {
     // Diagonal
@@ -75,16 +75,12 @@ void strobes() {
     thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 687, 50, 800));
     fill_solid(ih_leds, ih_LED_total, CRGB::White);
     fill_solid(oh_leds, oh_LED_total, CRGB::White);
-    for (uint8_t dd = 0; dd < 6; dd++) {
+    for (uint8_t dd = 0; dd < 3; dd++) {
       fill_solid(d_leds[dd], d_LED_num, CRGB::White);
     }
   }
   FastLED.show();
-  fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-  fill_solid(oh_leds, oh_LED_total, CRGB::Black);
-  for (uint8_t dd = 0; dd < 3; dd++) {
-    fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
-  }
+  reset_all();
 }
 
 // Strobes black over animations. Basically we play this animation in
@@ -112,21 +108,18 @@ void strobe_black() {
 // Simple theater chase where packets move continuously
 void theater_chase(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
   fill_palette(leds, numLED, pal_index, 6, gPalette, gBrightness, gBlending);
-  FastLED.show();
 }
 
 // A theater chase where packets switch direction every once in a while. Lets see how
 // this looks with a saw wave
 void theater_chase_tri(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
   fill_palette(leds, numLED, triwave(pal_index), 4, gPalette, maxBrightness, gBlending);
-  FastLED.show();
 }
 
 // A glitchy style "chase". It not even really a chase, I just keep the palette static and
 // change the width of the packets. Looks kind of funky, but kind of cool too.
 void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc) {
   fill_palette(leds, numLED, 0, col_inc, gPalette, maxBrightness, gBlending);
-  FastLED.show();
 }
 
 // Fill the whole strip from left to right, then empty from left to right.
