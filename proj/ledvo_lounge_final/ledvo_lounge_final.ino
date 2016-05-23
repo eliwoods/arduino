@@ -195,19 +195,21 @@ void loop() {
     }
 
     // Update the chaser options if we are one of those animations
-//    EVERY_N_SECONDS(10) {
-//      if (gAnimCounter == 0) {
-//        chaser_opt = (chaser_opt + 1) % 9;
-//      }
-//      else if (gAnimCounter == 4 || gAnimCounter == 5) {
-//        chaser_opt = (chaser_opt + 1) % 6;
-//      }
-//      else if (gAnimCounter == 8) {
-//        chaser_opt = (chaser_opt + 1) % 3;
-//      }
-//    }
+    //    EVERY_N_SECONDS(10) {
+    //      if (gAnimCounter == 0) {
+    //        chaser_opt = (chaser_opt + 1) % 9;
+    //      }
+    //      else if (gAnimCounter == 4 || gAnimCounter == 5) {
+    //        chaser_opt = (chaser_opt + 1) % 6;
+    //      }
+    //      else if (gAnimCounter == 8) {
+    //        chaser_opt = (chaser_opt + 1) % 3;
+    //      }
+    //    }
 
-    chaser_opt = gAnimCounter;
+    EVERY_N_SECONDS(10) {
+      chaser_opt = (chaser_opt + 1) % 6;
+    }
 
     // For flashing black over current animation. We want it to work
     // with the animation so we want it separate from the DJ controls
@@ -216,47 +218,61 @@ void loop() {
     }
 
     // Reset the data on the strips if we are getting a new animation
-//    if(anim_switch) {
-//      reset_all();
-//      anim_switch = false;
-//    }
+    //    if(anim_switch) {
+    //      reset_all();
+    //      anim_switch = false;
+    //    }
 
     // Select animation to run based on global counter
     if (!dj_control) {
-      theater_perim_opp(chaser_opt);
-      /*if (gAnimCounter == 0) {
-        fill_all();
-      }
-      else if (gAnimCounter == 1) {
-        theater_perim_opp(chaser_opt);
-      }
-      else if (gAnimCounter == 2) {
-        whole_eq_3();
-      }
-      else if (gAnimCounter == 3) {
-        whole_eq();
-      }
-      else if (gAnimCounter == 4) {
-        diagonal_flash_timed();
-      }
-      else if (gAnimCounter == 5) {
-        saw_chaser_0(chaser_opt);
-      }
-      else if (gAnimCounter == 6) {
-        saw_chaser_1(chaser_opt);
-      }
-      else if (gAnimCounter == 7) {
-        saw_solid_0();
-      }
-      else if (gAnimCounter == 8) {
-        saw_solid_1();
-      }
-      else if (gAnimCounter == 9) {
+      if (gAnimCounter == 0) {
         trap_solid();
       }
-      else if (gAnimCounter == 10) {
+      else if (gAnimCounter == 1) {
+        saw_chaser_0(chaser_opt);
+      }
+      else if (gAnimCounter == 2) {
+        saw_chaser_1(chaser_opt);
+      }
+      else if (gAnimCounter == 3) {
+        saw_solid_0();
+      }
+      else if (gAnimCounter == 4) {
+        saw_solid_1();
+      }
+      /*if (gAnimCounter == 0) {
+        fill_all();
+        }
+        else if (gAnimCounter == 1) {
+        theater_perim_opp(chaser_opt);
+        }
+        else if (gAnimCounter == 2) {
+        whole_eq_3();
+        }
+        else if (gAnimCounter == 3) {
+        whole_eq();
+        }
+        else if (gAnimCounter == 4) {
+        diagonal_flash_timed();
+        }
+        else if (gAnimCounter == 5) {
+        saw_chaser_0(chaser_opt);
+        }
+        else if (gAnimCounter == 6) {
+        saw_chaser_1(chaser_opt);
+        }
+        else if (gAnimCounter == 7) {
+        saw_solid_0();
+        }
+        else if (gAnimCounter == 8) {
+        saw_solid_1();
+        }
+        else if (gAnimCounter == 9) {
+        trap_solid();
+        }
+        else if (gAnimCounter == 10) {
         all_trap_chaser(chaser_opt);
-      }*/
+        }*/
     }
 
     // The following are all checks for DJ animations that
