@@ -211,6 +211,7 @@ void loop() {
       strobe_black();
     }
 
+    // Reset the data on the strips if we are getting a new animation
     if(anim_switch) {
       reset_all();
       anim_switch = false;
@@ -218,7 +219,7 @@ void loop() {
 
     // Select animation to run based on global counter
     if (!dj_control) {
-      if (gAnimCounter == 0) {
+      /*if (gAnimCounter == 0) {
         fill_all();
       }
       else if (gAnimCounter == 1) {
@@ -250,7 +251,8 @@ void loop() {
       }
       else if (gAnimCounter == 10) {
         all_trap_chaser(chaser_opt);
-      }
+      }*/
+      theater_perim_opp(chaser_opt);
     }
 
     // The following are all checks for DJ animations that

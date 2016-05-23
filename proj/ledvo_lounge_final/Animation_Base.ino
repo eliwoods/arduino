@@ -76,10 +76,10 @@ void strobes() {
   // get the strobe effect that we want
   EVERY_N_MILLISECONDS_I(thisTimer, 200) {
     thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 50, 800));
-    fill_solid(ih_leds, ih_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 20, maxBrightness)));
-    fill_solid(oh_leds, oh_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 20, maxBrightness)));
+    fill_solid(ih_leds, ih_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 40, maxBrightness)));
+    fill_solid(oh_leds, oh_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 40, maxBrightness)));
     for (uint8_t dd = 0; dd < 3; dd++) {
-      fill_solid(d_leds[dd], d_LED_num, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 20, maxBrightness)));
+      fill_solid(d_leds[dd], d_LED_num, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 40, maxBrightness)));
     }
   }
   //FastLED.setBrightness(gBrightness);

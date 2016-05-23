@@ -162,7 +162,7 @@ void whole_eq_3() {
 
   FastLED.show();
 
-  fadeToBlackBy(led_tmplt, led_strand, 2);
+  reset_all();
 
 }
 
@@ -216,9 +216,9 @@ void whole_eq() {
   oh_leds(9 * led_strand, 10 * led_strand - 1) = led_tmplt(led_strand - 1, 0);
   oh_leds(10 * led_strand, 11 * led_strand - 1) = led_tmplt;
 
-  fadeToBlackBy(led_tmplt, led_strand, 2);
-
   FastLED.show();
+
+  reset_all();
 
 }
 
@@ -237,11 +237,7 @@ void diagonal_flash_timed() {
   EVERY_N_SECONDS(10) {
     anim_set = (anim_set + 1) % 3;
     // Reset some shit every time we switch animations
-    for (uint8_t dd = 0; dd < 3; dd++) {
-      fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
-      fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-      fill_solid(oh_leds, oh_LED_total, CRGB::Black);
-    }
+    reset_all();
     brightness = 0;
     current_strand = 0;
     just_switched = true;
@@ -261,9 +257,7 @@ void diagonal_flash_timed() {
     }
     if (!just_switched) {
       if (brightness == 0) {
-        fill_solid(d_leds[current_strand], d_LED_num, CRGB::Black);
-        fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-        fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+        reset_all();
         FastLED.show();
         current_strand = (current_strand + 1) % 3;
         if (current_strand == 0) {
@@ -289,9 +283,7 @@ void diagonal_flash_timed() {
 
     if (!just_switched) {
       if (brightness == 0) {
-        fill_solid(d_leds[current_strand], d_LED_num, CRGB::Black);
-        fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-        fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+        reset_all();
         FastLED.show();
         if (current_strand == 0) {
           flagged = false;
@@ -326,9 +318,7 @@ void diagonal_flash_timed() {
     }
     if (!just_switched) {
       if (brightness == 0) {
-        fill_solid(d_leds[current_strand], d_LED_num, CRGB::Black);
-        fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-        fill_solid(oh_leds, oh_LED_total, CRGB::Black);
+        reset_all();
         FastLED.show();
         next_strand = random8(3);
         while (next_strand == current_strand) {
