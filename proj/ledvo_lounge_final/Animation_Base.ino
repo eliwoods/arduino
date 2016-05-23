@@ -76,12 +76,13 @@ void strobes() {
   // get the strobe effect that we want
   EVERY_N_MILLISECONDS_I(thisTimer, 200) {
     thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 687, 50, 800));
-    fill_solid(ih_leds, ih_LED_total, CRGB::White);
-    fill_solid(oh_leds, oh_LED_total, CRGB::White);
+    fill_solid(ih_leds, ih_LED_total, CHSV(255, 0, gBrightness));
+    fill_solid(oh_leds, oh_LED_total, CHSV(255, 0, gBrightness));
     for (uint8_t dd = 0; dd < 3; dd++) {
-      fill_solid(d_leds[dd], d_LED_num, CRGB::White);
+      fill_solid(d_leds[dd], d_LED_num, CHSV(255, 0, gBrightness));
     }
   }
+  //FastLED.setBrightness(gBrightness);
   FastLED.show();
   reset_all();
 }
@@ -92,11 +93,7 @@ void strobes() {
 void strobe_black() {
   EVERY_N_MILLISECONDS_I(thisTimer, 175) {
     thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 687, 50, 800));
-    fill_solid(ih_leds, ih_LED_total, CRGB::Black);
-    fill_solid(oh_leds, oh_LED_total, CRGB::Black);
-    for (uint8_t dd = 0; dd < 3; dd++) {
-      fill_solid(d_leds[dd], d_LED_num, CRGB::Black);
-    }
+    reset_all();
     FastLED.show();
     FastLED.delay(50);
   }
