@@ -19,7 +19,7 @@
 void update_RainbowBlack_p() {
   // Instead of blacking out, fill backgroud with rainbow, then
   // fill every thing with black except
-  fill_rainbow(gPalette, 16, gHue, 10);
+   fill_palette(gPalette, 16, gHue, 6, RainbowColors_p, gBrightness, gBlending);
   for (uint8_t i = 0 ; i < 16; i++) {
     if ( i % 4 == 0) {
       continue;
@@ -30,20 +30,20 @@ void update_RainbowBlack_p() {
 
 // W|RB|RB|RB repeating
 void update_WhiteRainbow_p() {
-  fill_rainbow(gPalette, 16, gHue, 10);
-  gPalette[0] = CRGB::White;
-  gPalette[4] = CRGB::White;
-  gPalette[8] = CRGB::White;
-  gPalette[12] = CRGB::White;
+  fill_palette(gPalette, 16, gHue, 16, RainbowColors_p, gBrightness, gBlending);
+  gPalette[0] = CHSV(255, 0, gBrightness);
+  gPalette[4] = CHSV(255, 0, gBrightness);
+  gPalette[8] = CHSV(255, 0, gBrightness);
+  gPalette[12] = CHSV(255, 0, gBrightness);
 }
 
 // W|X|X|X repeating
 void update_WhiteCol_p() {
   fill_solid( gPalette, 16, CHSV(gHue, 255, gBrightness));
-  gPalette[0] = CRGB::Gray;
-  gPalette[4] = CRGB::Gray;
-  gPalette[8] = CRGB::Gray;
-  gPalette[12] = CRGB::Gray;
+  gPalette[0] = CHSV(255, 0, gBrightness);
+  gPalette[4] = CHSV(255, 0, gBrightness);
+  gPalette[8] = CHSV(255, 0, gBrightness);
+  gPalette[12] = CHSV(255, 0, gBrightness);
 }
 
 void update_PureCol_p() {
@@ -87,30 +87,20 @@ void update_ColLead_p() {
     gPalette[i] = CHSV(gHue, 255, gBrightness);
   }
 }
+
+void update_WhiteBlack_p() {
+  for(uint8_t i = 0; i < 16; i++) {
+    if(i%4 == 0) {
+      gPalette[i] = CHSV(255, 0, gBrightness);
+    }
+    gPalette[i] = CRGB::Black;
+  }
+}
 //////////////////////////////////////////////////////////////////////////////////
 // Static templates. These are templates that do not need to be update          //
 // since they are not modular and don't have any dependence on global variables //
 //////////////////////////////////////////////////////////////////////////////////
 
-// W|B|B|B repeating
-const TProgmemPalette16 WhiteBlack_p PROGMEM = {
-  CRGB::White,
-  CRGB::Black,
-  CRGB::Black,
-  CRGB::Black,
-  CRGB::White,
-  CRGB::Black,
-  CRGB::Black,
-  CRGB::Black,
-  CRGB::White,
-  CRGB::Black,
-  CRGB::Black,
-  CRGB::Black,
-  CRGB::White,
-  CRGB::Black,
-  CRGB::Black,
-  CRGB::Black,
-};
 // Gradient palette "chroma_gp", originally from
 // http://soliton.vm.bytemark.co.uk/pub/cpt-city/fractint/base/tn/chroma.png.index.html
 // converted for FastLED with gammas (2.6, 2.2, 2.5)
@@ -746,7 +736,7 @@ void updateGPalette() {
       update_ColLead_p();
       break;
     case 6:
-      gPalette = WhiteBlack_p;
+      update_WhiteBlack_p();
       break;
     // Have to use gGradientPalettes array because the gradient defines
     // are below us. Maybe we should move this to the Palettes tab so we don't

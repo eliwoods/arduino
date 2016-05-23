@@ -76,10 +76,10 @@ void strobes() {
   // get the strobe effect that we want
   EVERY_N_MILLISECONDS_I(thisTimer, 200) {
     thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 50, 800));
-    fill_solid(ih_leds, ih_LED_total, CHSV(255, 0, gBrightness));
-    fill_solid(oh_leds, oh_LED_total, CHSV(255, 0, gBrightness));
+    fill_solid(ih_leds, ih_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 20, maxBrightness)));
+    fill_solid(oh_leds, oh_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 20, maxBrightness)));
     for (uint8_t dd = 0; dd < 3; dd++) {
-      fill_solid(d_leds[dd], d_LED_num, CHSV(255, 0, gBrightness));
+      fill_solid(d_leds[dd], d_LED_num, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 20, maxBrightness)));
     }
   }
   //FastLED.setBrightness(gBrightness);
@@ -92,10 +92,10 @@ void strobes() {
 // animation but rather another layer.
 void strobe_black() {
   EVERY_N_MILLISECONDS_I(thisTimer, 175) {
-    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 50, 800));
+    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 20, 800));
     reset_all();
     FastLED.show();
-    FastLED.delay(50);
+    FastLED.delay(20);
   }
 }
 

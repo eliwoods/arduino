@@ -53,6 +53,7 @@ void debounce_palette_auto() {
 // Increment global animation counter
 void anim_inc_ISR() {
   gAnimCounter = (gAnimCounter + 1) % numAnimation;
+  anim_switch = true;
 }
 
 void debounce_anim_inc() {
@@ -70,6 +71,7 @@ void anim_dec_ISR() {
   else {
     gAnimCounter = (gAnimCounter - 1) % numAnimation;
   }
+  anim_switch = true;
 }
 
 void debounce_anim_dec() {

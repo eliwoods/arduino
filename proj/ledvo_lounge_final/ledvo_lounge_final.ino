@@ -63,6 +63,7 @@ volatile uint8_t gPaletteCounter; // For choosing index of palette
 volatile boolean palette_autopilot = false; // Flag for auto cycling palettes
 volatile uint8_t gAnimCounter; // Counter for animation
 volatile boolean anim_autopilot = false; // Flag for auto cycling animations
+volatile boolean anim_switch = false;
 volatile boolean anim_reverse = false; // Flag for running animations in reverse
 volatile boolean dj_control = false; // Flag if dj is controlling animations
 volatile boolean run_strobe = false; // Flag for strobe interrupt animation
@@ -73,7 +74,6 @@ CRGBPalette16 gPalette;
 TBlendType gBlending;
 uint8_t gIndex; // Global Palette Index
 extern const uint8_t numPalettes;
-extern const TProgmemPalette16 WhiteBlack_p PROGMEM;
 
 // To control hue globally through a potentiometer input
 uint8_t gHue;
@@ -209,6 +209,12 @@ void loop() {
     // with the animation so we want it separate from the DJ controls
     if (run_blkstrobe) {
       strobe_black();
+    }
+
+    if(anim_switch) {
+      reset_all();
+      FastLED.show();
+      anim_switch = false;
     }
 
     // Select animation to run based on global counter
