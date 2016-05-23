@@ -189,6 +189,7 @@ void loop() {
     if (anim_autopilot) {
       EVERY_N_SECONDS(60) {
         gAnimCounter = (gAnimCounter + 1) % numAnimation;
+        anim_switch = true;
       }
     }
 
