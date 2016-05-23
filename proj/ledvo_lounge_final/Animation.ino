@@ -38,9 +38,9 @@ void theater_perim_opp(uint8_t theat_opt) {
   }
   else if (theat_opt == 1) {
     theater_chase(ih_leds(0, 3 * led_strand - 1), ih_LED_total / 2, pal_index);
-    ih_leds(ih_num_strand - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
+    ih_leds(ih_LED_total - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
     theater_chase(oh_leds(0, 6 * led_strand - 1), oh_LED_total / 2, 255 - pal_index);
-    oh_leds(oh_num_strand - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
+    oh_leds(oh_LED_total - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
   }
   else if (theat_opt == 2) {
     theater_chase(ih_leds(0, 2 * led_strand - 1), 2 * led_strand, pal_index);
@@ -55,10 +55,10 @@ void theater_perim_opp(uint8_t theat_opt) {
     theater_chase_tri(oh_leds, oh_LED_total, 255 - pal_index);
   }
   else if (theat_opt == 4) {
-    theater_chase_tri(ih_leds(0, 3 * led_strand - 1), ih_num_strand / 2, pal_index);
-    ih_leds(ih_num_strand - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
-    theater_chase_tri(oh_leds(0, 6 * led_strand - 1), oh_num_strand / 2, 255 - pal_index);
-    oh_leds(oh_num_strand - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
+    theater_chase_tri(ih_leds(0, 3 * led_strand - 1), ih_LED_total / 2, pal_index);
+    ih_leds(ih_LED_total - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
+    theater_chase_tri(oh_leds(0, 6 * led_strand - 1), oh_LED_total / 2, 255 - pal_index);
+    oh_leds(oh_LED_total - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
   }
   else if (theat_opt == 5) {
     theater_chase_tri(ih_leds(0, 2 * led_strand - 1), 2 * led_strand, pal_index);
@@ -73,10 +73,10 @@ void theater_perim_opp(uint8_t theat_opt) {
     theater_chase_mod(oh_leds, oh_LED_total, 255 - pal_index);
   }
   else if (theat_opt == 7) {
-    theater_chase_mod(ih_leds(0, 3 * led_strand - 1), ih_num_strand / 2, pal_index);
-    ih_leds(ih_num_strand - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
-    theater_chase_mod(oh_leds(0, 6 * led_strand - 1), oh_num_strand / 2, 255 - pal_index);
-    oh_leds(oh_num_strand - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
+    theater_chase_mod(ih_leds(0, 3 * led_strand - 1), ih_LED_total / 2, pal_index);
+    ih_leds(ih_LED_total - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
+    theater_chase_mod(oh_leds(0, 6 * led_strand - 1), oh_LED_total / 2, 255 - pal_index);
+    oh_leds(oh_LED_total - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
   }
   else if (theat_opt == 8) {
     theater_chase_mod(ih_leds(0, 2 * led_strand - 1), 2 * led_strand, pal_index);
@@ -136,7 +136,7 @@ void whole_eq_3() {
       oh_leds(led_strand, 2 * led_strand - 1) = led_tmplt(led_strand - 1, 0);
       oh_leds(2 * led_strand, 3 * led_strand - 1) = led_tmplt;
     }
-    if (dd == 1) {
+    else if (dd == 1) {
       // Diagonal
       d_leds[1](0, led_strand - 1) = led_tmplt;
       d_leds[1](led_strand, d_LED_num - 1) = led_tmplt(led_strand - 1, 0);
@@ -147,7 +147,7 @@ void whole_eq_3() {
       oh_leds(5 * led_strand, 6 * led_strand - 1) = led_tmplt(led_strand - 1, 0);
       oh_leds(6 * led_strand, 7 * led_strand - 1) = led_tmplt;
     }
-    if (dd == 2) {
+    else if (dd == 2) {
       // Diagonal
       d_leds[2](0, led_strand - 1) = led_tmplt;
       d_leds[2](led_strand, d_LED_num - 1) = led_tmplt(led_strand - 1, 0);
@@ -163,7 +163,7 @@ void whole_eq_3() {
 
   FastLED.show();
 
-  reset_all();
+  fadeToBlackBy(led_tmplt, led_strand, 2);
 
 }
 
@@ -219,7 +219,7 @@ void whole_eq() {
 
   FastLED.show();
 
-  reset_all();
+  fadeToBlackBy(led_tmplt, led_strand, 2);
 
 }
 
