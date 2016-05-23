@@ -80,7 +80,7 @@ uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
 //const uint8_t numAnimation = 11;
-const uint8_t numAnimation = 3;
+const uint8_t numAnimation = 6;
 uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that use chasers
 
 void setup() {
@@ -226,18 +226,21 @@ void loop() {
     // Select animation to run based on global counter
     if (!dj_control) {
       if (gAnimCounter == 0) {
-        trap_solid();
+        fill_all();
       }
       else if (gAnimCounter == 1) {
-        saw_chaser_0(chaser_opt);
+        trap_solid();
       }
       else if (gAnimCounter == 2) {
-        saw_chaser_1(chaser_opt);
+        saw_chaser_0(chaser_opt);
       }
       else if (gAnimCounter == 3) {
-        saw_solid_0();
+        saw_chaser_1(chaser_opt);
       }
       else if (gAnimCounter == 4) {
+        saw_solid_0();
+      }
+      else if (gAnimCounter == 5) {
         saw_solid_1();
       }
       /*if (gAnimCounter == 0) {
