@@ -50,42 +50,42 @@ void theater_perim_opp(uint8_t theat_opt) {
     oh_leds(8 * led_strand - 1, 4 * led_strand) = oh_leds(0, 4 * led_strand - 1);
     oh_leds(8 * led_strand, oh_LED_total - 1) = oh_leds(0, 4 * led_strand - 1);
   }
-  else if (theat_opt == 3) {
-    theater_chase_tri(ih_leds, ih_LED_total, pal_index);
-    theater_chase_tri(oh_leds, oh_LED_total, 255 - pal_index);
-  }
-  else if (theat_opt == 4) {
-    theater_chase_tri(ih_leds(0, 3 * led_strand - 1), ih_num_strand / 2, pal_index);
-    ih_leds(ih_num_strand - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
-    theater_chase_tri(oh_leds(0, 6 * led_strand - 1), oh_num_strand / 2, 255 - pal_index);
-    oh_leds(oh_num_strand - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
-  }
-  else if (theat_opt == 5) {
-    theater_chase_tri(ih_leds(0, 2 * led_strand - 1), 2 * led_strand, pal_index);
-    ih_leds(4 * led_strand - 1, 2 * led_strand) = ih_leds(0, 2 * led_strand - 1);
-    ih_leds(4 * led_strand, ih_LED_total - 1) = ih_leds(0, 2 * led_strand - 1);
-    theater_chase_tri(oh_leds(0, 4 * led_strand - 1), 4 * led_strand, pal_index);
-    oh_leds(8 * led_strand - 1, 4 * led_strand) = oh_leds(0, 4 * led_strand - 1);
-    oh_leds(8 * led_strand, oh_LED_total - 1) = oh_leds(0, 4 * led_strand - 1);
-  }
-  else if (theat_opt == 6) {
-    theater_chase_mod(ih_leds, ih_LED_total, pal_index);
-    theater_chase_mod(oh_leds, oh_LED_total, 255 - pal_index);
-  }
-  else if (theat_opt == 7) {
-    theater_chase_mod(ih_leds(0, 3 * led_strand - 1), ih_num_strand / 2, pal_index);
-    ih_leds(ih_num_strand - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
-    theater_chase_mod(oh_leds(0, 6 * led_strand - 1), oh_num_strand / 2, 255 - pal_index);
-    oh_leds(oh_num_strand - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
-  }
-  else if (theat_opt == 8) {
-    theater_chase_mod(ih_leds(0, 2 * led_strand - 1), 2 * led_strand, pal_index);
-    ih_leds(4 * led_strand - 1, 2 * led_strand) = ih_leds(0, 2 * led_strand - 1);
-    ih_leds(4 * led_strand, ih_LED_total - 1) = ih_leds(0, 2 * led_strand - 1);
-    theater_chase_mod(oh_leds(0, 4 * led_strand - 1), 4 * led_strand, pal_index);
-    oh_leds(8 * led_strand - 1, 4 * led_strand) = oh_leds(0, 4 * led_strand - 1);
-    oh_leds(8 * led_strand, oh_LED_total - 1) = oh_leds(0, 4 * led_strand - 1);
-  }
+//  else if (theat_opt == 3) {
+//    theater_chase_tri(ih_leds, ih_LED_total, pal_index);
+//    theater_chase_tri(oh_leds, oh_LED_total, 255 - pal_index);
+//  }
+//  else if (theat_opt == 4) {
+//    theater_chase_tri(ih_leds(0, 3 * led_strand - 1), ih_num_strand / 2, pal_index);
+//    ih_leds(ih_num_strand - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
+//    theater_chase_tri(oh_leds(0, 6 * led_strand - 1), oh_num_strand / 2, 255 - pal_index);
+//    oh_leds(oh_num_strand - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
+//  }
+//  else if (theat_opt == 5) {
+//    theater_chase_tri(ih_leds(0, 2 * led_strand - 1), 2 * led_strand, pal_index);
+//    ih_leds(4 * led_strand - 1, 2 * led_strand) = ih_leds(0, 2 * led_strand - 1);
+//    ih_leds(4 * led_strand, ih_LED_total - 1) = ih_leds(0, 2 * led_strand - 1);
+//    theater_chase_tri(oh_leds(0, 4 * led_strand - 1), 4 * led_strand, pal_index);
+//    oh_leds(8 * led_strand - 1, 4 * led_strand) = oh_leds(0, 4 * led_strand - 1);
+//    oh_leds(8 * led_strand, oh_LED_total - 1) = oh_leds(0, 4 * led_strand - 1);
+//  }
+//  else if (theat_opt == 6) {
+//    theater_chase_mod(ih_leds, ih_LED_total, pal_index);
+//    theater_chase_mod(oh_leds, oh_LED_total, 255 - pal_index);
+//  }
+//  else if (theat_opt == 7) {
+//    theater_chase_mod(ih_leds(0, 3 * led_strand - 1), ih_num_strand / 2, pal_index);
+//    ih_leds(ih_num_strand - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
+//    theater_chase_mod(oh_leds(0, 6 * led_strand - 1), oh_num_strand / 2, 255 - pal_index);
+//    oh_leds(oh_num_strand - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
+//  }
+//  else if (theat_opt == 8) {
+//    theater_chase_mod(ih_leds(0, 2 * led_strand - 1), 2 * led_strand, pal_index);
+//    ih_leds(4 * led_strand - 1, 2 * led_strand) = ih_leds(0, 2 * led_strand - 1);
+//    ih_leds(4 * led_strand, ih_LED_total - 1) = ih_leds(0, 2 * led_strand - 1);
+//    theater_chase_mod(oh_leds(0, 4 * led_strand - 1), 4 * led_strand, pal_index);
+//    oh_leds(8 * led_strand - 1, 4 * led_strand) = oh_leds(0, 4 * led_strand - 1);
+//    oh_leds(8 * led_strand, oh_LED_total - 1) = oh_leds(0, 4 * led_strand - 1);
+//  }
   FastLED.show();
 
 }

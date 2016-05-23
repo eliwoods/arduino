@@ -79,7 +79,7 @@ extern const uint8_t numPalettes;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 11;
+const uint8_t numAnimation = 9;
 uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that use chasers
 
 void setup() {
@@ -194,9 +194,9 @@ void loop() {
     }
 
     // Update the chaser options if we are one of those animations
-    EVERY_N_SECONDS(20) {
+//    EVERY_N_SECONDS(10) {
 //      if (gAnimCounter == 0) {
-        chaser_opt = (chaser_opt + 1) % 9;
+//        chaser_opt = (chaser_opt + 1) % 9;
 //      }
 //      else if (gAnimCounter == 4 || gAnimCounter == 5) {
 //        chaser_opt = (chaser_opt + 1) % 6;
@@ -204,7 +204,9 @@ void loop() {
 //      else if (gAnimCounter == 8) {
 //        chaser_opt = (chaser_opt + 1) % 3;
 //      }
-    }
+//    }
+
+    chaser_opt = gAnimCounter;
 
     // For flashing black over current animation. We want it to work
     // with the animation so we want it separate from the DJ controls
@@ -213,13 +215,14 @@ void loop() {
     }
 
     // Reset the data on the strips if we are getting a new animation
-    if(anim_switch) {
-      reset_all();
-      anim_switch = false;
-    }
+//    if(anim_switch) {
+//      reset_all();
+//      anim_switch = false;
+//    }
 
     // Select animation to run based on global counter
     if (!dj_control) {
+      theater_perim_opp(chaser_opt);
       /*if (gAnimCounter == 0) {
         fill_all();
       }
@@ -253,7 +256,6 @@ void loop() {
       else if (gAnimCounter == 10) {
         all_trap_chaser(chaser_opt);
       }*/
-      theater_perim_opp(chaser_opt);
     }
 
     // The following are all checks for DJ animations that
