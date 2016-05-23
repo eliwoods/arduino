@@ -32,7 +32,7 @@
 #define REVERS_INT 43 // Reversing animations interrupt
 
 // Variables for the LED strand
-const uint8_t maxBrightness = 175;
+const uint8_t maxBrightness = 85;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
 
 // Variables for LED strands
