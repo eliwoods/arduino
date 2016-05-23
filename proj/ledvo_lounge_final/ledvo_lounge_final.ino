@@ -213,7 +213,6 @@ void loop() {
 
     if(anim_switch) {
       reset_all();
-      FastLED.show();
       anim_switch = false;
     }
 
