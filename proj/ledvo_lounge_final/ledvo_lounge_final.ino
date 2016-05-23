@@ -193,17 +193,17 @@ void loop() {
     }
 
     // Update the chaser options if we are one of those animations
-    /*EVERY_N_SECONDS(20) {
-      if (gAnimCounter == 0) {
+    EVERY_N_SECONDS(20) {
+//      if (gAnimCounter == 0) {
         chaser_opt = (chaser_opt + 1) % 9;
-      }
-      else if (gAnimCounter == 4 || gAnimCounter == 5) {
-        chaser_opt = (chaser_opt + 1) % 6;
-      }
-      else if (gAnimCounter == 8) {
-        chaser_opt = (chaser_opt + 1) % 3;
-      }
-    }*/
+//      }
+//      else if (gAnimCounter == 4 || gAnimCounter == 5) {
+//        chaser_opt = (chaser_opt + 1) % 6;
+//      }
+//      else if (gAnimCounter == 8) {
+//        chaser_opt = (chaser_opt + 1) % 3;
+//      }
+    }
 
     // For flashing black over current animation. We want it to work
     // with the animation so we want it separate from the DJ controls
