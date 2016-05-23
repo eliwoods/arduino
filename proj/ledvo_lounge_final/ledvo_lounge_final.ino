@@ -79,7 +79,8 @@ extern const uint8_t numPalettes;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 9;
+//const uint8_t numAnimation = 11;
+const uint8_t numAnimation = 3;
 uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that use chasers
 
 void setup() {
