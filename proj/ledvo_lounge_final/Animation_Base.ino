@@ -51,11 +51,11 @@ void draw_trapezoid(uint8_t side, CRGB col) {
     fill_solid(d_leds[side], d_LED_num, col);
     fill_solid(d_leds[side - 1], d_LED_num, col);
     // Inner Hex
-    fill_solid(ih_leds(side * (2 * led_strand) + led_strand, (side + 1) * (2 * led_strand) + led_strand - 1), 2 * led_strand, col);
+    fill_solid(ih_leds((side-1) * (2 * led_strand) + led_strand, side * (2 * led_strand) + led_strand - 1), 2 * led_strand, col);
     // Outer Hex
-    fill_solid(oh_leds(side * (4 * led_strand) + 2 * led_strand, (side + 1) * (4 * led_strand) + 2 * led_strand - 1), 4 * led_strand, col);
+    fill_solid(oh_leds((side-1) * (4 * led_strand) + 2 * led_strand, side * (4 * led_strand) + 2 * led_strand - 1), 4 * led_strand, col);
   }
-  if (side == 4) {
+  if (side == 3) {
     // Diagonal
     fill_solid(d_leds[side - 1], d_LED_num, col);
     // Inner Hex

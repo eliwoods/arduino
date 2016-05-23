@@ -163,7 +163,8 @@ void whole_eq_3() {
   FastLED.show();
 
   reset_all();
-  fadeToBlackBy(led_tmplt, led_strand, 2);
+  fill_solid(led_tmplt, led_strand, CRGB::Black);
+//  fadeToBlackBy(led_tmplt, led_strand, 2);
 
 }
 
@@ -220,7 +221,8 @@ void whole_eq() {
   FastLED.show();
 
   reset_all();
-  fadeToBlackBy(led_tmplt, led_strand, 2);
+  fill_solid(led_tmplt, led_strand, CRGB::Black);
+  //fadeToBlackBy(led_tmplt, led_strand, 2);
 
 }
 
