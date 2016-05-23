@@ -19,7 +19,7 @@
 void update_RainbowBlack_p() {
   // Instead of blacking out, fill backgroud with rainbow, then
   // fill every thing with black except
-  fill_palette(gPalette, 16, gHue, 6, RainbowColors_p, gBrightness, gBlending);
+  fill_palette(gPalette, 16, gHue, 16, RainbowColors_p, gBrightness, gBlending);
   for (uint8_t i = 0 ; i < 16; i++) {
     if ( i % 4 == 0) {
       continue;

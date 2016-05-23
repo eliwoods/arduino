@@ -213,10 +213,19 @@ void loop() {
     }
     }*/
 
-  gPalette = RainbowColors_p;
+//  gPalette = RainbowColors_p;
 //  eq_opp();
-  whole_eq();
+//  whole_eq();
 
+  gPalette = WhiteBlack_p;
+
+  static uint8_t col_inc = 0;
+  EVERY_N_SECONDS(2) {
+    col_inc++;
+  }
+  
+  fill_palette(leds, numLED, 0, col_inc, gPalette, gBrightness, gBlending);
+  FastLED.show();
 
   // The following are all checks for DJ animations that
   // interrupt the normal animations for some added IN YO FACE

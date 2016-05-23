@@ -25,7 +25,7 @@ void reset_all() {
 }
 
 void fill_all() {
-  CRGB col = CHSV(map(analogRead(HUE_POT), 0, 688, 0, 255), 255, gBrightness);
+  CRGB col = CHSV(map(analogRead(HUE_POT), 0, 1023, 0, 255), 255, gBrightness);
   fill_solid(ih_leds, ih_LED_total, col);
   fill_solid(oh_leds, oh_LED_total, col);
   for (uint8_t dd = 0; dd < 3; dd++) {
@@ -107,7 +107,7 @@ void strobe_black() {
 
 // Simple theater chase where packets move continuously
 void theater_chase(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
-  fill_palette(leds, numLED, pal_index, 6, gPalette, gBrightness, gBlending);
+  fill_palette(leds, numLED, pal_index, 4, gPalette, gBrightness, gBlending);
 }
 
 // A theater chase where packets switch direction every once in a while. Lets see how
