@@ -79,7 +79,7 @@ extern const TProgmemPalette16 WhiteBlack_p PROGMEM;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 10;
+const uint8_t numAnimation = 11;
 uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that use chasers
 
 void setup() {
@@ -214,33 +214,36 @@ void loop() {
     // Select animation to run based on global counter
     if (!dj_control) {
       if (gAnimCounter == 0) {
-        theater_perim_opp(chaser_opt);
+        fill_all();
       }
       else if (gAnimCounter == 1) {
-        whole_eq_3();
+        theater_perim_opp(chaser_opt);
       }
       else if (gAnimCounter == 2) {
-        whole_eq();
+        whole_eq_3();
       }
       else if (gAnimCounter == 3) {
-        diagonal_flash_timed();
+        whole_eq();
       }
       else if (gAnimCounter == 4) {
-        saw_chaser_0(chaser_opt);
+        diagonal_flash_timed();
       }
       else if (gAnimCounter == 5) {
-        saw_chaser_1(chaser_opt);
+        saw_chaser_0(chaser_opt);
       }
       else if (gAnimCounter == 6) {
-        saw_solid_0();
+        saw_chaser_1(chaser_opt);
       }
       else if (gAnimCounter == 7) {
-        saw_solid_1();
+        saw_solid_0();
       }
       else if (gAnimCounter == 8) {
-        trap_solid();
+        saw_solid_1();
       }
       else if (gAnimCounter == 9) {
+        trap_solid();
+      }
+      else if (gAnimCounter == 10) {
         all_trap_chaser(chaser_opt);
       }
     }

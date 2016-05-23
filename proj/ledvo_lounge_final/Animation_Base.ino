@@ -24,12 +24,15 @@ void reset_all() {
   }
 }
 
-void fill_all(uint8_t pal_index, CRGB col) {
+void fill_all() {
+  CRGB col = CHSV(map(analogRead(HUE_POT), 0, 688, 0, 255), 255, gBrightness);
   fill_solid(ih_leds, ih_LED_total, col);
   fill_solid(oh_leds, oh_LED_total, col);
   for (uint8_t dd = 0; dd < 3; dd++) {
     fill_solid(d_leds[dd], d_LED_num, col);
   }
+  FastLED.show();
+  FastLED.delay(20);
 }
 
 // Draw some basic shapes, this will use fill solid to draw them.
