@@ -37,9 +37,9 @@ void theater_perim_opp(uint8_t theat_opt) {
     theater_chase(oh_leds, oh_LED_total, 255 - pal_index);
   }
   else if (theat_opt == 1) {
-    theater_chase(ih_leds(0, 3 * led_strand - 1), ih_num_strand / 2, pal_index);
+    theater_chase(ih_leds(0, 3 * led_strand - 1), ih_LED_total / 2, pal_index);
     ih_leds(ih_num_strand - 1, 3 * led_strand) = ih_leds(0, 3 * led_strand - 1);
-    theater_chase(oh_leds(0, 6 * led_strand - 1), oh_num_strand / 2, 255 - pal_index);
+    theater_chase(oh_leds(0, 6 * led_strand - 1), oh_LED_total / 2, 255 - pal_index);
     oh_leds(oh_num_strand - 1, 6 * led_strand) = oh_leds(0, 6 * led_strand - 1);
   }
   else if (theat_opt == 2) {
