@@ -223,26 +223,35 @@ void loop() {
     //      anim_switch = false;
     //    }
 
+    static uint8_t blah = 0;
+    EVERY_N_SECONDS(10) {
+      blah = (blah+1)%3;
+      reset_all();
+    }
+
+    fill_solid(d_leds[blah], d_LED_num, CHSV(gHue, 255, gBrightness));
+    FastLED.show();
+
     // Select animation to run based on global counter
     if (!dj_control) {
-      if (gAnimCounter == 0) {
-        fill_all();
-      }
-      else if (gAnimCounter == 1) {
-        trap_solid();
-      }
-      else if (gAnimCounter == 2) {
-        saw_chaser_0(chaser_opt);
-      }
-      else if (gAnimCounter == 3) {
-        saw_chaser_1(chaser_opt);
-      }
-      else if (gAnimCounter == 4) {
-        saw_solid_0();
-      }
-      else if (gAnimCounter == 5) {
-        saw_solid_1();
-      }
+//      if (gAnimCounter == 0) {
+//        fill_all();
+//      }
+//      else if (gAnimCounter == 1) {
+//        trap_solid();
+//      }
+//      else if (gAnimCounter == 2) {
+//        saw_chaser_0(chaser_opt);
+//      }
+//      else if (gAnimCounter == 3) {
+//        saw_chaser_1(chaser_opt);
+//      }
+//      else if (gAnimCounter == 4) {
+//        saw_solid_0();
+//      }
+//      else if (gAnimCounter == 5) {
+//        saw_solid_1();
+//      }
       /*if (gAnimCounter == 0) {
         fill_all();
         }
@@ -276,6 +285,8 @@ void loop() {
         else if (gAnimCounter == 10) {
         all_trap_chaser(chaser_opt);
         }*/
+
+
     }
 
     // The following are all checks for DJ animations that
