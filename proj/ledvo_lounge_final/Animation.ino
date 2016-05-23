@@ -1,4 +1,3 @@
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // These are the high level animations. Basically they use the animation base function //
 // and some clever rearranging to get some particularly snazzy animations.             //
@@ -163,6 +162,7 @@ void whole_eq_3() {
 
   FastLED.show();
 
+  reset_all();
   fadeToBlackBy(led_tmplt, led_strand, 2);
 
 }
@@ -219,6 +219,7 @@ void whole_eq() {
 
   FastLED.show();
 
+  reset_all();
   fadeToBlackBy(led_tmplt, led_strand, 2);
 
 }
