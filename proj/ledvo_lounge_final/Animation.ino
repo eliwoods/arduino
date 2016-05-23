@@ -13,7 +13,7 @@ void theater_perim_opp(uint8_t theat_opt) {
 
   // Increment the palette index at a user controlled rate
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
     if (anim_reverse) {
       pal_index--;
     }
@@ -98,7 +98,7 @@ void whole_eq_3() {
 
   // Fill the bars at a input dependent rate. Lets try this with a triangular wave at first
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 200));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 200));
     for (uint8_t dd = 0; dd < 3; dd++) {
       lead[dd] = (lead[dd] + 1) % (lead_max[dd] * 2);
     }
@@ -173,7 +173,7 @@ void whole_eq() {
 
   // Fill the bars at a input dependent rate. Lets try this with a triangular wave at first
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 200));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 200));
     lead = (lead + 1) % (lead_max * 2);
     pal_index++;
   }
@@ -251,7 +251,7 @@ void diagonal_flash_timed() {
   // Flash 0 -> 3
   if (anim_set == 0) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
       brightness += 16;
       if ( just_switched) {
         just_switched = false;
@@ -278,7 +278,7 @@ void diagonal_flash_timed() {
   // Flash strands 0 -> 3 -> 0
   if (anim_set == 1) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
       brightness += 16;
       if (just_switched) {
         just_switched = false;
@@ -316,7 +316,7 @@ void diagonal_flash_timed() {
   // Flash random strands
   if (anim_set == 2) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
       brightness += 16;
       if ( just_switched) {
         just_switched = false;
@@ -355,7 +355,7 @@ void saw_chaser_0(uint8_t theat_opt) {
 
   // Control the chasers at a user input rate
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
     if (anim_reverse) {
       pal_index--;
     }
@@ -460,7 +460,7 @@ void saw_chaser_1(uint8_t theat_opt) {
 
   // Control the chasers at a user input rate
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
     if (anim_reverse) {
       pal_index--;
     }
@@ -559,7 +559,7 @@ void saw_solid_0() {
 
   // Control palette index at a user input rate
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
     if (anim_reverse) {
       pal_index--;
     }
@@ -587,7 +587,7 @@ void saw_solid_1() {
 
   // Control palette index at a user input rate
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
     if (anim_reverse) {
       pal_index--;
     }
@@ -634,7 +634,7 @@ void trap_solid() {
   // Flash 0 -> 4
   if (anim_set == 0) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
       brightness += 16;
       if ( just_switched) {
         just_switched = false;
@@ -657,7 +657,7 @@ void trap_solid() {
   // Flash strands 0 -> 4 -> 0
   if (anim_set == 1) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
       brightness += 16;
       if (just_switched) {
         just_switched = false;
@@ -690,7 +690,7 @@ void trap_solid() {
   // Turn 0->4 on, then turn 0->4 off
   if (anim_set == 2) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
       if (!flagged) {
         brightness += 16;
       }
@@ -734,7 +734,7 @@ void trap_solid() {
   // Flash random traps
   if (anim_set == 3) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
       brightness += 16;
       if ( just_switched) {
         just_switched = false;
@@ -766,7 +766,7 @@ void all_trap_chaser(uint8_t theat_opt) {
 
   // Control the iteration at a user input rate
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 1, 100));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 100));
     if (anim_reverse) {
       pal_index--;
     }

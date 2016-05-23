@@ -154,10 +154,10 @@ void setup() {
 void loop() {
   // Read in global brightness value
   if (power_on) {
-    gBrightness = map(analogRead(VAL_POT), 0, 687, 0, maxBrightness);
+    gBrightness = map(analogRead(VAL_POT), 0, 1023, 0, maxBrightness);
 
     // Read color from potentiometer input
-    gHue = map(analogRead(HUE_POT), 0, 687, 0, 255);
+    gHue = map(analogRead(HUE_POT), 0, 1023, 0, 255);
 
     // Check the palette counter and switch acordingly or go into autopilot mode. Also run
     // some checks that we aren't using palettes with black when we fill whole bars
