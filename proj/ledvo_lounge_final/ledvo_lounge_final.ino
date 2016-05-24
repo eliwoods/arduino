@@ -79,7 +79,7 @@ extern const uint8_t numPalettes;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 11;
+const uint8_t numAnimation = 10;
 uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that use chasers
 
 void setup() {
@@ -166,7 +166,7 @@ void loop() {
         gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
       }
       // Keep us from selecting certain palettes for certain animatinos
-      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 7 || gAnimCounter == 8 || gAnimCounter == 9) {
+      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 6 || gAnimCounter == 7 || gAnimCounter == 8) {
         while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
           gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
         }
@@ -176,7 +176,7 @@ void loop() {
     }
     else {
       // Keep us from selecting certain palettes for certain animatinos
-      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 7 || gAnimCounter == 8 || gAnimCounter == 9) {
+      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 6 || gAnimCounter == 7 || gAnimCounter == 8) {
         while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
           gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
         }
@@ -198,10 +198,10 @@ void loop() {
       if (gAnimCounter == 1) {
         chaser_opt = (chaser_opt + 1) % 9;
       }
-      else if (gAnimCounter == 5 || gAnimCounter == 6) {
+      else if (gAnimCounter == 4 || gAnimCounter == 5) {
         chaser_opt = (chaser_opt + 1) % 6;
       }
-      else if (gAnimCounter == 10) {
+      else if (gAnimCounter == 9) {
         chaser_opt = (chaser_opt + 1) % 3;
       }
     }
@@ -227,30 +227,27 @@ void loop() {
         theater_perim_opp(chaser_opt);
       }
       else if (gAnimCounter == 2) {
-        whole_eq_3();
-      }
-      else if (gAnimCounter == 3) {
         whole_eq();
       }
-      else if (gAnimCounter == 4) {
+      else if (gAnimCounter == 3) {
         diagonal_flash_timed();
       }
-      else if (gAnimCounter == 5) {
+      else if (gAnimCounter == 4) {
         saw_chaser_0(chaser_opt);
       }
-      else if (gAnimCounter == 6) {
+      else if (gAnimCounter == 5) {
         saw_chaser_1(chaser_opt);
       }
-      else if (gAnimCounter == 7) {
+      else if (gAnimCounter == 6) {
         saw_solid_0();
       }
-      else if (gAnimCounter == 8) {
+      else if (gAnimCounter == 7) {
         saw_solid_1();
       }
-      else if (gAnimCounter == 9) {
+      else if (gAnimCounter == 8) {
         trap_solid();
       }
-      else if (gAnimCounter == 10) {
+      else if (gAnimCounter == 9) {
         all_trap_chaser(chaser_opt);
       }
     }
