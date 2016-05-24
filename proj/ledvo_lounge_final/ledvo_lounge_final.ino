@@ -206,13 +206,13 @@ void loop() {
 
     // Update the chaser options if we are one of those animations
     EVERY_N_SECONDS(5) {
-      if (gAnimCounter == 1) {
+      if (gAnimCounter == 2) {
         chaser_opt = (chaser_opt + 1) % 9;
       }
-      else if (gAnimCounter == 4 || gAnimCounter == 5) {
+      else if (gAnimCounter == 6 || gAnimCounter == 7) {
         chaser_opt = (chaser_opt + 1) % 6;
       }
-      else if (gAnimCounter == 9) {
+      else if (gAnimCounter == 11) {
         chaser_opt = (chaser_opt + 1) % 3;
       }
     }

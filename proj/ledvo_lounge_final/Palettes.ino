@@ -46,10 +46,10 @@ void update_WhiteCol_p() {
 }
 
 // Hue adjustable palettes!!!
-const uint8_t val_offset = 40;
+const uint8_t val_offset = 80;
 
 void update_PureCol_p() {
-  fill_solid(gPalette, 16, CHSV(gHue, 255, gBrightness));
+  fill_solid(gPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
 }
 
 // X_LEAD|X_BACK|X_BACK|X_BACK repeating

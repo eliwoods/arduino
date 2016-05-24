@@ -38,7 +38,7 @@ void fill_all() {
 void fill_all_grad() {
   // Grab the colors
   CRGB col_start = CHSV(map(analogRead(HUE_POT), 0, 1023, 0, 255), 255, gBrightness);
-  CRGB col_end = CHSV((map(analogRead(HUE_POT), 0, 1023, 0, 255) + 128) % 255, 255, gBrightness);
+  CRGB col_end = CHSV((map(analogRead(HUE_POT), 0, 1023, 0, 255) + 64) % 255, 255, gBrightness);
   // Fill inner hex
   fill_gradient_RGB(ih_leds, ih_LED_total, col_start, col_end);
   // Fill outer hex
@@ -92,7 +92,7 @@ void strobes() {
   // Fill everything with white at a user controlled rate, then fade to black to
   // get the strobe effect that we want
   EVERY_N_MILLISECONDS_I(thisTimer, 200) {
-    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 50, 1000));
+    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 50, 1500));
     fill_solid(ih_leds, ih_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 40, maxBrightness)));
     fill_solid(oh_leds, oh_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 40, maxBrightness)));
     for (uint8_t dd = 0; dd < 3; dd++) {
