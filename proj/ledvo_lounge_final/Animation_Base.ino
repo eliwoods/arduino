@@ -92,7 +92,7 @@ void strobes() {
   // Fill everything with white at a user controlled rate, then fade to black to
   // get the strobe effect that we want
   EVERY_N_MILLISECONDS_I(thisTimer, 200) {
-    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 50, 800));
+    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 50, 1000));
     fill_solid(ih_leds, ih_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 40, maxBrightness)));
     fill_solid(oh_leds, oh_LED_total, CHSV(255, 0, map(analogRead(VAL_POT), 0, 1023, maxBrightness - 40, maxBrightness)));
     for (uint8_t dd = 0; dd < 3; dd++) {
@@ -109,10 +109,10 @@ void strobes() {
 // animation but rather another layer.
 void strobe_black() {
   EVERY_N_MILLISECONDS_I(thisTimer, 175) {
-    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 20, 800));
+    thisTimer.setPeriod(map(analogRead(DJ_POT), 0, 1023, 10, 1000));
     reset_all();
     FastLED.show();
-    FastLED.delay(20);
+    FastLED.delay(10);
   }
 }
 
@@ -130,13 +130,13 @@ void theater_chase(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
 // A theater chase where packets switch direction every once in a while. Lets see how
 // this looks with a saw wave
 void theater_chase_tri(CRGB *leds, uint16_t numLED, uint8_t pal_index) {
-  fill_palette(leds, numLED, triwave(pal_index), 4, gPalette, maxBrightness, gBlending);
+  fill_palette(leds, numLED, triwave(pal_index), 4, gPalette, gBrightness, gBlending);
 }
 
 // A glitchy style "chase". It not even really a chase, I just keep the palette static and
 // change the width of the packets. Looks kind of funky, but kind of cool too.
 void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc) {
-  fill_palette(leds, numLED, 0, col_inc, gPalette, maxBrightness, gBlending);
+  fill_palette(leds, numLED, 0, col_inc, gPalette, gBrightness, gBlending);
 }
 
 // Fill the whole strip from left to right, then empty from left to right.
