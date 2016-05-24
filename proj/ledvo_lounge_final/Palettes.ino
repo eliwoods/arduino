@@ -27,6 +27,10 @@ void update_RainbowBlack_p() {
   }
 }
 
+void update_Rainbow_p() {
+  fill_palette(gPalette, 16, gHue, 16, RainbowColors_p, gBrightness, gBlending);
+}
+
 // W|RB|RB|RB repeating
 void update_WhiteRainbow_p() {
   fill_palette(gPalette, 16, gHue, 16, RainbowColors_p, gBrightness, gBlending);
@@ -46,7 +50,7 @@ void update_WhiteCol_p() {
 }
 
 // Hue adjustable palettes!!!
-const uint8_t val_offset = 80;
+const uint8_t val_offset = 100;
 
 void update_PureCol_p() {
   fill_solid(gPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
