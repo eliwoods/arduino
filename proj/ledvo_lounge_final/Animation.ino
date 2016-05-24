@@ -109,7 +109,7 @@ void whole_eq_3() {
   for (uint8_t dd = 0; dd < 3; dd++) {
     if (lead[dd] == 0) {
       pal_index[dd] += 12;
-      lead_max[dd] = random16(d_LED_num / 3, d_LED_num); // from 1/3 length -> length
+      lead_max[dd] = random16(led_strand / 3, led_strand); // from 1/3 length -> length
     }
   }
 
