@@ -7,7 +7,6 @@
 // RB == Rainbow, uses global hue position
 // X == Input to the function
 
-
 //////////////////////////////////////////////////////////////////////////////////
 // These template need to be updated before each fill call. This is because     //
 // they are either dependend on an input or they rely on some global variable   //
@@ -46,6 +45,9 @@ void update_WhiteCol_p() {
   gPalette[12] = CHSV(255, 0, gBrightness);
 }
 
+// Hue adjustable palettes!!!
+const uint8_t val_offset = 40;
+
 void update_PureCol_p() {
   fill_solid(gPalette, 16, CHSV(gHue, 255, gBrightness));
 }
@@ -54,10 +56,10 @@ void update_PureCol_p() {
 void update_TwoCol_p() {
   for (uint8_t i = 0; i < 16; i++) {
     if (i % 4 == 0) {
-      gPalette[i] = CHSV(gHue, 255, gBrightness);
+      gPalette[i] = CHSV(gHue, 255, gBrightness + val_offset);
     }
     else {
-      gPalette[i] = CHSV((gHue + 128) % 255, 255, gBrightness);
+      gPalette[i] = CHSV((gHue + 128) % 255, 255, gBrightness + val_offset);
     }
   }
 }
@@ -68,13 +70,13 @@ void update_FourCol_p() {
       gPalette[i] = CHSV(gHue, 255, gBrightness);
     }
     else if (i % 4 == 1) {
-      gPalette[i] = CHSV((gHue + 64) % 255, 255, gBrightness);
+      gPalette[i] = CHSV((gHue + 64) % 255, 255, gBrightness + val_offset);
     }
     else if (i % 4 == 2) {
-      gPalette[i] = CHSV((gHue + 128) % 255, 255, gBrightness);
+      gPalette[i] = CHSV((gHue + 128) % 255, 255, gBrightness + val_offset);
     }
     else if (i % 4 == 3) {
-      gPalette[i] = CHSV((gHue + 192) % 255, 255, gBrightness);
+      gPalette[i] = CHSV((gHue + 192) % 255, 255, gBrightness + val_offset);
     }
   }
 
@@ -85,7 +87,7 @@ void update_ColLead_p() {
   fill_solid(gPalette, 16, CRGB::Black);
   for (uint8_t i = 0; i < 16; i++) {
     if (i % 4 == 0) {
-      gPalette[i] = CHSV(gHue, 255, gBrightness);
+      gPalette[i] = CHSV(gHue, 255, gBrightness + val_offset);
     }
     else {
       gPalette[i] = CRGB::Black;

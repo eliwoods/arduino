@@ -35,6 +35,23 @@ void fill_all() {
   FastLED.delay(20);
 }
 
+void fill_all_grad() {
+  // Grab the colors
+  CRGB col_start = CHSV(map(analogRead(HUE_POT), 0, 1023, 0, 255), 255, gBrightness);
+  CRGB col_end = CHSV((map(analogRead(HUE_POT), 0, 1023, 0, 255) + 128) % 255, 255, gBrightness);
+  // Fill inner hex
+  fill_gradient_RGB(ih_leds, ih_LED_total, col_start, col_end);
+  // Fill outer hex
+  fill_gradient_RGB(oh_leds, oh_LED_total, col_start, col_end);
+  // Grab the diagonals from the outer led they touch
+  fill_solid(d_leds[0], d_LED_num, oh_leds[2 * led_strand - 1]);
+  fill_solid(d_leds[1], d_LED_num, ih_leds[3 * led_strand - 1]);
+  fill_solid(d_leds[2], d_LED_num, oh_leds[10 * led_strand - 1]);
+
+  FastLED.show();
+  FastLED.delay(20);
+}
+
 // Draw some basic shapes, this will use fill solid to draw them.
 void draw_trapezoid(uint8_t side, CRGB col) {
   // The diagonals
@@ -51,9 +68,9 @@ void draw_trapezoid(uint8_t side, CRGB col) {
     fill_solid(d_leds[side], d_LED_num, col);
     fill_solid(d_leds[side - 1], d_LED_num, col);
     // Inner Hex
-    fill_solid(ih_leds((side-1) * (2 * led_strand) + led_strand, side * (2 * led_strand) + led_strand - 1), 2 * led_strand, col);
+    fill_solid(ih_leds((side - 1) * (2 * led_strand) + led_strand, side * (2 * led_strand) + led_strand - 1), 2 * led_strand, col);
     // Outer Hex
-    fill_solid(oh_leds((side-1) * (4 * led_strand) + 2 * led_strand, side * (4 * led_strand) + 2 * led_strand - 1), 4 * led_strand, col);
+    fill_solid(oh_leds((side - 1) * (4 * led_strand) + 2 * led_strand, side * (4 * led_strand) + 2 * led_strand - 1), 4 * led_strand, col);
   }
   if (side == 3) {
     // Diagonal
@@ -123,7 +140,7 @@ void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc) {
 }
 
 // Fill the whole strip from left to right, then empty from left to right.
-/*void fill_to_empty(CRGB *leds, uint16_t numLED) {
+void fill_to_empty(CRGB *leds, uint16_t numLED) {
   // Index for grabbing colors from the global palette
   static uint8_t pal_index = 0;
 
@@ -132,7 +149,7 @@ void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc) {
   static uint16_t lead = 0;
 
   EVERY_N_MILLISECONDS_I(thisTimer, 50) {
-    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 687, 10, 200));
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 10, 200));
     lead = (lead + 1) % numLED;
   }
 
@@ -156,7 +173,7 @@ void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc) {
       _fill = true;
     }
   }
-  }*/
+}
 
 
 // Pretty self explanatory. Grab a random LED and turn it on if it's off, or turn it off if it's on.

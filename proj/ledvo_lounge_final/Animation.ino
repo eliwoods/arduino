@@ -91,7 +91,7 @@ void theater_perim_opp(uint8_t theat_opt) {
 
 // Run a fake eq on the diagonals from the top and bottom. Do 3 separate
 // "channels", one for each diagonal
-void whole_eq_3() {
+void whole_eq_overlay() {
   static uint8_t pal_index[] = {0, 0, 0};
   static uint16_t lead_max[] = {d_LED_num / 2, d_LED_num / 2, d_LED_num / 2};
   static uint16_t lead[] = {0, 0, 0};
@@ -163,9 +163,82 @@ void whole_eq_3() {
 
   FastLED.show();
 
-//  reset_all();
-//  fill_solid(led_tmplt, led_strand, CRGB::Black);
-//  fadeToBlackBy(led_tmplt, led_strand, 2);
+  //  reset_all();
+  //  fill_solid(led_tmplt, led_strand, CRGB::Black);
+  //  fadeToBlackBy(led_tmplt, led_strand, 2);
+
+}
+
+void whole_eq_3() {
+  static uint8_t pal_index[] = {0, 0, 0};
+  static uint16_t lead_max[] = {led_strand / 2, led_strand / 2, led_strand / 2};
+  static uint16_t lead[] = {0, 0, 0};
+  static CRGBArray<led_strand> d_tmplt[3];
+
+  // Fill the bars at a input dependent rate. Lets try this with a triangular wave at first
+  EVERY_N_MILLISECONDS_I(thisTimer, 50) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1023, 1, 200));
+    for (uint8_t dd = 0; dd < 3; dd++) {
+      lead[dd] = (lead[dd] + 1) % (lead_max[dd] * 2);
+    }
+  }
+
+  // Check if the diagonals bars are about to be empty. Increment the palette index and
+  // generate a new max length if so
+  for (uint8_t dd = 0; dd < 3; dd++) {
+    if (lead[dd] == 0) {
+      pal_index[dd] += 12;
+      lead_max[dd] = random16(led_strand / 3, led_strand); // from 1/3 length -> length
+    }
+  }
+
+  // Now actually draw the bars. Check which way we are going on the wave and either empty or fill.
+  // Draw this to the led template and then assign to the appropriate strands before going onto the next
+  // diagonal
+  for (uint8_t dd = 0; dd < 3; dd++) {
+    fadeToBlackBy(d_tmplt[dd], led_strand, 10);
+    if (lead[dd] < lead_max[dd]) {
+      fill_solid(d_tmplt[dd], lead[dd], ColorFromPalette(gPalette, pal_index[dd], gBrightness, gBlending));
+    }
+    else {
+      fill_solid(d_tmplt[dd], 2 * lead_max[dd] - lead[dd], ColorFromPalette(gPalette, pal_index[dd], gBrightness, gBlending));
+
+    }
+    d_leds[dd](0, led_strand - 1) = d_tmplt[dd];
+    d_leds[dd](led_strand, d_LED_num - 1) = d_tmplt[dd](led_strand - 1, 0);
+    // First set of diagonals
+    if (dd == 0) {
+      // Inner Hex
+      ih_leds(0, led_strand - 1) = d_tmplt[dd](led_strand - 1, 0);
+      ih_leds(led_strand, 2 * led_strand - 1) = d_tmplt[dd];
+      // Outer Hex
+      oh_leds(led_strand, 2 * led_strand - 1) = d_tmplt[dd](led_strand - 1, 0);
+      oh_leds(2 * led_strand, 3 * led_strand - 1) = d_tmplt[dd];
+    }
+    else if (dd == 1) {
+      // Inner Hex
+      ih_leds(2 * led_strand, 3 * led_strand - 1) = d_tmplt[dd](led_strand - 1, 0);
+      ih_leds(3 * led_strand, 4 * led_strand - 1) = d_tmplt[dd];
+      // Outer Hex
+      oh_leds(5 * led_strand, 6 * led_strand - 1) = d_tmplt[dd](led_strand - 1, 0);
+      oh_leds(6 * led_strand, 7 * led_strand - 1) = d_tmplt[dd];
+    }
+    else if (dd == 2) {
+      // Inner Hex
+      ih_leds(4 * led_strand, 5 * led_strand - 1) = d_tmplt[dd](led_strand - 1, 0);
+      ih_leds(5 * led_strand, 6 * led_strand - 1) = d_tmplt[dd];
+      // Outer Hex
+      oh_leds(9 * led_strand, 10 * led_strand - 1) = d_tmplt[dd](led_strand - 1, 0);
+      oh_leds(10 * led_strand, 11 * led_strand - 1) = d_tmplt[dd];
+    }
+
+  }
+
+  FastLED.show();
+
+  //  reset_all();
+  //  fill_solid(led_tmplt, led_strand, CRGB::Black);
+  //  fadeToBlackBy(led_tmplt, led_strand, 2);
 
 }
 
@@ -221,7 +294,7 @@ void whole_eq() {
 
   FastLED.show();
 
-//  reset_all();
+  //  reset_all();
   fill_solid(led_tmplt, led_strand, CRGB::Black);
   //fadeToBlackBy(led_tmplt, led_strand, 2);
 

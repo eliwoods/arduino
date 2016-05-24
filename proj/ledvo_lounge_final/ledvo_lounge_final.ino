@@ -75,11 +75,12 @@ TBlendType gBlending;
 uint8_t gIndex; // Global Palette Index
 extern const uint8_t numPalettes;
 
+
 // To control hue globally through a potentiometer input
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 11;
+const uint8_t numAnimation = 12;
 uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that use chasers
 
 void setup() {
@@ -166,9 +167,14 @@ void loop() {
         gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
       }
       // Keep us from selecting certain palettes for certain animatinos
-      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 7 || gAnimCounter == 8 || gAnimCounter == 9) {
+      if (gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 5 || gAnimCounter == 8 || gAnimCounter == 9 || gAnimCounter == 10) {
         while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
           gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
+        }
+      }
+      if (gAnimCounter == 2 || gAnimCounter == 6 || gAnimCounter ==  7 || gAnimCounter == 11) {
+        while (gPaletteCounter == 2 ) {
+          gPaletteCounter++;
         }
       }
       // Now update the palette with our choice
@@ -176,9 +182,14 @@ void loop() {
     }
     else {
       // Keep us from selecting certain palettes for certain animatinos
-      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 7 || gAnimCounter == 8 || gAnimCounter == 9) {
+      if (gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 5 || gAnimCounter == 8 || gAnimCounter == 9 || gAnimCounter == 10) {
         while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
           gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
+        }
+      }
+      if (gAnimCounter == 2 || gAnimCounter == 6 || gAnimCounter ==  7 || gAnimCounter == 11) {
+        while (gPaletteCounter == 2 ) {
+          gPaletteCounter++;
         }
       }
       // Now update the palette with our choice
@@ -224,33 +235,36 @@ void loop() {
         fill_all();
       }
       else if (gAnimCounter == 1) {
-        theater_perim_opp(chaser_opt);
+        fill_all_grad();
       }
       else if (gAnimCounter == 2) {
-        whole_eq();
+        theater_perim_opp(chaser_opt);
       }
       else if (gAnimCounter == 3) {
-        whole_eq_3();
+        whole_eq_overlay();
       }
       else if (gAnimCounter == 4) {
-        diagonal_flash_timed();
+        whole_eq_3();
       }
       else if (gAnimCounter == 5) {
-        saw_chaser_0(chaser_opt);
+        diagonal_flash_timed();
       }
       else if (gAnimCounter == 6) {
-        saw_chaser_1(chaser_opt);
+        saw_chaser_0(chaser_opt);
       }
       else if (gAnimCounter == 7) {
-        saw_solid_0();
+        saw_chaser_1(chaser_opt);
       }
       else if (gAnimCounter == 8) {
-        saw_solid_1();
+        saw_solid_0();
       }
       else if (gAnimCounter == 9) {
-        trap_solid();
+        saw_solid_1();
       }
       else if (gAnimCounter == 10) {
+        trap_solid();
+      }
+      else if (gAnimCounter == 11) {
         all_trap_chaser(chaser_opt);
       }
     }
