@@ -55,7 +55,7 @@ const uint16_t d_LED_num = d_num_strand_tot * led_strand;
 CRGBArray<d_LED_num> d_leds[num_diag];
 
 // Variables for pin interrupts. There's a lot of these babies ;^)
-uint32_t debounce_time = 20;
+uint32_t debounce_time = 100;
 volatile uint32_t last_micros; // In milliseconds
 volatile boolean power_on = true; // Used for kill switch
 volatile boolean power_switched = false;
@@ -79,7 +79,7 @@ extern const uint8_t numPalettes;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 10;
+const uint8_t numAnimation = 11;
 uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that use chasers
 
 void setup() {
@@ -166,7 +166,7 @@ void loop() {
         gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
       }
       // Keep us from selecting certain palettes for certain animatinos
-      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 6 || gAnimCounter == 7 || gAnimCounter == 8) {
+      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 7 || gAnimCounter == 8 || gAnimCounter == 9) {
         while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
           gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
         }
@@ -176,7 +176,7 @@ void loop() {
     }
     else {
       // Keep us from selecting certain palettes for certain animatinos
-      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 6 || gAnimCounter == 7 || gAnimCounter == 8) {
+      if (gAnimCounter == 2 || gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 7 || gAnimCounter == 8 || gAnimCounter == 9) {
         while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
           gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
         }
@@ -187,7 +187,7 @@ void loop() {
 
     // Check if we want to autopilot the animations
     if (anim_autopilot) {
-      EVERY_N_SECONDS(60) {
+      EVERY_N_SECONDS(10) {
         gAnimCounter = (gAnimCounter + 1) % numAnimation;
         anim_switch = true;
       }
@@ -230,24 +230,27 @@ void loop() {
         whole_eq();
       }
       else if (gAnimCounter == 3) {
-        diagonal_flash_timed();
+        whole_eq_3();
       }
       else if (gAnimCounter == 4) {
-        saw_chaser_0(chaser_opt);
+        diagonal_flash_timed();
       }
       else if (gAnimCounter == 5) {
-        saw_chaser_1(chaser_opt);
+        saw_chaser_0(chaser_opt);
       }
       else if (gAnimCounter == 6) {
-        saw_solid_0();
+        saw_chaser_1(chaser_opt);
       }
       else if (gAnimCounter == 7) {
-        saw_solid_1();
+        saw_solid_0();
       }
       else if (gAnimCounter == 8) {
-        trap_solid();
+        saw_solid_1();
       }
       else if (gAnimCounter == 9) {
+        trap_solid();
+      }
+      else if (gAnimCounter == 10) {
         all_trap_chaser(chaser_opt);
       }
     }

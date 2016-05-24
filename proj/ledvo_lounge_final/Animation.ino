@@ -117,6 +117,7 @@ void whole_eq_3() {
   // Draw this to the led template and then assign to the appropriate strands before going onto the next
   // diagonal
   for (uint8_t dd = 0; dd < 3; dd++) {
+    fadeToBlackBy(led_tmplt, led_strand, 10);
     if (lead[dd] < lead_max[dd]) {
       fill_solid(led_tmplt, lead[dd], ColorFromPalette(gPalette, pal_index[dd], gBrightness, gBlending));
     }
@@ -162,8 +163,8 @@ void whole_eq_3() {
 
   FastLED.show();
 
-  reset_all();
-  fill_solid(led_tmplt, led_strand, CRGB::Black);
+//  reset_all();
+//  fill_solid(led_tmplt, led_strand, CRGB::Black);
 //  fadeToBlackBy(led_tmplt, led_strand, 2);
 
 }
@@ -220,7 +221,7 @@ void whole_eq() {
 
   FastLED.show();
 
-  reset_all();
+//  reset_all();
   fill_solid(led_tmplt, led_strand, CRGB::Black);
   //fadeToBlackBy(led_tmplt, led_strand, 2);
 
