@@ -40,7 +40,11 @@ void update_WhiteRainbow_p() {
   gPalette[12] = CHSV(255, 0, gBrightness);
 }
 
-// W|X|X|X repeating
+
+// Hue adjustable palettes!!!
+const uint8_t val_offset = 100;
+
+// X_LEAD|X_BACK|X_BACK|X_BACK repeating
 void update_WhiteCol_p() {
   fill_solid( gPalette, 16, CHSV(gHue, 255, gBrightness));
   gPalette[0] = CHSV(255, 0, gBrightness);
@@ -49,14 +53,6 @@ void update_WhiteCol_p() {
   gPalette[12] = CHSV(255, 0, gBrightness);
 }
 
-// Hue adjustable palettes!!!
-const uint8_t val_offset = 100;
-
-void update_PureCol_p() {
-  fill_solid(gPalette, 16, CHSV(gHue, 255, gBrightness + val_offset));
-}
-
-// X_LEAD|X_BACK|X_BACK|X_BACK repeating
 void update_TwoCol_p() {
   for (uint8_t i = 0; i < 16; i++) {
     if (i % 4 == 0) {
@@ -108,6 +104,7 @@ void update_WhiteBlack_p() {
     }
   }
 }
+
 //////////////////////////////////////////////////////////////////////////////////
 // Static templates. These are templates that do not need to be update          //
 // since they are not modular and don't have any dependence on global variables //
@@ -741,7 +738,7 @@ DEFINE_GRADIENT_PALETTE( mellon_ball_surprise_gp ) {
 
 // This has to be hand counted and updated whenever we add more palettes. There are also some predefined palettes
 // that need to get accounted for :(
-const uint8_t numPalettes = 29;
+const uint8_t numPalettes = 28;
 
 // This handles the switching of palettes based on the global palette counter. Need to add palettes to this function
 // whenever they are added up above. Declare it down here so we can get away with not having to use the Gradient Palette
@@ -758,84 +755,81 @@ void updateGPalette() {
       update_Rainbow_p();
       break;
     case 3:
-      update_PureCol_p();
-      break;
-    case 4:
       update_WhiteCol_p();
       break;
-    case 5:
+    case 4:
       update_TwoCol_p();
       break;
-    case 6:
+    case 5:
       update_ColLead_p();
       break;
-    case 7:
+    case 6:
       update_WhiteBlack_p();
       break;
     // Have to use gGradientPalettes array because the gradient defines
     // are below us. Maybe we should move this to the Palettes tab so we don't
     // have to use this array shit.
-    case 8:
+    case 7:
       gPalette = chroma_gp;
       break;
-    case 9:
+    case 8:
       gPalette = sprinkles_gp;
       break;
-    case 10:
+    case 9:
       gPalette = GMT_no_green_gp;
       break;
-    case 11:
+    case 10:
       gPalette = GMT_sealand_gp;
       break;
-    case 12:
+    case 11:
       gPalette = GMT_cool_gp;
       break;
-    case 13:
+    case 12:
       gPalette = aspectcolr_gp;
       break;
-    case 14:
+    case 13:
       gPalette = haxby_gp;
       break;
-    case 15:
+    case 14:
       gPalette = differences_gp;
       break;
-    case 16:
+    case 15:
       gPalette = cool_warm_d05_gp;
       break;
-    case 17:
+    case 16:
       gPalette = purple_orange_d07_gp;
       break;
-    case 18:
+    case 17:
       gPalette = Lucy_in_the_Sky_gp;
       break;
-    case 19:
+    case 18:
       gPalette = Alive_And_Kicking_gp;
       break;
-    case 20:
+    case 19:
       gPalette = firestrm_gp;
       break;
-    case 21:
+    case 20:
       gPalette = royal_gp;
       break;
-    case 22:
+    case 21:
       gPalette = moldy_bread_gp;
       break;
-    case 23:
+    case 22:
       gPalette = Floating_Away_gp;
       break;
-    case 24:
+    case 23:
       gPalette = three_girls_reclining_gp;
       break;
-    case 25:
+    case 24:
       gPalette = iCreate_gp;
       break;
-    case 26:
+    case 25:
       gPalette = Opaque_gp;
       break;
-    case 27:
+    case 26:
       gPalette = FiveHundo_LOVERS_ThankYou_gp;
       break;
-    case 28:
+    case 27:
       gPalette = mellon_ball_surprise_gp;
       break;
   }
