@@ -9,13 +9,13 @@
 
 // Analog Pins
 #define RATE_POT 0 // Potentiometer for animation rate
-#define HUE_POT 0 // Potentiometer for global hue
+#define HUE_POT 1 // Potentiometer for global hue
 
 // Digital Pins
-#define LED_IN 6
+#define LED_IN 7
 
 // Variables for the LED strand
-const uint8_t gBrightness = 85;
+const uint8_t gBrightness = 200;
 const uint16_t numLED = 143;
 CRGBArray<numLED> leds;
 
@@ -31,7 +31,7 @@ uint8_t gSpeed = 0;
 uint8_t gIndex = 0;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 23;
+const uint8_t numAnimation = 14;
 uint8_t gAnimCounter = 0;
 
 void setup() {
@@ -53,23 +53,22 @@ void loop() {
 
   // Stop switching palettes if we are stopped on the animation,
   // but you can still play with the hue on the currently selected
-  if (analogRead(RATE_POT) < 1250 && gAnimCounter > 2) {
+  if (gAnimCounter > 2) {
     EVERY_N_MINUTES(3) {
       gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
     }
   }
   updateGPalette();
 
-  // Make animations stop if the speed is all the way down
-  if (analogRead(RATE_POT) < 1250) {
-    EVERY_N_MINUTES(5)) {
-      gAnimCounter = (gAnimCounter + 1) % numAnimation;
-    }
 
-    EVERY_N_MILLISECONDS_I(thisTimer, 75) {
-      thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 300));
-      gIndex++;
-    }
+  EVERY_N_MINUTES(5) {
+    gAnimCounter = (gAnimCounter + 1) % numAnimation;
+  }
+
+
+  EVERY_N_MILLISECONDS_I(thisTimer, 75) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 100));
+    gIndex++;
   }
 
   // Select animation to run based on global counter
@@ -84,64 +83,40 @@ void loop() {
       fill_all_grad_2();
       break;
     case 3:
-      ramp_up();
-      break;
-    case 4:
-      ramp_down();
-      break;
-    case 5:
       theater_chase();
       break;
-    case 6:
+    case 4:
       theater_chase_mir();
       break;
-    case 7:
+    case 5:
       theater_chase_mir2();
       break;
-    case 8:
-      ramp_up();
-      break;
-    case 9:
-      ramp_down();
-      break;
-    case 10:
+    case 6:
       theater_tri8();
       break;
-    case 11:
+    case 7:
       theater_tri();
       break;
-    case 12:
+    case 8:
       theater_tri8_mir();
       break;
-    case 13:
+    case 9:
       theater_tri_mir();
       break;
-    case 14:
+    case 10:
       theater_tri8_mir2();
       break;
-    case 15:
+    case 11:
       theater_tri_mir2();
       break;
-    case 16:
-      ramp_up();
-      break;
-    case 17:
-      ramp_down();
-      break;
-    case 18:
+    case 12:
       theater_mod();
       break;
-    case 19:
+    case 13:
       theater_mod_mir();
       break;
-    case 20:
+    case 14:
       theater_mod_mir2();
-      break;
-    case 21:
-      ramp_up();
-      break;
-    case 22:
-      ramp_down();
       break;
   }
 

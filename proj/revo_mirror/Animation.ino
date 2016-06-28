@@ -141,12 +141,18 @@ void ramp_up() {
   static uint8_t brightness = 0;
   static uint8_t cIndex = 0;
 
-  // Jump to next color in the gradient if we are at the bottom of the ramp
-  if (brightness == 0) {
-    gIndex += 12;
+  // Ramp the brightness up at a input controlled rate
+  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 1, 50));
+    brightness += 16;
   }
 
-  fill_solid(leds, numLED, ColorFromPalette(gPalette, cIndex, gIndex * 4, gBlending));
+  // Jump to next color in the gradient if we are at the bottom of the ramp
+  if (brightness == 0) {
+    cIndex += 16;
+  }
+
+  fill_solid(leds, numLED, ColorFromPalette(gPalette, cIndex, brightness, gBlending));
   FastLED.show();
 
 }
@@ -157,11 +163,17 @@ void ramp_down() {
   static uint8_t brightness = 0;
   static uint8_t cIndex = 0;
 
-  // Jump to next color in the gradient if we are at the bottom of the ramp
-  if (brightness == 0) {
-    gIndex += 12;
+  // Ramp the brightness up at a input controlled rate
+  EVERY_N_MILLISECONDS_I(thisTimer, 100) {
+    thisTimer.setPeriod(map(analogRead(RATE_POT), 0, 1253, 10, 200));
+    brightness -= 16;
   }
 
-  fill_solid(leds, numLED, ColorFromPalette(gPalette, cIndex, gIndex * 4, gBlending));
+  // Jump to next color in the gradient if we are at the bottom of the ramp
+  if (brightness == 0) {
+    cIndex -= 16;
+  }
+
+  fill_solid(leds, numLED, ColorFromPalette(gPalette, cIndex, brightness, gBlending));
   FastLED.show();
 }
