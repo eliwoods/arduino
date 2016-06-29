@@ -4,7 +4,7 @@
 #include <avr/interrupt.h>
 #endif
 
-// Analog Inputs for Photoresistors
+// Analog Inputs for Photoresistors (doesn't actually do shit)
 #define RES0 0
 #define RES1 1
 #define RES2 2
