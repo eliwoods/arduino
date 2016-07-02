@@ -32,7 +32,7 @@
 #define REVERS_INT 43 // Reversing animations interrupt
 
 // Variables for the LED strand
-const uint8_t maxBrightness = 85;
+const uint8_t maxBrightness = 150;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
 
 // Variables for LED strands
@@ -163,12 +163,12 @@ void loop() {
     // Check the palette counter and switch acordingly or go into autopilot mode. Also run
     // some checks that we aren't using palettes with black when we fill whole bars
     if (palette_autopilot) {
-      EVERY_N_SECONDS(30) {
+      EVERY_N_SECONDS(200) {
         gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
       }
       // Keep us from selecting certain palettes for certain animatinos
       if (gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 5 || gAnimCounter == 8 || gAnimCounter == 9 || gAnimCounter == 10) {
-        while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
+        while (gPaletteCounter == 0 || gPaletteCounter == 6 || gPaletteCounter == 7) {
           gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
         }
       }
@@ -183,12 +183,12 @@ void loop() {
     else {
       // Keep us from selecting certain palettes for certain animatinos
       if (gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 5 || gAnimCounter == 8 || gAnimCounter == 9 || gAnimCounter == 10) {
-        while (gPaletteCounter == 0 || gPaletteCounter == 5 || gPaletteCounter == 6) {
+        while (gPaletteCounter == 0 || gPaletteCounter == 6 || gPaletteCounter == 7) {
           gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
         }
       }
       if (gAnimCounter == 2 || gAnimCounter == 6 || gAnimCounter ==  7 || gAnimCounter == 11) {
-        while (gPaletteCounter == 2 ) {
+        while (gPaletteCounter == 3 ) {
           gPaletteCounter++;
         }
       }
@@ -198,14 +198,56 @@ void loop() {
 
     // Check if we want to autopilot the animations
     if (anim_autopilot) {
-      EVERY_N_SECONDS(10) {
+      static boolean orientation = false;
+      static uint16_t num_switch = 0;
+      if (gAnimCounter == 6 || gAnimCounter == 7) {
+        EVERY_N_SECONDS(30) {
+          if (num_switch * 30 == 300) {
+            num_switch = 0;
+            orientation = false;
+            gAnimCounter = 8;
+          }
+          if (!orientation) {
+            gAnimCounter = 7;
+            orientation = true;
+            num_switch++;
+          }
+          else {
+            gAnimCounter = 6;
+            orientation = false;
+            num_switch++;
+          }
+          anim_switch = true;
+        }
+      }
+      if (gAnimCounter == 8 || gAnimCounter == 9) {
+        EVERY_N_SECONDS(30) {
+          if (num_switch * 30 == 300) {
+            num_switch = 0;
+            orientation = false;
+            gAnimCounter = 10;
+          }
+          if (!orientation) {
+            gAnimCounter = 9;
+            orientation = true;
+            num_switch++;
+          }
+          else {
+            gAnimCounter = 8;
+            orientation = false;
+            num_switch++;
+          }
+          anim_switch = true;
+        }
+      }
+      EVERY_N_MINUTES(5) {
         gAnimCounter = (gAnimCounter + 1) % numAnimation;
         anim_switch = true;
       }
     }
 
     // Update the chaser options if we are one of those animations
-    EVERY_N_SECONDS(5) {
+    EVERY_N_SECONDS(60) {
       if (gAnimCounter == 2) {
         chaser_opt = (chaser_opt + 1) % 9;
       }
