@@ -11,8 +11,8 @@
 #define RES3 3
 
 // Digital Pins (I/O)
-#define LASER_POWER 0
-#define OUT 1
+#define LASER_POWER 3
+//#define OUT 1
 
 // Interrupts
 #define POWER_INT 2
@@ -27,7 +27,7 @@ uint32_t debounce_time = 100;
 CRGB leds[NUMLED];
 
 // Some useful global variables for stuff we want
-const uint16_t threshold = 500;
+const uint16_t threshold = 500; //This is totally arbitrary, will need some tuning.
 boolean triggered[] = {false, false, false, false};
 
 void setup() {
@@ -42,7 +42,7 @@ void setup() {
 
   // Interrupt for power control
   pinMode(POWER_INT, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(POWER_INT), debounce_power, RISING);
+  attachInterrupt(digitalPinToInterrupt(POWER_INT), debounce_power, CHANGE);
 
 }
 
@@ -56,7 +56,8 @@ void loop() {
     // trigger the send the pins number out of the arduino. This will be interpretted by
     // the teensy that is actually running all this shit.
     for (uint8_t ch = 0; ch < 4; ch++) {
-      // Check if we have already triggered this channel
+      // Check if we have already triggered this channel, this is incase someone
+      // is holding their hand in front of the lasers or something dumb like that.
       if (!triggered[ch]) {
         if (analogRead(ch) < threshold) {
           digitalWrite(OUT, ch);
@@ -64,15 +65,19 @@ void loop() {
           // So that we can visualize it on the test strip
           if (ch == 0) {
             fill_solid(leds, NUMLED, CRGB::Red);
+            FastLED.show();
           }
           else if (ch == 1) {
             fill_solid(leds, NUMLED, CRGB::Blue);
+            FastLED.show()
           }
           else if (ch == 2) {
             fill_solid(leds, NUMLED, CRGB::Green);
+            FastLED.show();
           }
-          else if (ch == 4) {
+          else if (ch == 3) {
             fill_solid(leds, NUMLED, CRGB::White);
+            FastLED.show();
           }
         }
       }
@@ -84,4 +89,7 @@ void loop() {
     } // End loop over channels
     
   } //End of power check
+  else {
+    digitalWrite(LASER_POWER, LOW);
+  }
 }
