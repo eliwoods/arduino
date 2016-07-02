@@ -2,7 +2,7 @@
 
 #define NUMLED 30
 
-#define LEDIN 7
+#define LEDIN 6
 
 CRGBArray<NUMLED> leds;
 CRGBArray<15> t_leds;
@@ -11,20 +11,15 @@ void setup() {
   delay(2000);
 
   FastLED.addLeds<WS2812B, LEDIN, GRB>(leds, NUMLED);
-  FastLED.setBrightness(100);
+  FastLED.setBrightness(2 00);
   FastLED.show();
 
 }
 
 void loop() {
 
-  static uint8_t hue = 0;
-  EVERY_N_MILLISECONDS(10) {
-    hue++;
-  }
-
-  trap_solid();
-  //theater_chase_mod(leds, NUMLED, hue);
+  fill_solid(leds, NUMLED, CRGB::White);
+  FastLED.show();
 
 
 }
