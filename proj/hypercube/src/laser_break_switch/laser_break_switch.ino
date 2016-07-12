@@ -12,7 +12,6 @@
 
 // Digital Pins (I/O)
 #define LASER_POWER 3
-//#define OUT 1
 
 // Interrupts
 #define POWER_INT 2
@@ -37,7 +36,6 @@ void setup() {
   FastLED.show();
 
   // Arduino Pin Setup
-  pinMode(OUT, OUTPUT);
   pinMode(LASER_POWER, OUTPUT);
 
   // Interrupt for power control
@@ -60,7 +58,6 @@ void loop() {
       // is holding their hand in front of the lasers or something dumb like that.
       if (!triggered[ch]) {
         if (analogRead(ch) < threshold) {
-          digitalWrite(OUT, ch);
           triggered[ch] = true;
           // So that we can visualize it on the test strip
           if (ch == 0) {
@@ -69,7 +66,7 @@ void loop() {
           }
           else if (ch == 1) {
             fill_solid(leds, NUMLED, CRGB::Blue);
-            FastLED.show()
+            FastLED.show();
           }
           else if (ch == 2) {
             fill_solid(leds, NUMLED, CRGB::Green);
