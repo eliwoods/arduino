@@ -26,7 +26,7 @@ uint32_t debounce_time = 100;
 CRGB leds[NUMLED];
 
 // Some useful global variables for stuff we want
-const uint16_t threshold = 500; //This is totally arbitrary, will need some tuning.
+const uint16_t threshold = 25; //This is totally arbitrary, will need some tuning.
 boolean triggered[] = {false, false, false, false};
 
 void setup() {
@@ -57,7 +57,7 @@ void loop() {
       // Check if we have already triggered this channel, this is incase someone
       // is holding their hand in front of the lasers or something dumb like that.
       if (!triggered[ch]) {
-        if (analogRead(ch) < threshold) {
+        if (analogRead(ch) > threshold) {
           triggered[ch] = true;
           // So that we can visualize it on the test strip
           if (ch == 0) {
