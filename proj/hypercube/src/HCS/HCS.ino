@@ -44,7 +44,7 @@ uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that 
 
 void setup() {
   // Initialize the leds, specifially to use OctoWS2811 controller
-  LEDS.addLeds<OCTOWS2811>(leds, led_per_strand);
+  LEDS.addLeds<OCTOWS2811>(leds, led_per_strand); // No need to declare pin numbers since they are preset with parallel output
   LEDS.setBrightness(150);
   LEDS.show();
 

@@ -75,7 +75,6 @@ TBlendType gBlending;
 uint8_t gIndex; // Global Palette Index
 extern const uint8_t numPalettes;
 
-
 // To control hue globally through a potentiometer input
 uint8_t gHue;
 
