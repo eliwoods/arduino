@@ -57,6 +57,36 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  static uint8_t gAnimCounter = 0;
+  EVERY_N_SECONDS(10) {
+    gAnimCounter = (gAnimCounter + 1) % 3;
+  }
+
+  if (gAnimCounter == 0) {
+    // First let's try filling each group with a different color
+    fill_solid(leds(0, led_per_strand * strands_per_group - 1), led_per_strand * strands_per_group, CRGB::Yellow);
+    fill_solid(leds(leds_per_strand * 1 * strands_per_group, leds_per_strand * 2 * strands_per_group - 1), led_per_strand * strands_per_group, CRGB::Pink);
+    fill_solid(leds(leds_per_strand * 2 * strands_per_group, leds_per_strand * 3 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Cyan);
+    fill_solid(leds(leds_per_strand * 3 * strands_per_group, leds_per_strand * 4 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Green);
+    fill_solid(leds(leds_per_strand * 4 * strands_per_group, leds_per_strand * 5 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Purple);
+    fill_solid(leds(leds_per_strand * 5 * strands_per_group, leds_per_strand * 6 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Blue);
+    fill_solid(leds(leds_per_strand * 6 * strands_per_group, leds_per_strand * 7 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Orange);
+    fill_solid(leds(leds_per_strand * 7 * strands_per_group, leds_per_strand * 8 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Red);
+    LEDS.show();
+  }
+
+  // Now try filling the inner and outer shells two different colors
+  if (gAnimCounter == 1) {
+    fill_solid(in_leds, in_LED_tot, CRGB::Red);
+    fill_solid(out_leds, out_LED_tot, CRGB::Blue);
+    leds(0, in_LED_tot-1) = in_leds;
+    leds(in_LED_tot, in_LED_tot+out_LED_tot-1) = out_leds;
+    LEDS.show();
+  }
+
+  // Now lets see if we
+  if (gAnimCounter == 2) {
+    
+  }
 
 }
