@@ -2,14 +2,15 @@
 // in while it outputs to the led strip.
 
 void setup() {
-  Serial.begin(11500);
+  Serial.begin(9600);
 
 }
 
 void loop() {
   static uint8_t gHue = 0;
 
-  Serial.println(gHue);
+  Serial.write(gHue);
+  Serial.flush();
 
   gHue++;
   delay(50);

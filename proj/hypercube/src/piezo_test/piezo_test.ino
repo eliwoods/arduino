@@ -9,19 +9,16 @@ uint8_t gHue;
 void setup() {
   Serial.begin(9600);
  
-//  FastLED.addLeds<WS2812B, LEDIN, GRB>(leds, NUMLED);
-//  FastLED.setBrightness(100);
-//  FastLED.show(); 
+  FastLED.addLeds<WS2812B, LEDIN, GRB>(leds, NUMLED);
+  FastLED.setBrightness(100);
+  FastLED.show(); 
 
 }
 
 void loop() {
-//  gHue = map(analogRead(0), 0, 1023, 0, 255);
-//
-//  fill_solid( leds, NUMLED, CHSV(gHue, 255, 100));
-//  FastLED.show();
+  gHue = map(analogRead(0 ), 0, 1023, 0, 255);
 
-  Serial.println(analogRead(1));
-  delay(100);
-
+  fill_solid( leds, NUMLED, CHSV(gHue, 255, 100));
+  FastLED.show();
+  
 }
