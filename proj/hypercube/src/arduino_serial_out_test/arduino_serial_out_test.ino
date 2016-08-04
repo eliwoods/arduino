@@ -13,6 +13,6 @@ void loop() {
   Serial.flush();
 
   gHue++;
-  delay(50);
+  delay(200);
 
 }
