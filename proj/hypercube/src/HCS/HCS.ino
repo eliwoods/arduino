@@ -8,21 +8,24 @@
 #include <avr/interrupt.h>
 #endif
 
-// Variables for the LED strips
-const uint16_t led_per_strand = 90;
-const uint8_t strands_per_group = 6;
+// Constants describing numbers of LEDs and strips
+const uint16_t strip_len = 90; // Number of LED per strip
+const uint8_t num_per_group = 6; // Number of strips per OctoWS2811 group
 
-const uint8_t in_strands = 18; // Number of strips on inner shell
-const uint8_t out_strands = 24; // Number of strips on outer shell
+const uint8_t in_strips = 18; // Number of strips on inner shell
+const uint8_t out_strips = 24; // Number of strips on outer shell
 
-CRGBArray<led_per_strand> led_tmplt;
-CRGBArray < led_per_strand*(in_strands + out_strands) > leds;
+const uint16_t in_LED_tot = in_strips * strip_len;
+const uint16_t out_LED_tot = out_strips * strip_len;
+const uint16_t led_tot = in_LED_tot + out_LED_tot;
 
-const uint16_t in_LED_tot = in_strands * led_per_strand;
-CRGBArray<in_LED_tot> in_leds;
-
-const uint16_t out_LED_tot = out_strands * led_per_strand;
+// Some templates that we can copy paste to the main LED array
+CRGBArray<strip_len> led_tmplt;
+CRGBArray<in_LED_tot> in_leds; 
 CRGBArray<out_LED_tot> out_leds;
+
+// The array that ultimately gets pushed to the Octo Controller
+CRGBArray<led_tot> leds;
 
 // For controlling the brightness, again might not need this variability.
 const uint8_t maxBrightness = 150;
@@ -44,7 +47,7 @@ uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that 
 
 void setup() {
   // Initialize the leds, specifially to use OctoWS2811 controller
-  LEDS.addLeds<OCTOWS2811>(leds, led_per_strand); // No need to declare pin numbers since they are preset with parallel output
+  LEDS.addLeds<OCTOWS2811>(leds, strip_len); // No need to declare pin numbers since they are preset with parallel output
   LEDS.setBrightness(150);
   LEDS.show();
 
@@ -63,15 +66,15 @@ void loop() {
   }
 
   if (gAnimCounter == 0) {
-    // First let's try filling each group with a different color
-    fill_solid(leds(0, led_per_strand * strands_per_group - 1), led_per_strand * strands_per_group, CRGB::Yellow);
-    fill_solid(leds(leds_per_strand * 1 * strands_per_group, leds_per_strand * 2 * strands_per_group - 1), led_per_strand * strands_per_group, CRGB::Pink);
-    fill_solid(leds(leds_per_strand * 2 * strands_per_group, leds_per_strand * 3 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Cyan);
-    fill_solid(leds(leds_per_strand * 3 * strands_per_group, leds_per_strand * 4 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Green);
-    fill_solid(leds(leds_per_strand * 4 * strands_per_group, leds_per_strand * 5 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Purple);
-    fill_solid(leds(leds_per_strand * 5 * strands_per_group, leds_per_strand * 6 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Blue);
-    fill_solid(leds(leds_per_strand * 6 * strands_per_group, leds_per_strand * 7 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Orange);
-    fill_solid(leds(leds_per_strand * 7 * strands_per_group, leds_per_strand * 8 * strands_per_group - 1), leds_per_strand * strands_per_group, CRGB::Red);
+    // First let's try filling each group with a different color based on Ethan's diagram
+    fill_solid(leds(0, strip_len * num_per_group - 1), strip_len * num_per_group, CRGB::Yellow);
+    fill_solid(leds(strip_len * 1 * num_per_group, strip_len * 2 * num_per_group - 1), strip_len * num_per_group, CRGB::Pink);
+    fill_solid(leds(strip_len * 2 * num_per_group, strip_len * 3 * num_per_group - 1), strip_len * num_per_group, CRGB::Cyan);
+    fill_solid(leds(strip_len * 3 * num_per_group, strip_len * 4 * num_per_group - 1), strip_len * num_per_group, CRGB::Green);
+    fill_solid(leds(strip_len * 4 * num_per_group, strip_len * 5 * num_per_group - 1), strip_len * num_per_group, CRGB::Purple);
+    fill_solid(leds(strip_len * 5 * num_per_group, strip_len * 6 * num_per_group - 1), strip_len * num_per_group, CRGB::Blue);
+    fill_solid(leds(strip_len * 6 * num_per_group, strip_len * 7 * num_per_group - 1), strip_len * num_per_group, CRGB::Orange);
+    fill_solid(leds(strip_len * 7 * num_per_group, strip_len * 8 * num_per_group - 1), strip_len * num_per_group, CRGB::Red);
     LEDS.show();
   }
 
@@ -84,7 +87,7 @@ void loop() {
     LEDS.show();
   }
 
-  // Now lets see if we
+  // Now lets see if we can send chasers all in one direction along each shell
   if (gAnimCounter == 2) {
     
   }
