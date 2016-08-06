@@ -3,16 +3,14 @@
 
 void setup() {
   Serial.begin(9600);
-
 }
 
 void loop() {
   static uint8_t gHue = 0;
 
   Serial.write(gHue);
-  Serial.flush();
 
   gHue++;
-  delay(200);
+  delay(20);
 
 }
