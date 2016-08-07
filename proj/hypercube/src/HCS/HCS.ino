@@ -197,11 +197,11 @@ void loop() {
     fill_solid(leds(strip_len * in_pos, strip_len * (in_pos + 1) - 1), strip_len, CRGB::Red);
     fill_solid(leds(in_LED_tot + strip_len * out_pos, in_LED_tot + strip_len * (out_pos + 1) - 1), strip_len, CRGB::Red);
     LEDS.show();
-   
+
   }
 
   // Draw a circle on the inner and outer perimeters and move it up and down in...
   // you guessed it, opposite directions!
-  
+
 
 }
