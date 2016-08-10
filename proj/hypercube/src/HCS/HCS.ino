@@ -34,6 +34,7 @@ uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENT
 // Setup and global variable delcaration for palettes
 CRGBPalette16 gPalette;
 TBlendType gBlending;
+uint8_t gPaletteCounter; // Global Palette
 uint8_t gIndex; // Global Palette Index
 extern const uint8_t numPalettes;
 
@@ -55,80 +56,60 @@ void setup() {
   gBrightness = maxBrightness;
   gBlending = NOBLEND;
   gPalette = RainbowColors_p; // SHOULD CHANGE THIS
+  gPaletteCounter = 0;
   gIndex = 0;
   gHue = 0;
 
 }
 
 void loop() {
+  // Switch the animation according to some timer
   static uint8_t gAnimCounter = 0;
   EVERY_N_SECONDS(30) {
-    gAnimCounter = (gAnimCounter + 1) % 2;
+    gAnimCounter = (gAnimCounter + 1) % 3;
   }
 
-  // Since it costs basically nothing, lets change the global index on each looop
-  EVERY_N_MILLISECONDS(1) {
+  // Update global index for animations based on palette drawing
+  EVERY_N_MILLISECONDS(5) {
     gIndex++;
   }
 
+  // Update global hue for palettes with variability
+  EVERY_N_MILLISECONDS(100) {
+    gHue++;
+  }
+
+  // Update the palette selections. This also ends up running any routines to update
+  // the non static palettes
+//  EVERY_N_MINUTES(1) {
+//    gPaletteCounter = (gPaletteCounter +1) % numPalettes;
+//  }
+//  updateGPalette();
+
   switch (gAnimCounter) {
-    // Now lets see if we can send chasers all in one direction along each shell
+    // Basic chasers going opposite directions on each shell
     case 0:
-      // Fill the template array first
-      chaser(led_tmplt, strip_len, gIndex);
-
-      // Now fill both the inner template
-      for (uint8_t s = 0; s < in_strips; s++) {
-        if (s % 2 == 0) {
-          in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
-        }
-        else {
-          in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
-        }
-      }
-
-      // Fill outer template
-      for (uint8_t s = 0; s < out_strips; s++) {
-        if (s % 2 == 0) {
-          out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
-        }
-        else {
-          out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
-        }
-      }
-
-      // Now send to the LEDs
-      copy_pasta_dump();
+      chase_opp();
       break;
-  
+    // Same as above, but we can offset them, lets try something special  
     case 1:
-      static uint8_t in_offset = 12;
-      static uint8_t out_offset = 4;
-      // First do the inner cylider since it's smaller
-      for (uint8_t s = 0; s < in_strips; s++) {
-        chaser(led_tmplt, strip_len, gIndex + in_offset * s);
-        if (s % 2 == 0) {
-          in_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt;
-        }
-        else {
-          in_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt;
-        }
-      }
+      static uint8_t in_offset = 0;
+      static uint8_t out_offset = 0;
 
-      // Next do the outer cylinder
-      for (uint8_t s = 0; s < out_strips; s++) {
-        chaser(led_tmplt, strip_len, gIndex + out_offset * s);
-        if (s % 2 == 0) {
-          out_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt;
-        }
-        else {
-          out_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt;
-        }
+      // Try modulating how much they are offset
+      EVERY_N_MILLISECONDS(50) {
+        in_offset += 2;
       }
-
-      // Now we copy-pasta and dump the info
-      copy_pasta_dump();
+      EVERY_N_MILLISECONDS(100) {
+        out_offset++;
+      }
+      chase_spiral_opp(in_offset, out_offset);
       break;
+    // Now lets try drawing the circles in the opposite directions
+    case 2:
+      ring_bounce_opp(100, 5);
+      break;
+      
   }
 
   // We'll have to use a separate counter for these than the global index
@@ -209,22 +190,7 @@ void loop() {
   //  // Illuminate one strip at a time and send it around the perimeter. Do the same for both
   //  // inner and outer, but obviously in different directions
   //  if (gAnimCounter == 5) {
-  //    // We'll have to use a separate counter for these than the global index
-  //    static uint8_t in_pos = 0;
-  //    static uint8_t out_pos = 0;
-  //
-  //    // Update the positions of both the strips and reset the array
-  //    EVERY_N_MILLISECONDS(200) {
-  //      in_pos = (in_pos + 1) % in_strips;
-  //      out_pos = (out_pos + 1) % out_strips;
-  //      clear_all();
-  //    }
-  //
-  //    // Filling the inner perimeter and outer. We offset the outer to deal
-  //    // with them being in the same array
-  //    fill_solid(leds(strip_len * in_pos, strip_len * (in_pos + 1) - 1), strip_len, CRGB::Red);
-  //    fill_solid(leds(in_LED_tot + strip_len * out_pos, in_LED_tot + strip_len * (out_pos + 1) - 1), strip_len, CRGB::Red);
-  //    LEDS.show();
+  //    
   //
   //  }
 
