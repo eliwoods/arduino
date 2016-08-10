@@ -4,7 +4,7 @@
 
 // Copies the inner and outer led templates to the main array and
 // pushes them to the LEDs
-void copy_pasta_dump() {
+void merge_animations() {
   leds(0, in_LED_tot - 1) = in_leds;
   leds(in_LED_tot, led_tot - 1) = out_leds;
   LEDS.show();

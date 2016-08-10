@@ -1,56 +1,100 @@
-void chase_opp() {
+// Sends chasers all going one direction along the chosen shell
+// Reverse is just relative to the the non reversed direction, not
+// sure which way it physically 
+void chase_straight(uint8_t strip, boolean reverse) {
   // Fill the template array first
   chaser(led_tmplt, strip_len, gIndex);
 
   // Now fill both the inner template
-  for (uint8_t s = 0; s < in_strips; s++) {
-    if (s % 2 == 0) {
-      in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
-    }
-    else {
-      in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+  if (strip == 0) {
+    for (uint8_t s = 0; s < in_strips; s++) {
+      if (s % 2 == 0) {
+        if (reverse) {
+          in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strand_len - 1, 0);
+        }
+        else {
+          in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+        }
+      }
+      else {
+        if (reverse) {
+          in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strand_len - 1, 0);
+        }
+        else {
+          in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+        }
+      }
     }
   }
-
   // Fill outer template
-  for (uint8_t s = 0; s < out_strips; s++) {
-    if (s % 2 == 0) {
-      out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
-    }
-    else {
-      out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+  else if (strip == 1) {
+    for (uint8_t s = 0; s < out_strips; s++) {
+      if (s % 2 == 0) {
+        if (reverse) {
+          out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
+        }
+        else {
+          out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+        }
+      }
+      else {
+        if (reverse) {
+          out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
+        }
+        else {
+          out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+        }
+      }
     }
   }
-
-  // Now send to the LEDs
-  copy_pasta_dump();
 }
 
-void chase_spiral_opp(uint8_t in_offset, uint8_t out_offset) {
+void chase_spiral(uint8_t shell, uint8_t offset, boolean reverse) {
   // First do the inner cylider since it's smaller
-  for (uint8_t s = 0; s < in_strips; s++) {
-    chaser(led_tmplt, strip_len, gIndex + in_offset * s);
-    if (s % 2 == 0) {
-      in_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt;
-    }
-    else {
-      in_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt;
+  if (shell == 0) {
+    for (uint8_t s = 0; s < in_strips; s++) {
+      chaser(led_tmplt, strip_len, gIndex + offset * s);
+      if (s % 2 == 0) {
+        if (reverse) {
+          in_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt(strand_len-1, 0);
+        }
+        else {
+          in_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt;
+        }
+      }
+      else {
+        if (reverse) {
+          in_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt(strand_len -1, 0);
+        }
+        else  {
+          in_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt;
+        }
+      }
     }
   }
 
   // Next do the outer cylinder
-  for (uint8_t s = 0; s < out_strips; s++) {
-    chaser(led_tmplt, strip_len, gIndex + out_offset * s);
-    if (s % 2 == 0) {
-      out_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt;
-    }
-    else {
-      out_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt;
+  if (shell == 1) {
+    for (uint8_t s = 0; s < out_strips; s++) {
+      chaser(led_tmplt, strip_len, gIndex + offset * s);
+      if (s % 2 == 0) {
+        if(reverse) {
+          out_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt(strand_len -1, 0);
+        }
+        else {
+          out_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt;
+        }
+      }
+      else {
+        if (reverse) {
+          out_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt(strand_len -1 , 0);
+        }
+        else {
+          out_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt;
+        }
+      }
     }
   }
-
-  // Now we copy-pasta and dump the info
-  copy_pasta_dump();
 }
 
 // Send rings of x width bouncing in opposite directions
@@ -70,7 +114,7 @@ void ring_bounce_opp(uint16_t del, uint8_t width) {
 
   // First draw the two shells
   draw_circle(strip_index, width, ColorFromPalette(gPalette, pal_index, maxBrightness, gBlending), false);
-  draw_circle(strip_len - strip_index, width, ColorFromPalette(gPalette, pal_index, maxBrightness, gBlending), false);
+  draw_circle(strip_len - strip_index, width, ColorFromPalette(gPalette, pal_index, maxBrightness, gBlending), true);
   LEDS.show();
 
   // Now update the index depending on direction
