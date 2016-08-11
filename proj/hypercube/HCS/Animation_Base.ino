@@ -61,7 +61,7 @@ void fill_to_empty(CRGB *leds, uint16_t numLED, uint8_t pal_index, CRGBPalette16
 
 // A glitchy style "chase". It not even really a chase, I just keep the palette static and
 // change the width of the packets. Looks kind of funky, but kind of cool too.
-void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc, CRGBPalette16 palette) {
+void chaser_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc, CRGBPalette16 palette) {
   fill_palette(leds, numLED, 0, col_inc, palette, gBrightness, gBlending);
 }
 
@@ -69,7 +69,7 @@ void theater_chase_mod(CRGB *leds, uint16_t numLED, uint8_t col_inc, CRGBPalette
 // on a strand to the top LED. The third argument is a flag that chooses which cylinder
 // to draw to, false -> inner and true -> outer. For this, we'll assume that the index
 // represents the top pixel of a given circle's width.
-void draw_circle(uint8_t index, uint8_t cir_width, CRGB col, boolean outer) {
+void draw_circle(uint8_t index, uint8_t cir_width, CRGB col, uint8_t shell) {
   // A quick error check
   if (cir_width < 1) {
     cir_width = 1;
@@ -78,29 +78,7 @@ void draw_circle(uint8_t index, uint8_t cir_width, CRGB col, boolean outer) {
 
   // Draw the circle by just setting the exact pixels to the color. This will let us
   // draw over other patterns without completely overwriting the template
-  if (outer) {
-    for (uint8_t ss = 0; ss < out_strips; ss++) {
-      if (ss % 2 == 0) {
-        // For variable circle width
-        for (uint8_t cc = 0; cc < cir_width; cc++) {
-          // Check that we don't go out of bounds for the strip
-          if (index + cc > (ss + 1)*strip_len - 1) {
-            leds[in_LED_tot + ss * strip_len + index + cc] = col;
-          }
-        }
-      } // End even strip loop
-      else {
-        // For variable circle width
-        for (uint8_t cc = 0; cc < cir_width; cc++) {
-          // Check for bounds
-          if (index - cc < ss * strip_len) {
-            leds[in_LED_tot + (ss + 1)*strip_len - index - 1] = col;
-          }
-        }
-      } // End odd strip loop
-    } // End loop over strips
-  } // End of outer shell
-  else {
+  if (shell == 0) {
     for (uint8_t ss = 0; ss < in_strips; ss++) {
       if (ss % 2 == 0) {
         // For variable circle width
@@ -122,6 +100,45 @@ void draw_circle(uint8_t index, uint8_t cir_width, CRGB col, boolean outer) {
       } // End odd strip loop
     } // End loop over strips
   } // End of inner shell 
+  else if (shell == 1) {
+    for (uint8_t ss = 0; ss < out_strips; ss++) {
+      if (ss % 2 == 0) {
+        // For variable circle width
+        for (uint8_t cc = 0; cc < cir_width; cc++) {
+          // Check that we don't go out of bounds for the strip
+          if (index + cc > (ss + 1)*strip_len - 1) {
+            leds[in_LED_tot + ss * strip_len + index + cc] = col;
+          }
+        }
+      } // End even strip loop
+      else {
+        // For variable circle width
+        for (uint8_t cc = 0; cc < cir_width; cc++) {
+          // Check for bounds
+          if (index - cc < ss * strip_len) {
+            leds[in_LED_tot + (ss + 1)*strip_len - index - 1] = col;
+          }
+        }
+      } // End odd strip loop
+    } // End loop over strips
+  } // End of outer shell
+}
+
+void draw_helix(uint8_t index, uint8_t width, CRGB col, uint8_t shell) {
+  // Quick error check
+  if( width < 1) {
+    width = 1;
+  }
+
+
+  // Inner shell
+  if (shell == 0) {
+    for(uint8_t ss = 0; ss < in_strips; ss++) {
+
+
+
+
+  }
 
 }
 
@@ -220,6 +237,66 @@ void chase_spiral(uint8_t shell, uint8_t offset, boolean reverse) {
           out_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt;
         }
       }
+    }
+  }
+}
+
+
+// Like the theater chase, except that we mirror it at the center of the strip. This when combined
+// with an offset will give us a sick helix motion
+void chase_helix(uint8_t shell, uint8_t offset, boolean reverse) {
+  // Inner shell
+  if (shell == 0) {
+    for (uint8_t ss = 0; ss < in_strips; ss++) {
+      chase(led_tmplt, strip_len/2, gIndex + offset*ss, iPalette);
+      if (s % 2 == 0) {
+        if(reverse) {
+          in_leds(strip_len*ss, strip_len*ss/2 - 1) = led_tmplt(strip_len/2 - 1, 0);
+          in_leds(ss*strip_len/2, strip_len*(ss+1) - 1) = led_tmplt(0, strip_len/2 -1);
+        }
+        else {
+          in_leds(ss*strip_len, ss*strip_len/2 - 1) = led_tmplt(0, strip_len/2 - 1);
+          in_leds(ss*strip_len/2, strip_len*(ss+1) -1 ) = led_tmplt(strip_len/2 -1, 0);
+        }
+      }
+      else {
+        if(reverse) {
+          in_leds(strip_len*ss/2 - 1, strip_len*ss) = led_tmplt(strip_len/2-1, 0);
+          in_leds(strip_len*(ss+1)-1, ss*strip_len/2) = led_tmplt(0, strip_len/2 -1);
+        }
+        else {
+          in_leds(strip_len*ss/2 - 1, strip_len*ss) = led_tmplt(0, strip_len/2 -1);
+          in_leds(strip_len*(ss+1)-1, ss*strip_len/2) = led_tmplt(strip_len/2-1, 0);
+        }
+      }
+
+    }
+  }
+  // Outer Shell
+  if (shell == 1) {
+    for (uint8_t ss = 0; ss < in_strips; ss++) {
+      chase(led_tmplt, strip_len/2, gIndex + offset*ss, oPalette);
+      if (s % 2 == 0) {
+        if(reverse) {
+          out_leds(strip_len*ss, strip_len*ss/2 - 1) = led_tmplt(strip_len/2 - 1, 0);
+          out_leds(ss*strip_len/2, strip_len*(ss+1) - 1) = led_tmplt(0, strip_len/2 -1);
+        }
+        else {
+          out_leds(ss*strip_len, ss*strip_len/2 - 1) = led_tmplt(0, strip_len/2 - 1);
+          out_leds(ss*strip_len/2, strip_len*(ss+1) -1 ) = led_tmplt(strip_len/2 -1, 0);
+        }
+      }
+      else {
+        if(reverse) {
+          out_leds(strip_len*ss/2 - 1, strip_len*ss) = led_tmplt(strip_len/2-1, 0);
+          out_leds(strip_len*(ss+1)-1, ss*strip_len/2) = led_tmplt(0, strip_len/2 -1);
+        }
+        else {
+          out_leds(strip_len*ss/2 - 1, strip_len*ss) = led_tmplt(0, strip_len/2 -1);
+          out_leds(strip_len*(ss+1)-1, ss*strip_len/2) = led_tmplt(strip_len/2-1, 0);
+        }
+      }
+
     }
   }
 }

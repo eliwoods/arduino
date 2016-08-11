@@ -8,6 +8,15 @@
 #include <avr/interrupt.h>
 #endif
 
+// Digital Pins for Interrupts (may be subject to change)
+#define LASER_0 0
+#define LASER_1 1
+#define LASER_2 17
+#define LASER_3 22
+#define PIEZO_0 18
+#define PIEZO_1 19
+// NEED TO DECIDE ON A PIN TO USE FOR LASER BREAK RESET SWITCH
+
 // For describing the shells easier in code
 #define INNER 0
 #define OUTER 1
@@ -63,6 +72,8 @@ void setup() {
   oPaletteCounter = iPaletteCounter+3;
   gIndex = 0;
   gHue = 0;
+
+  // Setup for the interrupts
 
 }
 
@@ -126,6 +137,9 @@ void loop() {
     case 6:
       shell_wrap(INNER, 3, false);
       break;
+    case 7:
+      chase_helix(INNER, 16, false);
+      break;
   }
   switch (oAnimCounter) {
     case 0:
@@ -153,6 +167,19 @@ void loop() {
     case 6:
       shell_wrap(OUTER, 3, true);
       break;
+    case 7:
+      chase_helix(OUTER, 4, true);
+      break;
+  }
+  // Just to test it out for meow.
+  static boolean run_circles = false;
+  EVERY_N_MINUTES(2) {
+    run_circles = !run_circles;
   }
   merge_animations();
+  if (run_circles) {
+    ring_bounce_opp(20, 5);
+    LEDS.show();
+  }
+
 }
