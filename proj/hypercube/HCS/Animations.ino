@@ -1,5 +1,5 @@
-
-// Send rings of x width bouncing in opposite directions
+// Send rings of x width bouncing in opposite directions. Needs to have clear_all() run
+// before it does, or at least another animation that totally overwrites what's going on
 void ring_bounce_opp(uint16_t del, uint8_t width) {
   // Quick error check
   if (width < 1) {
@@ -15,8 +15,8 @@ void ring_bounce_opp(uint16_t del, uint8_t width) {
   static boolean _rev = false;
 
   // First draw the two shells
-  draw_circle(strip_index, width, ColorFromPalette(gPalette, pal_index, maxBrightness, gBlending), false);
-  draw_circle(strip_len - strip_index, width, ColorFromPalette(gPalette, pal_index, maxBrightness, gBlending), true);
+  draw_circle(strip_index, width, ColorFromPalette(iPalette, pal_index, maxBrightness, gBlending), false);
+  draw_circle(strip_len - strip_index, width, ColorFromPalette(oPalette, pal_index, maxBrightness, gBlending), true);
 
   // Now update the index depending on direction
   EVERY_N_MILLISECONDS(del) {
@@ -26,7 +26,6 @@ void ring_bounce_opp(uint16_t del, uint8_t width) {
     else {
       strip_index--;
     }
-    clear_all(); // Gotta clear it so the circles remain separate
   }
 
   // Check if we're at one of the extremes of a strip. Move the index and flip the flag
@@ -44,3 +43,4 @@ void ring_bounce_opp(uint16_t del, uint8_t width) {
 }
 
 
+// Lets try
