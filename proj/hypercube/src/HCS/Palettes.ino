@@ -70,24 +70,6 @@ void update_TwoCol_p() {
   }
 }
 
-void update_FourCol_p() {
-  for (uint8_t i = 0; i < 16; i++) {
-    if (i % 4 == 0) {
-      gPalette[i] = CHSV(gHue, 255, gBrightness);
-    }
-    else if (i % 4 == 1) {
-      gPalette[i] = CHSV((gHue + 64) % 255, 255, gBrightness + val_offset);
-    }
-    else if (i % 4 == 2) {
-      gPalette[i] = CHSV((gHue + 128) % 255, 255, gBrightness + val_offset);
-    }
-    else if (i % 4 == 3) {
-      gPalette[i] = CHSV((gHue + 192) % 255, 255, gBrightness + val_offset);
-    }
-  }
-
-}
-
 // One color at the front and nothing else
 void update_ColLead_p() {
   for (uint8_t i = 0; i < 16; i++) {
@@ -743,11 +725,104 @@ DEFINE_GRADIENT_PALETTE( mellon_ball_surprise_gp ) {
 
 // This has to be hand counted and updated whenever we add more palettes. There are also some predefined palettes
 // that need to get accounted for :(
-const uint8_t numPalettes = 29;
+//const uint8_t numPalettes = 29;
+const uint8_t numPalettes = 7;
 
 // This handles the switching of palettes based on the global palette counter. Need to add palettes to this function
 // whenever they are added up above. Declare it down here so we can get away with not having to use the Gradient Palette
 // Pointer array.
+//void updateGPalette() {
+//  switch (gPaletteCounter) {
+//    case 0:
+//      update_RainbowBlack_p();
+//      break;
+//    case 1:
+//      update_WhiteRainbow_p();
+//      break;
+//    case 2:
+//      update_Rainbow_p();
+//      break;
+//    case 3:
+//      update_PureCol_p();
+//      break;
+//    case 4:
+//      update_WhiteCol_p();
+//      break;
+//    case 5:
+//      update_TwoCol_p();
+//      break;
+//    case 6:
+//      update_ColLead_p();
+//      break;
+//    case 7:
+//      update_WhiteBlack_p();
+//      break;
+//    case 8:
+//      gPalette = chroma_gp;
+//      break;
+//    case 9:
+//      gPalette = sprinkles_gp;
+//      break;
+//    case 10:
+//      gPalette = GMT_no_green_gp;
+//      break;
+//    case 11:
+//      gPalette = GMT_sealand_gp;
+//      break;
+//    case 12:
+//      gPalette = GMT_cool_gp;
+//      break;
+//    case 13:
+//      gPalette = aspectcolr_gp;
+//      break;
+//    case 14:
+//      gPalette = haxby_gp;
+//      break;
+//    case 15:
+//      gPalette = differences_gp;
+//      break;
+//    case 16:
+//      gPalette = cool_warm_d05_gp;
+//      break;
+//    case 17:
+//      gPalette = purple_orange_d07_gp;
+//      break;
+//    case 18:
+//      gPalette = Lucy_in_the_Sky_gp;
+//      break;
+//    case 19:
+//      gPalette = Alive_And_Kicking_gp;
+//      break;
+//    case 20:
+//      gPalette = firestrm_gp;
+//      break;
+//    case 21:
+//      gPalette = royal_gp;
+//      break;
+//    case 22:
+//      gPalette = moldy_bread_gp;
+//      break;
+//    case 23:
+//      gPalette = Floating_Away_gp;
+//      break;
+//    case 24:
+//      gPalette = three_girls_reclining_gp;
+//      break;
+//    case 25:
+//      gPalette = iCreate_gp;
+//      break;
+//    case 26:
+//      gPalette = Opaque_gp;
+//      break;
+//    case 27:
+//      gPalette = FiveHundo_LOVERS_ThankYou_gp;
+//      break;
+//    case 28:
+//      gPalette = mellon_ball_surprise_gp;
+//      break;
+//  }
+//}
+
 void updateGPalette() {
   switch (gPaletteCounter) {
     case 0:
@@ -757,88 +832,19 @@ void updateGPalette() {
       update_WhiteRainbow_p();
       break;
     case 2:
-      update_Rainbow_p();
-      break;
-    case 3:
       update_PureCol_p();
       break;
-    case 4:
+    case 3:
       update_WhiteCol_p();
       break;
-    case 5:
+    case 4:
       update_TwoCol_p();
       break;
-    case 6:
+    case 5:
       update_ColLead_p();
       break;
-    case 7:
+    case 6:
       update_WhiteBlack_p();
-      break;
-    // Have to use gGradientPalettes array because the gradient defines
-    // are below us. Maybe we should move this to the Palettes tab so we don't
-    // have to use this array shit.
-    case 8:
-      gPalette = chroma_gp;
-      break;
-    case 9:
-      gPalette = sprinkles_gp;
-      break;
-    case 10:
-      gPalette = GMT_no_green_gp;
-      break;
-    case 11:
-      gPalette = GMT_sealand_gp;
-      break;
-    case 12:
-      gPalette = GMT_cool_gp;
-      break;
-    case 13:
-      gPalette = aspectcolr_gp;
-      break;
-    case 14:
-      gPalette = haxby_gp;
-      break;
-    case 15:
-      gPalette = differences_gp;
-      break;
-    case 16:
-      gPalette = cool_warm_d05_gp;
-      break;
-    case 17:
-      gPalette = purple_orange_d07_gp;
-      break;
-    case 18:
-      gPalette = Lucy_in_the_Sky_gp;
-      break;
-    case 19:
-      gPalette = Alive_And_Kicking_gp;
-      break;
-    case 20:
-      gPalette = firestrm_gp;
-      break;
-    case 21:
-      gPalette = royal_gp;
-      break;
-    case 22:
-      gPalette = moldy_bread_gp;
-      break;
-    case 23:
-      gPalette = Floating_Away_gp;
-      break;
-    case 24:
-      gPalette = three_girls_reclining_gp;
-      break;
-    case 25:
-      gPalette = iCreate_gp;
-      break;
-    case 26:
-      gPalette = Opaque_gp;
-      break;
-    case 27:
-      gPalette = FiveHundo_LOVERS_ThankYou_gp;
-      break;
-    case 28:
-      gPalette = mellon_ball_surprise_gp;
       break;
   }
 }

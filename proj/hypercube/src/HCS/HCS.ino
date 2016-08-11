@@ -55,7 +55,6 @@ void setup() {
   // Initialize global color variables
   gBrightness = maxBrightness;
   gBlending = NOBLEND;
-  gPalette = RainbowColors_p; // SHOULD CHANGE THIS
   gPaletteCounter = 0;
   gIndex = 0;
   gHue = 0;
