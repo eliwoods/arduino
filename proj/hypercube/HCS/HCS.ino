@@ -81,10 +81,10 @@ void loop() {
   // Switch the animation according to some timer
   static uint8_t iAnimCounter = 0;
   static uint8_t oAnimCounter = 0;
-  EVERY_N_SECONDS(90) {
+  EVERY_N_SECONDS(30) {
     iAnimCounter = (iAnimCounter + 1) % 7;
   }
-  EVERY_N_SECONDS(30) {
+  EVERY_N_SECONDS(10) {
     oAnimCounter = (oAnimCounter + 1) % 7;
   }
 
@@ -150,7 +150,7 @@ void loop() {
       break;
     case 2:
       static uint8_t oOffset = 0;
-      EVERY_N_MILLISECONDS(200) {
+      EVERY_N_MILLISECONDS(100) {
         oOffset++;
       }
       chase_spiral(OUTER, oOffset, true);
@@ -173,7 +173,8 @@ void loop() {
   }
   // Just to test it out for meow.
   static boolean run_circles = false;
-  EVERY_N_MINUTES(2) {
+  static boolean run_helix = false;
+  EVERY_N_SECONDS(45) {
     run_circles = !run_circles;
   }
   merge_animations();
@@ -181,5 +182,13 @@ void loop() {
     ring_bounce_opp(20, 5);
     LEDS.show();
   }
+  EVERY_N_SECONDS(50) {
+    run_helix = !run_helix;
+  }
+  if (run_helix) {
+    helix_spiral_overlay(20, 4);
+    LEDS.show();
+  }
+
 
 }
