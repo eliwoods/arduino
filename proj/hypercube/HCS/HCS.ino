@@ -17,6 +17,8 @@
 #define PIEZO_1 19
 // NEED TO DECIDE ON A PIN TO USE FOR LASER BREAK RESET SWITCH
 
+#define UNUSED 13
+
 // For describing the shells easier in code
 #define INNER 0
 #define OUTER 1
@@ -45,19 +47,25 @@ const uint8_t maxBrightness = 50;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
 
 // Setup and global variable delcaration for palettes
+CRGBPalette16 gPalette, nPalette; // These point towards the background palette that we fill the templates with
 CRGBPalette16 oPalette, iPalette; // Lets try using two separate palettes for the shells
+CRGBPalette16 oTargetPalette, iTargetPalette; // These are for when we switch between color palettes
+boolean iPaletteSwitch, oPaletteSwitch; // So that we update the right palette
+uint8_t iPaletteSwitchCount, oPaletteSwitchCount;
 TBlendType gBlending;
-uint8_t iPaletteCounter, oPaletteCounter; // Global Palette
+uint8_t iPaletteCounter, oPaletteCounter, gPaletteCounter; // Global Palette
 uint8_t gIndex; // Global Palette Index
-extern const uint8_t numPalettes;
+extern const uint8_t numPalettes, numPalStyles;
 
-// To control hue globally through a potentiometer input
+// To control hue globally through accelerometer input
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 12; //CHANGE THIS, MIGHT NOT EVEN BE NECESSARY
-uint8_t chaser_opt = 0; // For choosing the sub patterns on the animations that use chasers
-
+const uint8_t iNumAnimation = 7; 
+const uint8_t oNumAnimation = 7; 
+uint8_t iAnimCounter, oAnimCounter;
+boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
+uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
 
 void setup() {
   // Initialize the leds, specifially to use OctoWS2811 controller
@@ -70,8 +78,22 @@ void setup() {
   gBlending = NOBLEND;
   iPaletteCounter = 0;
   oPaletteCounter = iPaletteCounter+3;
+  iPaletteSwitch = false;
+  oPaletteSwitch = false;
+  iPaletteSwitchCount = 0;
+  oPaletteSwitchCount = 0;
+
+  iAnimCounter = 0;
+  oAnimCounter = 0;
+  iAnimSwitch = false;
+  oAnimSwitch = false;
+  iAnimSwitchCount = 0;
+  oAnimSwitchCount = 0;
   gIndex = 0;
   gHue = 0;
+
+  // Random number generation for the noise overlap
+  random16_set_seed(analogRead(UNUSED));
 
   // Setup for the interrupts
 
@@ -79,13 +101,13 @@ void setup() {
 
 void loop() {
   // Switch the animation according to some timer
-  static uint8_t iAnimCounter = 0;
-  static uint8_t oAnimCounter = 0;
   EVERY_N_SECONDS(30) {
-    iAnimCounter = (iAnimCounter + 1) % 7;
+    iAnimCounter = (iAnimCounter + 1) % iNumAnimation;
+    iAnimSwitch = true;
   }
   EVERY_N_SECONDS(10) {
-    oAnimCounter = (oAnimCounter + 1) % 7;
+    oAnimCounter = (oAnimCounter + 1) % oNumAnimation;
+    oAnimSwitch = true;
   }
 
   // Update global index for animations based on palette drawing
@@ -98,16 +120,24 @@ void loop() {
     gHue++;
   }
 
-  // Update the palette selections. This also ends up running any routines to update
-  // the non static palettes
+  // Update the global color palette. This is just the color scheme
+  // that we will then repackage to have different spacial distributions
+  EVERY_N_SECONDS(200) {
+    gPaletteCounter = (gPaletteCounter+1)%numPalettes;
+  }
+  updatePaletteScheme();
+
+  // Update the palette style for the inner and outer shells. This
+  // is basically how we package the given color palette
   EVERY_N_SECONDS(45) {
-    oPaletteCounter = (oPaletteCounter +1) % numPalettes;
+    oPaletteCounter = (oPaletteCounter +1) % numPalStyles;
+    oPaletteSwitch = true;
   }
   EVERY_N_SECONDS(135) {
-    iPaletteCounter = (iPaletteCounter + 1) % numPalettes;
+    iPaletteCounter = (iPaletteCounter + 1) % numPalStyles;
+    iPaletteSwitch = true;
   }
   updateGPalette();
-
 
   // Lets try some different combinations of things by switching between basic animations
   // on the two shells separately

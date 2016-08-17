@@ -40,14 +40,6 @@ void update_RainbowBlack_p(uint8_t shell) {
   }
 }
 
-void update_Rainbow_p(uint8_t shell) {
-  if(shell == 0) {
-    fill_palette(iPalette, 16, gHue, 16, RainbowColors_p, gBrightness, gBlending);
-  }
-  else if(shell == 1) {
-    fill_palette(oPalette, 16, gHue, 16, RainbowColors_p, gBrightness, gBlending);
-  }
-}
 
 // W|RB|RB|RB repeating
 void update_WhiteRainbow_p(uint8_t shell) {
@@ -67,88 +59,266 @@ void update_WhiteRainbow_p(uint8_t shell) {
   }
 }
 
-// W|X|X|X repeating
-void update_WhiteCol_p(uint8_t shell) {
-  if(shell == 0) {
-    fill_solid( iPalette, 16, CHSV(gHue, 255, gBrightness));
-    iPalette[0] = CHSV(255, 0, gBrightness);
-    iPalette[4] = CHSV(255, 0, gBrightness);
-    iPalette[8] = CHSV(255, 0, gBrightness);
-    iPalette[12] = CHSV(255, 0, gBrightness);
-  }
-  else if(shell == 1) {
-    fill_solid( oPalette, 16, CHSV(gHue, 255, gBrightness));
-    oPalette[0] = CHSV(255, 0, gBrightness);
-    oPalette[4] = CHSV(255, 0, gBrightness);
-    oPalette[8] = CHSV(255, 0, gBrightness);
-    oPalette[12] = CHSV(255, 0, gBrightness);
-  }
-}
+// THESE PALETTES ARE SET TO LOOK FOR THE SWITCHING FLAG. EVERYTHING ABOVE IT IS 
+// LEFTOVER FROM THE LOUNGE. MAYBE I'LL INCORPORATE THEM AND STOP YELLING LATER
 
 // Hue adjustable palettes!!!
-const uint8_t val_offset = 100;
-
-void update_PureCol_p(uint8_t shell) {
+void update_Rainbow_p(uint8_t shell) {
   if(shell == 0) {
-    fill_solid(iPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
-  }
-  else if(shell == 1) {
-    fill_solid(oPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
-  }
-}
-
-// X_LEAD|X_BACK|X_BACK|X_BACK repeating
-void update_TwoCol_p(uint8_t shell) {
-  for (uint8_t i = 0; i < 16; i++) {
-    if (i < 8 ) {
-      if(shell == 0) {
-        iPalette[i] = CHSV(gHue, 255, gBrightness + val_offset);
-      }
-      else if(shell == 1) {
-        oPalette[i] = CHSV(gHue, 255, gBrightness + val_offset);
+    if(iPaletteSwitch) {
+      fill_palette(iTargetPalette, 16, gHue, 16, gPalette, gBrightness, gBlending);
+      nblendPaletteTowardPalette(iPalette, iTargetPalette);
+      iPaletteSwitchCount++;
+      if(iPaletteSwitchCount == 24) {
+        iPaletteSwitch = !iPaletteSwitch;
+        iPaletteSwitchCount = 0;
       }
     }
     else {
-      if(shell == 0) {
-        iPalette[i] = CHSV((gHue + 128) % 255, 255, gBrightness + val_offset);
+      fill_palette(iPalette, 16, gHue, 16, gPalette, gBrightness, gBlending);
+    }
+  }
+  else if(shell == 1) {
+    if(oPaletteSwitch) {
+      fill_palette(oTargetPalette, 16, gHue, 16, gPalette, gBrightness, gBlending);
+      nblendPaletteTowardPalette(oPalette, oTargetPalette);
+      oPaletteSwitchCount++;
+      if(oPaletteSwitchCount == 24) {
+        oPaletteSwitch = !oPaletteSwitch;
+        oPaletteSwitchCount = 0;
       }
-      else if(shell == 1) {
-        oPalette[i] = CHSV((gHue + 128) % 255, 255, gBrightness + val_offset);
+    }
+    else {
+      fill_palette(oPalette, 16, gHue, 16, gPalette, gBrightness, gBlending);
+    }
+  }
+}
+const uint8_t val_offset = 100;
+
+// W|X|X|X repeating
+void update_WhiteCol_p(uint8_t shell) {
+  // Fill appropriate palette with white first then the first 8 indices with color
+  if(shell == 0) {
+    if(iPaletteSwitch) {
+      iTargetPalette = CRGBPalette16(CHSV(0, 0, gBrightness + val_offset));
+      //fill_solid(iTargetPalette, 8, CHSV(gHue, 255, gBrightness + val_offset));
+      fill_solid(iTargetPalette, 8, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    }
+    else {
+      iPalette = CRGBPalette16(CHSV(0, 0, gBrightness + val_offset));
+      //fill_solid(iPalette, 8, CHSV(gHue, 255, gBrightness + val_offset));
+      fill_solid(iPalette, 8, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    }
+  }
+  else if (shell == 1) {
+    if(oPaletteSwitch) {
+      oTargetPalette = CRGBPalette16(CHSV(0, 0, gBrightness + val_offset));
+      //fill_solid(oTargetPalette, 8, CHSV(gHue, 255, gBrightness + val_offset));
+      fill_solid(oTargetPalette, 8, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    }
+    else {
+      oPalette = CRGBPalette16(CHSV(0, 0, gBrightness + val_offset));
+      //fill_solid(oPalette, 8, CHSV(gHue, 255, gBrightness + val_offset));
+      fill_solid(oPalette, 8, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    }
+  }
+  // Now blend the palette towards the target if we're switching
+  if(iPaletteSwitch) {
+    nblendPaletteTowardPalette(iPalette, iTargetPalette);
+    iPaletteSwitchCount++;
+    if(iPaletteSwitchCount == 24) {
+      iPaletteSwitch = !iPaletteSwitch;
+      iPaletteSwitchCount = 0;
+    }
+  }
+  if(oPaletteSwitch) {
+    nblendPaletteTowardPalette(oPalette, oTargetPalette);
+    oPaletteSwitchCount++;
+    if(oPaletteSwitchCount == 24) {
+      oPaletteSwitch = !oPaletteSwitch;
+      oPaletteSwitchCount = 0;
+    }
+  }
+}
+
+void update_PureCol_p(uint8_t shell) {
+  if(shell == 0) {
+    if(iPaletteSwitch) {
+      //fill_solid(iTargetPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
+      fill_solid(iTargetPalette, 16, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+      nblendPaletteTowardPalette(iPalette, iTargetPalette);
+      iPaletteSwitchCount++;
+      if(iPaletteSwitchCount == 24) {
+        iPaletteSwitch = !iPaletteSwitch;
+        iPaletteSwitchCount = 0;
       }
+    }
+    else {
+      //fill_solid(iPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
+      fill_solid(iPalette, 16, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    }
+  }
+  else if(shell == 1) {
+    if(oPaletteSwitch) {
+      //fill_solid(oTargetPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
+      fill_solid(oTargetPalette, 16, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+      nblendPaletteTowardPalette(oPalette, oTargetPalette);
+      oPaletteSwitchCount++;
+      if(oPaletteSwitchCount == 24) {
+        oPaletteSwitch = !oPaletteSwitch;
+        oPaletteSwitchCount = 0;
+      }
+    }
+    else {
+      //fill_solid(oPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
+      fill_solid(oPalette, 16, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    }
+  }
+}
+
+// W|X|X|X repeating
+void update_TwoCol_p(uint8_t shell) {
+  // Fill appropriate palette with white first then the first 8 indices with color
+  if(shell == 0) {
+    if(iPaletteSwitch) {
+      iTargetPalette = CRGBPalette16(CHSV(gHue, 255, gBrightness + val_offset));
+      //fill_solid(iTargetPalette, 8, CHSV((gHue + 128) % 255, 255, gBrightness + val_offset));
+      fill_solid(iTargetPalette, 8, ColorFromPalette(gPalette, (gHue+128)%255, gBrightness, gBlending));
+    }
+    else {
+      iPalette = CRGBPalette16(CHSV(gHue, 255, gBrightness + val_offset));
+      //fill_solid(iPalette, 8, CHSV((gHue + 128) % 255, 255, gBrightness + val_offset));
+      fill_solid(iPalette, 8, ColorFromPalette(gPalette, (gHue+128)%255, gBrightness, gBlending));
+    }
+  }
+  else if (shell == 1) {
+    if(oPaletteSwitch) {
+      oTargetPalette = CRGBPalette16(CHSV(gHue, 255, gBrightness + val_offset));
+      //fill_solid(oTargetPalette, 8, CHSV((gHue + 128) % 255, 255, gBrightness + val_offset));
+      fill_solid(oTargetPalette, 8, ColorFromPalette(gPalette, (gHue+128)%255, gBrightness, gBlending));
+    }
+    else {
+      oPalette = CRGBPalette16(CHSV(gHue, 255, gBrightness + val_offset));
+      //fill_solid(oPalette, 8, CHSV((gHue + 128) % 255, 255, gBrightness + val_offset));
+      fill_solid(oPalette, 8, ColorFromPalette(gPalette, (gHue+128)%255, gBrightness, gBlending));
+    }
+  }
+  // Now blend the palette towards the target if we're switching
+  if(iPaletteSwitch) {
+    nblendPaletteTowardPalette(iPalette, iTargetPalette);
+    iPaletteSwitchCount++;
+    if(iPaletteSwitchCount == 24) {
+      iPaletteSwitch = !iPaletteSwitch;
+      iPaletteSwitchCount = 0;
+    }
+  }
+  if(oPaletteSwitch) {
+    nblendPaletteTowardPalette(oPalette, oTargetPalette);
+    oPaletteSwitchCount++;
+    if(oPaletteSwitchCount == 24) {
+      oPaletteSwitch = !oPaletteSwitch;
+      oPaletteSwitchCount = 0;
     }
   }
 }
 
 // One color at the front and nothing else
 void update_ColLead_p(uint8_t shell) {
-  for (uint8_t i = 0; i < 16; i++) {
-    if (i < 4) {
-      if(shell == 0) {
-        iPalette[i] = CHSV(gHue, 255, gBrightness + val_offset);
-      }
-      else if(shell == 1) {
-        oPalette[i] = CHSV(gHue, 255, gBrightness + val_offset);
-      }
+  // Fill appropriate palette with black first then the first 4 indices with color
+  if(shell == 0) {
+    if(iPaletteSwitch) {
+      iTargetPalette = CRGBPalette16(CRGB::Black);
+      //fill_solid(iTargetPalette, 4, CHSV(gHue, 255, gBrightness + val_offset));
+      fill_solid(iTargetPalette, 4, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
     }
     else {
-      if(shell == 0) {
-        iPalette[i] = CRGB::Black;
-      }
-      else if(shell == 1) {
-        oPalette[i] = CRGB::Black;
-      }
+      iPalette = CRGBPalette16(CRGB::Black);
+      //fill_solid(iPalette, 4, CHSV(gHue, 255, gBrightness + val_offset));
+      fill_solid(iPalette, 4, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    }
+  }
+  else if (shell == 1) {
+    if(oPaletteSwitch) {
+      oTargetPalette = CRGBPalette16(CRGB::Black);
+      //fill_solid(oTargetPalette, 4, CHSV(gHue, 255, gBrightness + val_offset));
+      fill_solid(oTargetPalette, 4, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    }
+    else {
+      oPalette = CRGBPalette16(CRGB::Black);
+      //fill_solid(oPalette, 4, CHSV(gHue, 255, gBrightness + val_offset));
+      fill_solid(oPalette, 4, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    }
+  }
+  // Now blend the palette towards the target if we're switching
+  if(iPaletteSwitch) {
+    nblendPaletteTowardPalette(iPalette, iTargetPalette);
+    iPaletteSwitchCount++;
+    if(iPaletteSwitchCount == 24) {
+      iPaletteSwitch = !iPaletteSwitch;
+      iPaletteSwitchCount = 0;
+    }
+  }
+  if(oPaletteSwitch) {
+    nblendPaletteTowardPalette(oPalette, oTargetPalette);
+    oPaletteSwitchCount++;
+    if(oPaletteSwitchCount == 24) {
+      oPaletteSwitch = !oPaletteSwitch;
+      oPaletteSwitchCount = 0;
     }
   }
 }
 
 void update_WhiteBlack_p(uint8_t shell) {
+  // Fill appropriate palette with black first then the first 4 indices with white
+  if(shell == 0) {
+    if(iPaletteSwitch) {
+      iTargetPalette = CRGBPalette16(CRGB::Black);
+      fill_solid(iTargetPalette, 4, CHSV(0, 0, gBrightness + val_offset));
+    }
+    else {
+      iPalette = CRGBPalette16(CRGB::Black);
+      fill_solid(iPalette, 4, CHSV(0, 0, gBrightness + val_offset));
+    }
+  }
+  else if (shell == 1) {
+    if(oPaletteSwitch) {
+      oTargetPalette = CRGBPalette16(CRGB::Black);
+      fill_solid(oTargetPalette, 4, CHSV(0, 0, gBrightness + val_offset));
+    }
+    else {
+      oPalette = CRGBPalette16(CRGB::Black);
+      fill_solid(oPalette, 4, CHSV(0, 0, gBrightness + val_offset));
+    }
+  }
+  // Now blend the palette towards the target if we're switching
+  if(iPaletteSwitch) {
+    nblendPaletteTowardPalette(iPalette, iTargetPalette);
+    iPaletteSwitchCount++;
+    if(iPaletteSwitchCount == 24) {
+      iPaletteSwitch = !iPaletteSwitch;
+      iPaletteSwitchCount = 0;
+    }
+  }
+  if(oPaletteSwitch) {
+    nblendPaletteTowardPalette(oPalette, oTargetPalette);
+    oPaletteSwitchCount++;
+    if(oPaletteSwitchCount == 24) {
+      oPaletteSwitch = !oPaletteSwitch;
+      oPaletteSwitchCount = 0;
+    }
+  }
+}
+
+// Don't bother doing any fancy palette switching with this one since we always
+// want to jump straight to it when "The Button" is pressed
+void update_RedBlack_p(uint8_t shell) {
   for (uint8_t i = 0; i < 16; i++) {
     if (i % 4 == 0) {
       if(shell == 0) {
-        iPalette[i] = CHSV(255, 0, gBrightness);
+        iPalette[i] = CHSV(0, 255, gBrightness);
       }
       if(shell == 1) {
-        oPalette[i] = CHSV(255, 0, gBrightness);
+        oPalette[i] = CHSV(0, 255, gBrightness);
       }
     }
     else {
@@ -158,10 +328,10 @@ void update_WhiteBlack_p(uint8_t shell) {
       else if(shell == 1) {
         oPalette[i] = CRGB::Black;
       }
-
     }
   }
 }
+
 //////////////////////////////////////////////////////////////////////////////////
 // Static templates. These are templates that do not need to be update          //
 // since they are not modular and don't have any dependence on global variables //
@@ -796,148 +966,144 @@ DEFINE_GRADIENT_PALETTE( mellon_ball_surprise_gp ) {
 // This has to be hand counted and updated whenever we add more palettes. There are also some predefined palettes
 // that need to get accounted for :(
 //const uint8_t numPalettes = 29;
-const uint8_t numPalettes = 7;
+const uint8_t numPalettes = 22;
+const uint8_t numPalStyles = 6;
 
 // This handles the switching of palettes based on the global palette counter. Need to add palettes to this function
 // whenever they are added up above. Declare it down here so we can get away with not having to use the Gradient Palette
 // Pointer array.
-//void updateGPalette() {
-//  switch (gPaletteCounter) {
-//    case 0:
-//      update_RainbowBlack_p();
-//      break;
-//    case 1:
-//      update_WhiteRainbow_p();
-//      break;
-//    case 2:
-//      update_Rainbow_p();
-//      break;
-//    case 3:
-//      update_PureCol_p();
-//      break;
-//    case 4:
-//      update_WhiteCol_p();
-//      break;
-//    case 5:
-//      update_TwoCol_p();
-//      break;
-//    case 6:
-//      update_ColLead_p();
-//      break;
-//    case 7:
-//      update_WhiteBlack_p();
-//      break;
-//    case 8:
-//      gPalette = chroma_gp;
-//      break;
-//    case 9:
-//      gPalette = sprinkles_gp;
-//      break;
-//    case 10:
-//      gPalette = GMT_no_green_gp;
-//      break;
-//    case 11:
-//      gPalette = GMT_sealand_gp;
-//      break;
-//    case 12:
-//      gPalette = GMT_cool_gp;
-//      break;
-//    case 13:
-//      gPalette = aspectcolr_gp;
-//      break;
-//    case 14:
-//      gPalette = haxby_gp;
-//      break;
-//    case 15:
-//      gPalette = differences_gp;
-//      break;
-//    case 16:
-//      gPalette = cool_warm_d05_gp;
-//      break;
-//    case 17:
-//      gPalette = purple_orange_d07_gp;
-//      break;
-//    case 18:
-//      gPalette = Lucy_in_the_Sky_gp;
-//      break;
-//    case 19:
-//      gPalette = Alive_And_Kicking_gp;
-//      break;
-//    case 20:
-//      gPalette = firestrm_gp;
-//      break;
-//    case 21:
-//      gPalette = royal_gp;
-//      break;
-//    case 22:
-//      gPalette = moldy_bread_gp;
-//      break;
-//    case 23:
-//      gPalette = Floating_Away_gp;
-//      break;
-//    case 24:
-//      gPalette = three_girls_reclining_gp;
-//      break;
-//    case 25:
-//      gPalette = iCreate_gp;
-//      break;
-//    case 26:
-//      gPalette = Opaque_gp;
-//      break;
-//    case 27:
-//      gPalette = FiveHundo_LOVERS_ThankYou_gp;
-//      break;
-//    case 28:
-//      gPalette = mellon_ball_surprise_gp;
-//      break;
-//  }
-//}
+void updatePaletteScheme() {
+  switch (gPaletteCounter) {
+    case 0:
+      nPalette = chroma_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 1:
+      nPalette = sprinkles_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 2:
+      nPalette = GMT_no_green_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 3:
+      nPalette = GMT_sealand_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 4:
+      nPalette = GMT_cool_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 5:
+      nPalette = aspectcolr_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 6:
+      nPalette = haxby_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 7:
+      nPalette = differences_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 8:
+      nPalette = cool_warm_d05_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 9:
+      nPalette = purple_orange_d07_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 10:
+      nPalette = Lucy_in_the_Sky_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 11:
+      nPalette = Alive_And_Kicking_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 12:
+      nPalette = firestrm_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 13:
+      nPalette = royal_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 14:
+      nPalette = moldy_bread_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 15:
+      nPalette = Floating_Away_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 16:
+      nPalette = three_girls_reclining_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 17:
+      nPalette = iCreate_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 18:
+      nPalette = Opaque_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 19:
+      nPalette = FiveHundo_LOVERS_ThankYou_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 20:
+      nPalette = mellon_ball_surprise_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 21:
+      nPalette = RainbowColors_p;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+  }
+}
 
 void updateGPalette() {
   switch (iPaletteCounter) {
     case 0:
-      update_RainbowBlack_p(0);
+      update_PureCol_p(INNER);
       break;
     case 1:
-      update_WhiteRainbow_p(0);
+      update_WhiteCol_p(INNER);
       break;
     case 2:
-      update_PureCol_p(0);
+      update_TwoCol_p(INNER);
       break;
     case 3:
-      update_WhiteCol_p(0);
+      update_ColLead_p(INNER);
       break;
     case 4:
-      update_TwoCol_p(0);
+      update_WhiteBlack_p(INNER);
       break;
     case 5:
-      update_ColLead_p(0);
-      break;
-    case 6:
-      update_WhiteBlack_p(0);
+      update_Rainbow_p(INNER);
       break;
   }
   switch (oPaletteCounter) {
     case 0:
-      update_RainbowBlack_p(1);
+      update_PureCol_p(OUTER);
       break;
     case 1:
-      update_WhiteRainbow_p(1);
+      update_WhiteCol_p(OUTER);
       break;
     case 2:
-      update_PureCol_p(1);
+      update_TwoCol_p(OUTER);
       break;
     case 3:
-      update_WhiteCol_p(1);
+      update_ColLead_p(OUTER);
       break;
     case 4:
-      update_TwoCol_p(1);
+      update_WhiteBlack_p(OUTER);
       break;
     case 5:
-      update_ColLead_p(1);
-      break;
-    case 6:
-      update_WhiteBlack_p(1);
+      update_Rainbow_p(OUTER);
       break;
   }
 }
