@@ -89,8 +89,8 @@ volatile boolean laser0_on = false;
 volatile boolean laser1_on = false;
 volatile boolean laser2_on = false;
 volatile boolean laser3_on = false;
-volatile uint8_t piezo0_count = 0;
-volatile uint8_t piezo1_count = 0;
+volatile boolean piezo0_flicked = false;
+volatile boolean piezo1_flicked = false;
 volatile uint32_t last_millis;
 const uint32_t debounce_time = 30; // In seconds
 
@@ -120,7 +120,8 @@ void setup() {
   gHue = 0;
 
   // Random number generation for the noise overlap
-  random16_set_seed(analogRead(UNUSED));
+  random16_set_seed(4832);
+  random16_add_entropy(analogRead(UNUSED));
 
   // Setup for the interrupts, names hould be pretty self explanatory
   pinMode(LASER0, INPUT_PULLUP);
@@ -136,10 +137,10 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(LASER3), laser3_ISR, RISING);
 
   pinMode(PIEZO0, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(PIEZO0), piezo0_ISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(PIEZO0), piezo0_ISR, CHANGE);
 
   pinMode(PIEZO1, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(PIEZO1), piezo1_ISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(PIEZO1), piezo1_ISR, CHANGE);
 
   pinMode(DONOTPRS, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(DONOTPRS), debounce_do_not_press, RISING);
@@ -174,11 +175,13 @@ void loop() {
       if(curr_second > last_second) {
         cumm_time += curr_second - last_second;
       }
+      // Turn BNO off if it's sad idle for too long
       if(cumm_time >= bno_off_time) {
         bno_running = false;
       }
     }
   }
+  // If the BNO has moved, use it's orientation to control animation rate and colors
   else if(accel.x() > acc_thresh || accel.y() > acc_thresh) {
     bno_running = true;
     cumm_time = 0;
@@ -215,7 +218,7 @@ void loop() {
 
   // Update the global color palette. This is just the color scheme
   // that we will then repackage to have different spacial distributions
-  EVERY_N_SECONDS(10100) {
+  EVERY_N_SECONDS(100) {
     gPaletteCounter = (gPaletteCounter+1)%numPalettes;
   }
   updatePaletteScheme();
@@ -232,88 +235,113 @@ void loop() {
   }
   updateGPalette();
 
-  // Lets try some different combinations of things by switching between basic animations
-  // on the two shells separately
-  switch (iAnimCounter) {
-    case 0:
-      chase_straight(INNER, false);
-      break;
-    case 1:
-      chase_spiral(INNER, 16, false);
-      break;
-    case 2:
-      static uint8_t iOffset = 0;
-      EVERY_N_MILLISECONDS(250) {
-        iOffset++;
+  // These are the main animations. First we check if we weant to stobe the whole thing though. If we don't
+  // do this we end up with white over the animations and not a total strobe takeover.
+  if(!piezo0_flicked) { 
+    // Check if the antistrobe spring has been flicked
+    if(piezo1_flicked) {
+      EVERY_N_MILLISECONDS(20) {
+        clear_all();
+        LEDS.show();
+        LEDS.delay(10);
       }
-      chase_spiral(INNER, iOffset, false);
-      break;
-    case 3:
-      shell_wrap(INNER, 0, false);
-      break;
-    case 4:
-      shell_wrap(INNER, 1, false);
-      break;
-    case 5:
-      shell_wrap(INNER, 2, false);
-      break;
-    case 6:
-      shell_wrap(INNER, 3, false);
-      break;
-    case 7:
-      chase_helix(INNER, 16, false);
-      break;
-  }
-  switch (oAnimCounter) {
-    case 0:
-      chase_straight(OUTER, true);
-      break;
-    case 1:
-      chase_spiral(OUTER, 4, true);
-      break;
-    case 2:
-      static uint8_t oOffset = 0;
-      EVERY_N_MILLISECONDS(100) {
-        oOffset++;
-      }
-      chase_spiral(OUTER, oOffset, true);
-      break;
-    case 3:
-      shell_wrap(OUTER, 0, true);
-      break;
-    case 4:
-      shell_wrap(OUTER, 1, true);
-      break;
-    case 5:
-      shell_wrap(OUTER, 2, true);
-      break;
-    case 6:
-      shell_wrap(OUTER, 3, true);
-      break;
-    case 7:
-      chase_helix(OUTER, 4, true);
-      break;
+    }
+
+    switch (iAnimCounter) {
+      case 0:
+        chase_straight(INNER, false);
+        break;
+      case 1:
+        chase_spiral(INNER, 16, false);
+        break;
+      case 2:
+        static uint8_t iOffset = 0;
+        EVERY_N_MILLISECONDS(250) {
+          iOffset++;
+        }
+        chase_spiral(INNER, iOffset, false);
+        break;
+      case 3:
+        shell_wrap(INNER, 0, false);
+        break;
+      case 4:
+        shell_wrap(INNER, 1, false);
+        break;
+      case 5:
+        shell_wrap(INNER, 2, false);
+        break;
+      case 6:
+        shell_wrap(INNER, 3, false);
+        break;
+      case 7:
+        chase_helix(INNER, 16, false);
+        break;
+    }
+    switch (oAnimCounter) {
+      case 0:
+        chase_straight(OUTER, true);
+        break;
+      case 1:
+        chase_spiral(OUTER, 4, true);
+        break;
+      case 2:
+        static uint8_t oOffset = 0;
+        EVERY_N_MILLISECONDS(100) {
+          oOffset++;
+        }
+        chase_spiral(OUTER, oOffset, true);
+        break;
+      case 3:
+        shell_wrap(OUTER, 0, true);
+        break;
+      case 4:
+        shell_wrap(OUTER, 1, true);
+        break;
+      case 5:
+        shell_wrap(OUTER, 2, true);
+        break;
+      case 6:
+        shell_wrap(OUTER, 3, true);
+        break;
+      case 7:
+        chase_helix(OUTER, 4, true);
+        break;
+    }
+
+    // Merge each shell to the whole LED array and push to the lights
+    merge_animations();
+
+    // Now turn on the overlay animations if they're meant to be
+    if (laser0_on) {
+      ring_bounce_opp(20, 5);
+    }
+    if (laser1_on) {
+      helix_spiral_overlay(20, 4);
+    }
+    if (laser2_on) {
+      bar_wrap_overlay(50, 2, false);
+    }
+    if (laser3_on) {
+      overlay_snow(20, 0.33);
+    }
+    if (laser0_on || laser1_on || laser2_on || laser3_on) {
+      LEDS.show();
+    }
   }
 
-  // Merge each shell to the whole LED array and push to the lights
-  merge_animations();
-
-  // Now turn on the overlay animations if they're meant to be
-  if (laser0_on) {
-    ring_bounce_opp(20, 5);
-  }
-  if (laser1_on) {
-    helix_spiral_overlay(20, 4);
-  }
-  if (laser2_on) {
-    bar_wrap_overlay(50, 2, false);
-  }
-  if (laser3_on) {
-    overlay_snow(20, 0.33);
-  }
-  if (laser0_on || laser1_on || laser2_on || laser3_on) {
-    LEDS.show();
+  // Strobe the lights if the springs are moving above a threshold determined
+  // by the other arduino
+  if(piezo0_flicked) {
+    EVERY_N_MILLISECONDS(20) {
+      fill_solid(leds, led_tot, CHSV(255, 0, maxBrightness));
+      LEDS.show();
+      clear_all();
+    }
   }
 
+  // Check if the big red button has been pressed. Do this up here
+  if(do_not_pressed) {
+    do_not_press_response();
+  }
 
 }

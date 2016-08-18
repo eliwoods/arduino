@@ -18,11 +18,11 @@ void laser3_ISR() {
 }
 
 void piezo0_ISR() {
-  piezo0_count++;
+  piezo0_flicked = !piezo0_flicked;
 }
 
 void piezo1_ISR() {
-  piezo1_count++;
+  piezo1_flicked = !piezo1_flicked;
 }
 
 void do_not_press_ISR() {

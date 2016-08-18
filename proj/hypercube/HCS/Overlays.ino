@@ -105,12 +105,22 @@ void overlay_snow(uint16_t del, double density) {
 
 void randomize_combinations() {
   // Randomize Palettes
-  iPaletteCounter = random8(numPalettes);
-  oPaletteCounter = random8(numPalettes);
+  iPaletteCounter = random8(numPalStyles);
+  oPaletteCounter = random8(numPalStyles);
+  gPaletteCounter = random8(numPalettes);
 
   // Randomize Animations
   iAnimCounter = random8(iNumAnimation);
   oAnimCounter = random8(oNumAnimation);
+
+  // Also reset all of the overlay flags (including the BRB)
+  do_not_pressed = false;
+  piezo0_flicked = false;
+  piezo1_flicked = false;
+  laser0_on = false;
+  laser1_on = false;
+  laser2_on = false;
+  laser3_on = false;
 }
 
 void do_not_press_response() {
