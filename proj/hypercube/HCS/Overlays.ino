@@ -55,7 +55,7 @@ void helix_spiral_overlay(uint16_t del, uint16_t width) {
   helix_overlay(index, width, 16, CRGB::Black, OUTER, true);
 }
 
-void bar_wrap_overlap(uint16_t del, uint16_t width, boolean reverse) {
+void bar_wrap_overlay(uint16_t del, uint16_t width, boolean reverse) {
   // Error check
   if(width < 1) {
     width = 1;
@@ -111,7 +111,6 @@ void randomize_combinations() {
   // Randomize Animations
   iAnimCounter = random8(iNumAnimation);
   oAnimCounter = random8(oNumAnimation);
-
 }
 
 void do_not_press_response() {
@@ -138,4 +137,7 @@ void do_not_press_response() {
     LEDS.show();
     LEDS.delay(20);
   }
+
+  // Now randomize and resume the show  
+  randomize_combinations();
 }

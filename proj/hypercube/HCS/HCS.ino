@@ -8,13 +8,20 @@
 #include <avr/interrupt.h>
 #endif
 
+// BNO055 Includes
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+
 // Digital Pins for Interrupts (may be subject to change)
-#define LASER_0 0
-#define LASER_1 1
-#define LASER_2 17
-#define LASER_3 22
-#define PIEZO_0 18
-#define PIEZO_1 19
+#define LASER0 0
+#define LASER1 1
+#define LASER2 17
+#define LASER3 22
+#define PIEZO0 18
+#define PIEZO1 19
+#define DONOTPRS 23
 // NEED TO DECIDE ON A PIN TO USE FOR LASER BREAK RESET SWITCH
 
 #define UNUSED 13
@@ -22,6 +29,15 @@
 // For describing the shells easier in code
 #define INNER 0
 #define OUTER 1
+
+// Object for our accelerometer and other variables
+Adafruit_BNO055 bno = Adafruit_BNO055(55);
+boolean bno_running = false;
+double acc_thresh = 10; // TOTALLY ARBITRARY VALUE RN
+uint32_t curr_second, last_second;
+uint8_t cumm_time;
+const uint8_t bno_off_time = 5; // Turn off after 10 seconds of being idle
+
 
 // Constants describing numbers of LEDs and strips
 const uint16_t strip_len = 90; // Number of LED per strip
@@ -67,6 +83,17 @@ uint8_t iAnimCounter, oAnimCounter;
 boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
 uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
 
+// These are the flags that will get flipped during the ISR
+volatile boolean do_not_pressed = false;
+volatile boolean laser0_on = false;
+volatile boolean laser1_on = false;
+volatile boolean laser2_on = false;
+volatile boolean laser3_on = false;
+volatile uint8_t piezo0_count = 0;
+volatile uint8_t piezo1_count = 0;
+volatile uint32_t last_millis;
+const uint32_t debounce_time = 30; // In seconds
+
 void setup() {
   // Initialize the leds, specifially to use OctoWS2811 controller
   LEDS.addLeds<OCTOWS2811>(leds, strip_len * num_per_group); // No need to declare pin numbers since they are preset with parallel output
@@ -95,11 +122,86 @@ void setup() {
   // Random number generation for the noise overlap
   random16_set_seed(analogRead(UNUSED));
 
-  // Setup for the interrupts
+  // Setup for the interrupts, names hould be pretty self explanatory
+  pinMode(LASER0, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(LASER0), laser0_ISR, RISING);
+
+  pinMode(LASER1, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(LASER1), laser1_ISR, RISING);
+
+  pinMode(LASER2, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(LASER2), laser2_ISR, RISING);
+
+  pinMode(LASER3, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(LASER3), laser3_ISR, RISING);
+
+  pinMode(PIEZO0, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(PIEZO0), piezo0_ISR, RISING);
+
+  pinMode(PIEZO1, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(PIEZO1), piezo1_ISR, RISING);
+
+  pinMode(DONOTPRS, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(DONOTPRS), debounce_do_not_press, RISING);
+
+  // Initialize the gyroscope. If it's not on, turn the whole display red
+  // as an easy indication
+  if (!bno.begin()) {
+    fill_solid(leds, led_tot, CHSV(0, 255, gBrightness));
+    LEDS.show();
+    while(1);
+  }
+
+  bno.setExtCrystalUse(true);
 
 }
 
 void loop() {
+  // Read in events from the gyroscope/accelerometer
+  static imu::Vector<3> accel;
+  static sensors_event_t event;
+  EVERY_N_MILLISECONDS(20) {
+    bno.getEvent(&event);
+    accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+  }
+
+  // Check if the BNO has stopped moving below some threshold
+  if(accel.x() < acc_thresh && accel.y() < acc_thresh) {
+    // Only do these calculations if the accelerometer is currently being read from
+    if(bno_running) {
+      curr_second = millis()*1000;
+      // Add the difference to the cummulative time if we're not on the same second
+      if(curr_second > last_second) {
+        cumm_time += curr_second - last_second;
+      }
+      if(cumm_time >= bno_off_time) {
+        bno_running = false;
+      }
+    }
+  }
+  else if(accel.x() > acc_thresh || accel.y() > acc_thresh) {
+    bno_running = true;
+    cumm_time = 0;
+    
+    // Convert the heading to the color index
+    gHue = map(event.orientation.x, 0, 359, 0, 255);
+
+    // Convert the pitch to that rate at which the animation index is changed
+    EVERY_N_MILLISECONDS_I(thisTimer, 20) {
+      thisTimer.setPeriod(map(event.orientation.y, 0, 359, 5, 150));
+      gIndex++;
+    }
+  }
+  // If the the bno is sitting still, run the animations and hue change at a constant rate
+  if(!bno_running) {
+    EVERY_N_MILLISECONDS(5) {
+      gIndex++;
+    }
+    EVERY_N_MILLISECONDS(20) {
+      gHue++;
+    }
+  }
+
   // Switch the animation according to some timer
   EVERY_N_SECONDS(30) {
     iAnimCounter = (iAnimCounter + 1) % iNumAnimation;
@@ -110,19 +212,10 @@ void loop() {
     oAnimSwitch = true;
   }
 
-  // Update global index for animations based on palette drawing
-  EVERY_N_MILLISECONDS(5) {
-    gIndex++;
-  }
-
-  // Update global hue for palettes with variability
-  EVERY_N_MILLISECONDS(20) {
-    gHue++;
-  }
 
   // Update the global color palette. This is just the color scheme
   // that we will then repackage to have different spacial distributions
-  EVERY_N_SECONDS(200) {
+  EVERY_N_SECONDS(10100) {
     gPaletteCounter = (gPaletteCounter+1)%numPalettes;
   }
   updatePaletteScheme();
@@ -201,22 +294,24 @@ void loop() {
       chase_helix(OUTER, 4, true);
       break;
   }
-  // Just to test it out for meow.
-  static boolean run_circles = false;
-  static boolean run_helix = false;
-  EVERY_N_SECONDS(45) {
-    run_circles = !run_circles;
-  }
+
+  // Merge each shell to the whole LED array and push to the lights
   merge_animations();
-  if (run_circles) {
+
+  // Now turn on the overlay animations if they're meant to be
+  if (laser0_on) {
     ring_bounce_opp(20, 5);
-    LEDS.show();
   }
-  EVERY_N_SECONDS(50) {
-    run_helix = !run_helix;
-  }
-  if (run_helix) {
+  if (laser1_on) {
     helix_spiral_overlay(20, 4);
+  }
+  if (laser2_on) {
+    bar_wrap_overlay(50, 2, false);
+  }
+  if (laser3_on) {
+    overlay_snow(20, 0.33);
+  }
+  if (laser0_on || laser1_on || laser2_on || laser3_on) {
     LEDS.show();
   }
 
