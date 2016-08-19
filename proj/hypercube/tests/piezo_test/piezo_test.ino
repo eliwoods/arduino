@@ -21,9 +21,8 @@ void loop() {
 //  fill_solid( leds, NUMLED, CHSV(gHue, 255, 100));
 //  FastLED.show();
 
-    Serial.print(analogRead(0));
+    Serial.print(analogRead(4));
     Serial.print("\t");
-    Serial.println(analogRead(1));
+    Serial.println(analogRead(5));
 
-  
 }

@@ -16,10 +16,10 @@
 #define LASER_MULT_OUT 7
 
 // Some variables for the various controllers
-const uint16_t laser_threshold = 25; //This is totally arbitrary, will need some tuning.
+const uint16_t laser_threshold = 25; // Should still be generally correct
 const uint16_t piezo_threshold = 700; // Pretty sure this one is right
+const uint16_t piezo_tol = 200;
 boolean triggered[] = {false, false, false, false};
-const uint32_t piezo_wait = 15;
 
 void setup() {
   // Set the pin modes for the outputs
@@ -54,7 +54,7 @@ void check_lasers() {
       if (!triggered[ch]) {
         if (analogRead(ch) > threshold) {
           triggered[ch] = true;
-          // So that we can visualize it on the test strip
+          // Write HIGH to the correct output
           if (ch == LASER0_IN) {
             digitalWrite(LASER0_OUT, HIGH);
           }
@@ -72,45 +72,38 @@ void check_lasers() {
       else {
         if (analogRead(ch) < threshold) {
           triggered[ch] = false;
+          if (ch == LASER0_IN) {
+            digitalWrite(LASER0_OUT, LOW);
+          }
+          else if (ch == LASER1_IN) {
+            digitalWrite(LASER1_OUT, LOW);
+          }
+          else if (ch == LASER2_IN) {
+            digitalWrite(LASER2_OUT, LOW);
+          }
+          else if (ch == LASER3_IN) {
+            digitalWrite(LASER3_OUT, LOW);
+          }
         }
       }
     } // End loop over channels
 }
 
 void check_piezos() {
-  // Use these to make sure we don't get consecutive readings from one flick
-  static boolean waiting0 = false;
-  static boolean waiting1 = false;
-
-  // For checking the time since the last piezo trigger
-  static uint32_t last_millis0 = 99;
-  static uint32_t last_millis1 = 99;
-
   // Check the first piezo and set the flag to start the timer if it is over the threshold
-  if(analogRead(PIEZO0_IN) > piezo_threshold && !waiting0) {
+  if(analogRead(PIEZO0_IN) > piezo_threshold + piezo_tol || analogRead(PIEZO0_IN) < piezo_threshold - piezo_tol) {
     analogWrite(PIEZO0_OUT, HIGH);
-    //waiting0 = true;        
-    //last_millis0 = millis();
   }
-  // This way we only send the interrupt when the threshold is crossed
-  analogWrite(PIEZO0_OUT, LOW);
-
-  // Check that
-  //if((int32_t)(millis()-last_millis()) >= piezo_wait) {
-  //  waiting0 = false;
-  //}
+  else {
+    analogWrite(PIEZO0_OUT, LOW);
+  }
 
   // Check the first piezo and set the flag to start the timer if it is over the threshold
-  if(analogRead(PIEZO1_IN) > piezo_threshold && !waiting1) {
+  if(analogRead(PIEZO1_IN) > piezo_threshold + piezo_tol || analogRead(PIEZO1_IN) < piezo_threshold - piezo_tol) {
     analogWrite(PIEZO1_OUT, HIGH);
-    //waiting1 = true;        
-    //last_millis1 = millis();
   }
-  // This way we only send the interrupt when the threshold is crossed
-  analogWrite(PIEZO1_OUT, LOW);
+  else {
+    analogWrite(PIEZO1_OUT, LOW);
+  }
 
-  // Check that
-  //if((int32_t)(millis()-last_millis()) >= piezo_wait) {
-  //  waiting1 = false;
-  //}
 }
