@@ -121,6 +121,18 @@ void randomize_combinations() {
   laser1_on = false;
   laser2_on = false;
   laser3_on = false;
+
+  // Set all the flags for switching animations and palettes to
+  // false incase we were in the middle of one. Don't want to get caught in some
+  // fucked up transition
+  iPaletteSwitch = false;
+  oPaletteSwitch = false;
+  iPaletteSwitchCount = 0;
+  oPaletteSwitchCount = 0;
+  iAnimSwitchCount = 0;
+  oAnimSwitchCount = 0;
+  iAnimSwitch = false;
+  oAnimSwitch = false;
 }
 
 void do_not_press_response() {
@@ -150,4 +162,5 @@ void do_not_press_response() {
 
   // Now randomize and resume the show  
   randomize_combinations();
+  merge_animations();
 }

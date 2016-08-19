@@ -66,6 +66,7 @@ uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENT
 CRGBPalette16 gPalette, nPalette; // These point towards the background palette that we fill the templates with
 CRGBPalette16 oPalette, iPalette; // Lets try using two separate palettes for the shells
 CRGBPalette16 oTargetPalette, iTargetPalette; // These are for when we switch between color palettes
+CRGBPalette16 tempPalette; // Use this to store the current palette while we overwrite it and switch
 boolean iPaletteSwitch, oPaletteSwitch; // So that we update the right palette
 uint8_t iPaletteSwitchCount, oPaletteSwitchCount;
 TBlendType gBlending;
@@ -205,35 +206,54 @@ void loop() {
     }
   }
 
-  // Switch the animation according to some timer
-  EVERY_N_SECONDS(30) {
-    iAnimCounter = (iAnimCounter + 1) % iNumAnimation;
-    iAnimSwitch = true;
-  }
-  EVERY_N_SECONDS(10) {
-    oAnimCounter = (oAnimCounter + 1) % oNumAnimation;
-    oAnimSwitch = true;
+  // Handle switching between outer shell animations. Don't do this if we're
+  // already switching the inner shell though, don't want to figure that out
+  if(!iAnimSwitch) {
+    EVERY_N_SECONDS(60) {
+      oAnimCounter = (oAnimCounter + 1) % oNumAnimation;
+      oAnimSwitch = true;
+      // Store the current palette and overwite it with all black
+      tempPalette = oPalette;
+      oPalette = CRGBPalette16(CRGB::Black);
+    }
   }
 
+  // Same deal for the inner shell
+  if(!oAnimSwitch) {
+    EVERY_N_SECONDS(40) {
+      iAnimCounter = (iAnimCounter + 1) % iNumAnimation;
+      iAnimSwitch = true;
+      // Store the current palette and overwrite with all black
+      tempPalette = iPalette;
+      iPalette = CRGBPalette16(CRGB::Black);
+    }
+  }
 
   // Update the global color palette. This is just the color scheme
   // that we will then repackage to have different spacial distributions
-  EVERY_N_SECONDS(100) {
-    gPaletteCounter = (gPaletteCounter+1)%numPalettes;
+  // Check that we aren't in the middle of an animation blend first though
+  if(!iAnimSwitch && !oAnimSwitch && !oPaletteSwitch && !oPaletteSwitch) {
+    EVERY_N_SECONDS(100) {
+      gPaletteCounter = (gPaletteCounter+1)%numPalettes;
+    }
+    updatePaletteScheme();
   }
-  updatePaletteScheme();
 
   // Update the palette style for the inner and outer shells. This
-  // is basically how we package the given color palette
-  EVERY_N_SECONDS(45) {
-    oPaletteCounter = (oPaletteCounter +1) % numPalStyles;
-    oPaletteSwitch = true;
+  // is basically how we package the given color palette. Again, check
+  // that we aren't in the middle of an animation swtich or switching between
+  // one of the other palettes
+  if(!iAnimSwitch && !oAnimSwitch && !oPaletteSwitch && !iPaletteSwitch) {
+    EVERY_N_SECONDS(45) {
+      oPaletteCounter = (oPaletteCounter +1) % numPalStyles;
+      oPaletteSwitch = true;
+    }
+    EVERY_N_SECONDS(135) {
+      iPaletteCounter = (iPaletteCounter + 1) % numPalStyles;
+      iPaletteSwitch = true;
+    }
+    updateGPalette();
   }
-  EVERY_N_SECONDS(135) {
-    iPaletteCounter = (iPaletteCounter + 1) % numPalStyles;
-    iPaletteSwitch = true;
-  }
-  updateGPalette();
 
   // These are the main animations. First we check if we weant to stobe the whole thing though. If we don't
   // do this we end up with white over the animations and not a total strobe takeover.
@@ -310,6 +330,21 @@ void loop() {
 
     // Merge each shell to the whole LED array and push to the lights
     merge_animations();
+
+    // Try the animation fading here. This way the animations will have time to 
+    // render once before we start the blending process
+    if(oAnimSwitch) {
+      nblendPaletteTowardPalette(oPalette, tempPalette, 15);
+      if(oPalette == tempPalette) {
+        oAnimSwitch = false;
+      }
+    }
+    if(iAnimSwitch) {
+      nblendPaletteTowardPalette(iPalette, tempPalette, 15);
+      if(iPalette == tempPalette) {
+        iAnimSwitch = false;
+      }
+    }
 
     // Now turn on the overlay animations if they're meant to be
     if (laser0_on) {

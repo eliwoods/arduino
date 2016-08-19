@@ -40,7 +40,9 @@ void loop() {
 
 }
 
-// TODO: Add check for multiple lasers being broken, add something to check how long it's been since they were broken
+// Check which lasers are being broken and send out an interrupt signal from the right port. Also check that if 
+// a laser has been broken that we don't repeatedly send out an interrupt since the teensy will be looking for
+// the rising edge of a pulse.
 void check_lasers() {
     // Could probably just tie them to the 5V but w/e
     digitalWrite(LASER_POWER, HIGH);
@@ -51,9 +53,9 @@ void check_lasers() {
     for (uint8_t ch = 0; ch < 4; ch++) {
       // Check if we have already triggered this channel, this is incase someone
       // is holding their hand in front of the lasers or something dumb like that.
-      if (!triggered[ch]) {
-        if (analogRead(ch) > threshold) {
-          triggered[ch] = true;
+      //if (!triggered[ch]) {
+        if (analogRead(ch) > laser_threshold) {
+          //triggered[ch] = true;
           // Write HIGH to the correct output
           if (ch == LASER0_IN) {
             digitalWrite(LASER0_OUT, HIGH);
@@ -68,9 +70,9 @@ void check_lasers() {
             digitalWrite(LASER3_OUT, HIGH);
           }
         }
-      }
-      else {
-        if (analogRead(ch) < threshold) {
+      //}
+      //else {
+        if (analogRead(ch) < laser_threshold) {
           triggered[ch] = false;
           if (ch == LASER0_IN) {
             digitalWrite(LASER0_OUT, LOW);
@@ -85,7 +87,7 @@ void check_lasers() {
             digitalWrite(LASER3_OUT, LOW);
           }
         }
-      }
+      //}
     } // End loop over channels
 }
 
