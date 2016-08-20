@@ -6,31 +6,28 @@
 #define PIEZO0_IN 4
 #define PIEZO1_IN 5
 
-#define LASER_POWER 0
 #define LASER0_OUT 1
 #define LASER1_OUT 2
 #define LASER2_OUT 3
 #define LASER3_OUT 4
 #define PIEZO0_OUT 5
 #define PIEZO1_OUT 6
-#define LASER_MULT_OUT 7
 
 // Some variables for the various controllers
-const uint16_t laser_threshold = 25; // Should still be generally correct
-const uint16_t piezo_threshold = 700; // Pretty sure this one is right
-const uint16_t piezo_tol = 200;
+const uint16_t laser_threshold = 15; // Actual baseline is around 19-20, set a little lower just for safety sake
+const uint16_t piezo_baseline = 750; // Actual range is roughly 600-800
+const uint16_t piezo_tol_up = 100;
+const uint16_t piezo_tol_down = 200;
 boolean triggered[] = {false, false, false, false};
 
 void setup() {
   // Set the pin modes for the outputs
-  pinMode(LASER_POWER, OUTPUT);
   pinMode(LASER0_OUT, OUTPUT);
   pinMode(LASER1_OUT, OUTPUT);
   pinMode(LASER2_OUT, OUTPUT);
   pinMode(LASER3_OUT, OUTPUT);
   pinMode(PIEZO0_OUT, OUTPUT);
   pinMode(PIEZO1_OUT, OUTPUT);
-  pinMode(LASER_MULT_OUT, OUTPUT);
 }
 
 void loop() {
@@ -44,8 +41,6 @@ void loop() {
 // a laser has been broken that we don't repeatedly send out an interrupt since the teensy will be looking for
 // the rising edge of a pulse.
 void check_lasers() {
-    // Could probably just tie them to the 5V but w/e
-    digitalWrite(LASER_POWER, HIGH);
     
     // Check the value of each of the analog inputs. If they are above the threshold, then
     // trigger then send a high signal out. This will be interpereted by the teensy
@@ -54,7 +49,7 @@ void check_lasers() {
       // Check if we have already triggered this channel, this is incase someone
       // is holding their hand in front of the lasers or something dumb like that.
       //if (!triggered[ch]) {
-        if (analogRead(ch) > laser_threshold) {
+        if (analogRead(ch) < laser_threshold) {
           //triggered[ch] = true;
           // Write HIGH to the correct output
           if (ch == LASER0_IN) {
@@ -72,7 +67,7 @@ void check_lasers() {
         }
       //}
       //else {
-        if (analogRead(ch) < laser_threshold) {
+        if (analogRead(ch) > laser_threshold) {
           triggered[ch] = false;
           if (ch == LASER0_IN) {
             digitalWrite(LASER0_OUT, LOW);
@@ -93,16 +88,18 @@ void check_lasers() {
 
 void check_piezos() {
   // Check the first piezo and set the flag to start the timer if it is over the threshold
-  if(analogRead(PIEZO0_IN) > piezo_threshold + piezo_tol || analogRead(PIEZO0_IN) < piezo_threshold - piezo_tol) {
+  if(analogRead(PIEZO0_IN) > piezo_baseline + piezo_tol_up || analogRead(PIEZO0_IN) < piezo_baseline - piezo_tol_down) {
     analogWrite(PIEZO0_OUT, HIGH);
+    delay(50);
   }
   else {
     analogWrite(PIEZO0_OUT, LOW);
   }
 
   // Check the first piezo and set the flag to start the timer if it is over the threshold
-  if(analogRead(PIEZO1_IN) > piezo_threshold + piezo_tol || analogRead(PIEZO1_IN) < piezo_threshold - piezo_tol) {
+  if(analogRead(PIEZO1_IN) > piezo_baseline + piezo_tol_up || analogRead(PIEZO1_IN) < piezo_baseline - piezo_tol_down) {
     analogWrite(PIEZO1_OUT, HIGH);
+    delay(50);
   }
   else {
     analogWrite(PIEZO1_OUT, LOW);

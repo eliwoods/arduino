@@ -30,8 +30,8 @@ void do_not_press_ISR() {
 }
 
 void debounce_do_not_press() {
-  if((int32_t)(millis()-last_millis) >= debounce_time*1000) {
-    last_millis = millis();
+  if((int32_t)(micros()-last_millis) >= debounce_time*1000) {
+    last_millis = micros();
     do_not_press_ISR();
   }
 }

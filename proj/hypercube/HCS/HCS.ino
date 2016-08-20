@@ -9,9 +9,9 @@
 #endif
 
 // BNO055 Includes
-#include <Wire.h>
+#include <i2c_t3.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055.h>
+#include <Adafruit_BNO055_t3.h>
 #include <utility/imumaths.h>
 
 // Digital Pins for Interrupts (may be subject to change)
@@ -31,7 +31,7 @@
 #define OUTER 1
 
 // Object for our accelerometer and other variables
-Adafruit_BNO055 bno = Adafruit_BNO055(55);
+Adafruit_BNO055 bno = Adafruit_BNO055(WIRE1_BUS, -1, BNO055_ADDRESS_A, I2C_MASTER, I2C_PINS_29_30, I2C_PULLUP_INT, I2C_RATE_100, I2C_OP_MODE_ISR);
 boolean bno_running = false;
 double acc_thresh = 10; // TOTALLY ARBITRARY VALUE RN
 uint32_t curr_second, last_second;
@@ -59,27 +59,25 @@ CRGBArray<out_LED_tot> out_leds;
 CRGBArray<led_tot> leds;
 
 // For controlling the brightness, again might not need this variability.
-const uint8_t maxBrightness = 50;
+const uint8_t maxBrightness = 75;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
 
 // Setup and global variable delcaration for palettes
 CRGBPalette16 gPalette, nPalette; // These point towards the background palette that we fill the templates with
 CRGBPalette16 oPalette, iPalette; // Lets try using two separate palettes for the shells
-CRGBPalette16 oTargetPalette, iTargetPalette; // These are for when we switch between color palettes
 CRGBPalette16 tempPalette; // Use this to store the current palette while we overwrite it and switch
-boolean iPaletteSwitch, oPaletteSwitch; // So that we update the right palette
-uint8_t iPaletteSwitchCount, oPaletteSwitchCount;
 TBlendType gBlending;
-uint8_t iPaletteCounter, oPaletteCounter, gPaletteCounter; // Global Palette
-uint8_t gIndex; // Global Palette Index
+uint8_t iPaletteCounter, oPaletteCounter, gPaletteCounter, tmp_iPaletteCounter; // Global Palette
+uint16_t gRate; // Global Palette Index
 extern const uint8_t numPalettes, numPalStyles;
+boolean use_white = false;
 
 // To control hue globally through accelerometer input
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t iNumAnimation = 7; 
-const uint8_t oNumAnimation = 7; 
+const uint8_t iNumAnimation = 8; 
+const uint8_t oNumAnimation = 8; 
 uint8_t iAnimCounter, oAnimCounter;
 boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
 uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
@@ -93,7 +91,7 @@ volatile boolean laser3_on = false;
 volatile boolean piezo0_flicked = false;
 volatile boolean piezo1_flicked = false;
 volatile uint32_t last_millis;
-const uint32_t debounce_time = 30; // In seconds
+const uint32_t debounce_time = 15; // In seconds
 
 void setup() {
   // Initialize the leds, specifially to use OctoWS2811 controller
@@ -103,13 +101,9 @@ void setup() {
 
   // Initialize global color variables
   gBrightness = maxBrightness;
-  gBlending = NOBLEND;
+  gBlending = LINEARBLEND;
   iPaletteCounter = 0;
   oPaletteCounter = iPaletteCounter+3;
-  iPaletteSwitch = false;
-  oPaletteSwitch = false;
-  iPaletteSwitchCount = 0;
-  oPaletteSwitchCount = 0;
 
   iAnimCounter = 0;
   oAnimCounter = 0;
@@ -117,7 +111,7 @@ void setup() {
   oAnimSwitch = false;
   iAnimSwitchCount = 0;
   oAnimSwitchCount = 0;
-  gIndex = 0;
+  gRate = 0;
   gHue = 0;
 
   // Random number generation for the noise overlap
@@ -186,21 +180,16 @@ void loop() {
   else if(accel.x() > acc_thresh || accel.y() > acc_thresh) {
     bno_running = true;
     cumm_time = 0;
-    
+
     // Convert the heading to the color index
     gHue = map(event.orientation.x, 0, 359, 0, 255);
 
     // Convert the pitch to that rate at which the animation index is changed
-    EVERY_N_MILLISECONDS_I(thisTimer, 20) {
-      thisTimer.setPeriod(map(event.orientation.y, 0, 359, 5, 150));
-      gIndex++;
-    }
+    gRate = map(event.orientation.y, -180, 180, 5, 150);
   }
   // If the the bno is sitting still, run the animations and hue change at a constant rate
   if(!bno_running) {
-    EVERY_N_MILLISECONDS(5) {
-      gIndex++;
-    }
+    gRate = 10;
     EVERY_N_MILLISECONDS(20) {
       gHue++;
     }
@@ -231,8 +220,7 @@ void loop() {
 
   // Update the global color palette. This is just the color scheme
   // that we will then repackage to have different spacial distributions
-  // Check that we aren't in the middle of an animation blend first though
-  if(!iAnimSwitch && !oAnimSwitch && !oPaletteSwitch && !oPaletteSwitch) {
+  if(!iAnimSwitch && !oAnimSwitch) {
     EVERY_N_SECONDS(100) {
       gPaletteCounter = (gPaletteCounter+1)%numPalettes;
     }
@@ -240,20 +228,57 @@ void loop() {
   }
 
   // Update the palette style for the inner and outer shells. This
-  // is basically how we package the given color palette. Again, check
-  // that we aren't in the middle of an animation swtich or switching between
-  // one of the other palettes
-  if(!iAnimSwitch && !oAnimSwitch && !oPaletteSwitch && !iPaletteSwitch) {
+  // is basically how we package the given color palette.
+  if(!oAnimSwitch) {
     EVERY_N_SECONDS(45) {
       oPaletteCounter = (oPaletteCounter +1) % numPalStyles;
-      oPaletteSwitch = true;
     }
-    EVERY_N_SECONDS(135) {
-      iPaletteCounter = (iPaletteCounter + 1) % numPalStyles;
-      iPaletteSwitch = true;
-    }
-    updateGPalette();
   }
+  // For the inner palette, switch it up so that every other time it uses
+  // a white palette.
+  if(!iAnimSwitch) {
+    EVERY_N_SECONDS(135) {
+      if(use_white) {
+        tmp_iPaletteCounter = iPaletteCounter;
+        iPaletteCounter = 5;
+        use_white = !use_white;
+      }
+      //  The white black is no longer part of the usual rotation
+      // though since it alternates every time the timer is up.
+      else {
+        iPaletteCounter = (iPaletteCounter + 1) % (numPalStyles - 1);
+      }
+    }
+  }
+
+  // Do some checks to make sure we don't have some shitty combination of animations and palettes
+  if(!oAnimSwitch && !iAnimSwitch) {
+    if(oAnimCounter%2 == 0 && (oPaletteCounter == 0 || oPaletteCounter == 4)) {
+      // Doign this in two if statements so I don't have a ridiculously long line. This whole check
+      // just makes sure that we don't have both of the shells solid colors at the same time
+      if( iAnimCounter%2 == 0 && iPaletteCounter == 0) {
+        oPaletteCounter = random8(numPalStyles);
+        while (oPaletteCounter == 0) {
+          oPaletteCounter = random8(numPalStyles);
+        }
+      }
+    }
+    // This check makes sure we don't have the rainbow palette going when doing the crazier animations.
+    // It just looks way too hectic when that happens
+    if(oAnimCounter == 4 || oAnimCounter == 6) {
+      oPaletteCounter = random8(numPalStyles);
+      while (oPaletteCounter == 5) {
+        oPaletteCounter = random8(numPalStyles);
+      }
+    }
+    if(iAnimCounter == 4 || iAnimCounter == 6) {
+      iPaletteCounter = random8(numPalStyles-1);
+      while(iPaletteCounter == 4) {
+        iPaletteCounter = random8(numPalStyles-1);
+      }
+    }
+  }
+  updateGPalette();
 
   // These are the main animations. First we check if we weant to stobe the whole thing though. If we don't
   // do this we end up with white over the animations and not a total strobe takeover.
@@ -272,29 +297,29 @@ void loop() {
         chase_straight(INNER, false);
         break;
       case 1:
-        chase_spiral(INNER, 16, false);
+        shell_wrap(INNER, 1, false);
         break;
       case 2:
-        static uint8_t iOffset = 0;
-        EVERY_N_MILLISECONDS(250) {
-          iOffset++;
-        }
-        chase_spiral(INNER, iOffset, false);
+        chase_spiral(INNER, 4, false);
         break;
       case 3:
         shell_wrap(INNER, 0, false);
         break;
       case 4:
-        shell_wrap(INNER, 1, false);
+        static uint8_t oOffset = 0;
+        EVERY_N_MILLISECONDS(200) {
+          oOffset++;
+        }
+        chase_spiral(INNER, oOffset, false);
         break;
       case 5:
         shell_wrap(INNER, 2, false);
         break;
       case 6:
-        shell_wrap(INNER, 3, false);
+        chase_helix(INNER, 4, false);
         break;
       case 7:
-        chase_helix(INNER, 16, false);
+        shell_wrap(INNER, 3, false);
         break;
     }
     switch (oAnimCounter) {
@@ -302,29 +327,29 @@ void loop() {
         chase_straight(OUTER, true);
         break;
       case 1:
-        chase_spiral(OUTER, 4, true);
+        shell_wrap(OUTER, 1, true);
         break;
       case 2:
+        chase_spiral(OUTER, 24, true);
+        break;
+      case 3:
+        shell_wrap(OUTER, 0, true);
+        break;
+      case 4:
         static uint8_t oOffset = 0;
         EVERY_N_MILLISECONDS(100) {
           oOffset++;
         }
         chase_spiral(OUTER, oOffset, true);
         break;
-      case 3:
-        shell_wrap(OUTER, 0, true);
-        break;
-      case 4:
-        shell_wrap(OUTER, 1, true);
-        break;
       case 5:
         shell_wrap(OUTER, 2, true);
         break;
       case 6:
-        shell_wrap(OUTER, 3, true);
+        chase_helix(OUTER, 24, true);
         break;
       case 7:
-        chase_helix(OUTER, 4, true);
+        shell_wrap(OUTER, 3, true);
         break;
     }
 
@@ -334,13 +359,13 @@ void loop() {
     // Try the animation fading here. This way the animations will have time to 
     // render once before we start the blending process
     if(oAnimSwitch) {
-      nblendPaletteTowardPalette(oPalette, tempPalette, 15);
+      nblendPaletteTowardPalette(oPalette, tempPalette, 100);
       if(oPalette == tempPalette) {
         oAnimSwitch = false;
       }
     }
     if(iAnimSwitch) {
-      nblendPaletteTowardPalette(iPalette, tempPalette, 15);
+      nblendPaletteTowardPalette(iPalette, tempPalette, 100);
       if(iPalette == tempPalette) {
         iAnimSwitch = false;
       }
@@ -348,16 +373,16 @@ void loop() {
 
     // Now turn on the overlay animations if they're meant to be
     if (laser0_on) {
-      ring_bounce_opp(20, 5);
+      ring_bounce_opp(10);
     }
     if (laser1_on) {
-      helix_spiral_overlay(20, 4);
+      helix_spiral_overlay(5, 28);
     }
     if (laser2_on) {
-      bar_wrap_overlay(50, 2, false);
+      bar_wrap_overlay(5);
     }
     if (laser3_on) {
-      overlay_snow(20, 0.33);
+      overlay_snow(100, 0.10);
     }
     if (laser0_on || laser1_on || laser2_on || laser3_on) {
       LEDS.show();

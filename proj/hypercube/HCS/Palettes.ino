@@ -1,22 +1,9 @@
-// TO DO : CLEAN UP THE PALETTES. NOT ALL OF THESE ARRE GONNA BE GOOD FOR THIS PROJECTS
-
-// Just to clarify comments, I'm describing the palette pattern
-// in terms of the palettes index. Or it'll be copied from the
-// PaletteKnife shit
-//
-// W == White
-// B == Black
-// RB == Rainbow, uses global hue position
-// X == Input to the function
-
 //////////////////////////////////////////////////////////////////////////////////
 // These template need to be updated before each fill call. This is because     //
 // they are either dependend on an input or they rely on some global variable   //
 // that is changed in the animations.                                           //
 //////////////////////////////////////////////////////////////////////////////////
 
-
-// RB|B|B|B repeating
 void update_RainbowBlack_p(uint8_t shell) {
   // Instead of blacking out, fill backgroud with rainbow, then
   // fill every thing with black except
@@ -40,8 +27,6 @@ void update_RainbowBlack_p(uint8_t shell) {
   }
 }
 
-
-// W|RB|RB|RB repeating
 void update_WhiteRainbow_p(uint8_t shell) {
   if(shell == 0) {
     fill_palette(iPalette, 16, gHue, 16, RainbowColors_p, gBrightness, gBlending);
@@ -59,120 +44,39 @@ void update_WhiteRainbow_p(uint8_t shell) {
   }
 }
 
-// THESE PALETTES ARE SET TO LOOK FOR THE SWITCHING FLAG. EVERYTHING ABOVE IT IS 
-// LEFTOVER FROM THE LOUNGE. MAYBE I'LL INCORPORATE THEM AND STOP YELLING LATER
-
 // Hue adjustable palettes!!!
+
+const uint8_t hue_offset = 64;
+const uint8_t val_offset = 50;
+
 void update_Rainbow_p(uint8_t shell) {
   if(shell == 0) {
-    if(iPaletteSwitch) {
-      fill_palette(iTargetPalette, 16, gHue, 16, gPalette, gBrightness, gBlending);
-      nblendPaletteTowardPalette(iPalette, iTargetPalette);
-      iPaletteSwitchCount++;
-      if(iPaletteSwitchCount == 24) {
-        iPaletteSwitch = !iPaletteSwitch;
-        iPaletteSwitchCount = 0;
-      }
-    }
-    else {
-      fill_palette(iPalette, 16, gHue, 16, gPalette, gBrightness, gBlending);
-    }
+    fill_palette(iPalette, 16, (gHue+hue_offset)%255, 16, gPalette, gBrightness, gBlending);
   }
   else if(shell == 1) {
-    if(oPaletteSwitch) {
-      fill_palette(oTargetPalette, 16, gHue, 16, gPalette, gBrightness, gBlending);
-      nblendPaletteTowardPalette(oPalette, oTargetPalette);
-      oPaletteSwitchCount++;
-      if(oPaletteSwitchCount == 24) {
-        oPaletteSwitch = !oPaletteSwitch;
-        oPaletteSwitchCount = 0;
-      }
-    }
-    else {
-      fill_palette(oPalette, 16, gHue, 16, gPalette, gBrightness, gBlending);
-    }
+    fill_palette(oPalette, 16, gHue, 16, gPalette, gBrightness, gBlending);
   }
 }
-const uint8_t val_offset = 100;
 
 // W|X|X|X repeating
 void update_WhiteCol_p(uint8_t shell) {
   // Fill appropriate palette with white first then the first 8 indices with color
   if(shell == 0) {
-    if(iPaletteSwitch) {
-      iTargetPalette = CRGBPalette16(CHSV(0, 0, gBrightness + val_offset));
-      //fill_solid(iTargetPalette, 8, CHSV(gHue, 255, gBrightness + val_offset));
-      fill_solid(iTargetPalette, 8, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
-    else {
-      iPalette = CRGBPalette16(CHSV(0, 0, gBrightness + val_offset));
-      //fill_solid(iPalette, 8, CHSV(gHue, 255, gBrightness + val_offset));
-      fill_solid(iPalette, 8, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
+    iPalette = CRGBPalette16(CHSV(0, 0, gBrightness));
+    fill_solid(iPalette, 8, ColorFromPalette(gPalette, (gHue+hue_offset)%255, gBrightness+val_offset, gBlending));
   }
   else if (shell == 1) {
-    if(oPaletteSwitch) {
-      oTargetPalette = CRGBPalette16(CHSV(0, 0, gBrightness + val_offset));
-      //fill_solid(oTargetPalette, 8, CHSV(gHue, 255, gBrightness + val_offset));
-      fill_solid(oTargetPalette, 8, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
-    else {
-      oPalette = CRGBPalette16(CHSV(0, 0, gBrightness + val_offset));
-      //fill_solid(oPalette, 8, CHSV(gHue, 255, gBrightness + val_offset));
-      fill_solid(oPalette, 8, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
-  }
-  // Now blend the palette towards the target if we're switching
-  if(iPaletteSwitch) {
-    nblendPaletteTowardPalette(iPalette, iTargetPalette);
-    iPaletteSwitchCount++;
-    if(iPaletteSwitchCount == 24) {
-      iPaletteSwitch = !iPaletteSwitch;
-      iPaletteSwitchCount = 0;
-    }
-  }
-  if(oPaletteSwitch) {
-    nblendPaletteTowardPalette(oPalette, oTargetPalette);
-    oPaletteSwitchCount++;
-    if(oPaletteSwitchCount == 24) {
-      oPaletteSwitch = !oPaletteSwitch;
-      oPaletteSwitchCount = 0;
-    }
+    oPalette = CRGBPalette16(CHSV(0, 0, gBrightness));
+    fill_solid(oPalette, 8, ColorFromPalette(gPalette, gHue, gBrightness+val_offset, gBlending));
   }
 }
 
 void update_PureCol_p(uint8_t shell) {
   if(shell == 0) {
-    if(iPaletteSwitch) {
-      //fill_solid(iTargetPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
-      fill_solid(iTargetPalette, 16, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-      nblendPaletteTowardPalette(iPalette, iTargetPalette);
-      iPaletteSwitchCount++;
-      if(iPaletteSwitchCount == 24) {
-        iPaletteSwitch = !iPaletteSwitch;
-        iPaletteSwitchCount = 0;
-      }
-    }
-    else {
-      //fill_solid(iPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
-      fill_solid(iPalette, 16, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
+    fill_solid(iPalette, 16, ColorFromPalette(gPalette, (gHue+hue_offset)%255, gBrightness+val_offset, gBlending));
   }
   else if(shell == 1) {
-    if(oPaletteSwitch) {
-      //fill_solid(oTargetPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
-      fill_solid(oTargetPalette, 16, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-      nblendPaletteTowardPalette(oPalette, oTargetPalette);
-      oPaletteSwitchCount++;
-      if(oPaletteSwitchCount == 24) {
-        oPaletteSwitch = !oPaletteSwitch;
-        oPaletteSwitchCount = 0;
-      }
-    }
-    else {
-      //fill_solid(oPalette, 16, CHSV(gHue, 255, gBrightness+val_offset));
-      fill_solid(oPalette, 16, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
+    fill_solid(oPalette, 16, ColorFromPalette(gPalette, gHue, gBrightness+val_offset, gBlending));
   }
 }
 
@@ -180,45 +84,12 @@ void update_PureCol_p(uint8_t shell) {
 void update_TwoCol_p(uint8_t shell) {
   // Fill appropriate palette with white first then the first 8 indices with color
   if(shell == 0) {
-    if(iPaletteSwitch) {
-      iTargetPalette = CRGBPalette16(CHSV(gHue, 255, gBrightness + val_offset));
-      //fill_solid(iTargetPalette, 8, CHSV((gHue + 128) % 255, 255, gBrightness + val_offset));
-      fill_solid(iTargetPalette, 8, ColorFromPalette(gPalette, (gHue+128)%255, gBrightness, gBlending));
-    }
-    else {
-      iPalette = CRGBPalette16(CHSV(gHue, 255, gBrightness + val_offset));
-      //fill_solid(iPalette, 8, CHSV((gHue + 128) % 255, 255, gBrightness + val_offset));
-      fill_solid(iPalette, 8, ColorFromPalette(gPalette, (gHue+128)%255, gBrightness, gBlending));
-    }
+    iPalette = CRGBPalette16(CHSV(gHue, (gHue+hue_offset)%255, gBrightness + val_offset));
+    fill_solid(iPalette, 8, ColorFromPalette(gPalette, (gHue+hue_offset+128)%255, gBrightness + val_offset, gBlending));
   }
   else if (shell == 1) {
-    if(oPaletteSwitch) {
-      oTargetPalette = CRGBPalette16(CHSV(gHue, 255, gBrightness + val_offset));
-      //fill_solid(oTargetPalette, 8, CHSV((gHue + 128) % 255, 255, gBrightness + val_offset));
-      fill_solid(oTargetPalette, 8, ColorFromPalette(gPalette, (gHue+128)%255, gBrightness, gBlending));
-    }
-    else {
-      oPalette = CRGBPalette16(CHSV(gHue, 255, gBrightness + val_offset));
-      //fill_solid(oPalette, 8, CHSV((gHue + 128) % 255, 255, gBrightness + val_offset));
-      fill_solid(oPalette, 8, ColorFromPalette(gPalette, (gHue+128)%255, gBrightness, gBlending));
-    }
-  }
-  // Now blend the palette towards the target if we're switching
-  if(iPaletteSwitch) {
-    nblendPaletteTowardPalette(iPalette, iTargetPalette);
-    iPaletteSwitchCount++;
-    if(iPaletteSwitchCount == 24) {
-      iPaletteSwitch = !iPaletteSwitch;
-      iPaletteSwitchCount = 0;
-    }
-  }
-  if(oPaletteSwitch) {
-    nblendPaletteTowardPalette(oPalette, oTargetPalette);
-    oPaletteSwitchCount++;
-    if(oPaletteSwitchCount == 24) {
-      oPaletteSwitch = !oPaletteSwitch;
-      oPaletteSwitchCount = 0;
-    }
+    oPalette = CRGBPalette16(CHSV(gHue, 255, gBrightness + val_offset));
+    fill_solid(oPalette, 8, ColorFromPalette(gPalette, (gHue+128)%255, gBrightness+val_offset, gBlending));
   }
 }
 
@@ -226,86 +97,24 @@ void update_TwoCol_p(uint8_t shell) {
 void update_ColLead_p(uint8_t shell) {
   // Fill appropriate palette with black first then the first 4 indices with color
   if(shell == 0) {
-    if(iPaletteSwitch) {
-      iTargetPalette = CRGBPalette16(CRGB::Black);
-      //fill_solid(iTargetPalette, 4, CHSV(gHue, 255, gBrightness + val_offset));
-      fill_solid(iTargetPalette, 4, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
-    else {
-      iPalette = CRGBPalette16(CRGB::Black);
-      //fill_solid(iPalette, 4, CHSV(gHue, 255, gBrightness + val_offset));
-      fill_solid(iPalette, 4, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
+    iPalette = CRGBPalette16(CRGB::Black);
+    fill_solid(iPalette, 4, ColorFromPalette(gPalette, (gHue+hue_offset)%255, gBrightness+val_offset, gBlending));
   }
   else if (shell == 1) {
-    if(oPaletteSwitch) {
-      oTargetPalette = CRGBPalette16(CRGB::Black);
-      //fill_solid(oTargetPalette, 4, CHSV(gHue, 255, gBrightness + val_offset));
-      fill_solid(oTargetPalette, 4, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
-    else {
-      oPalette = CRGBPalette16(CRGB::Black);
-      //fill_solid(oPalette, 4, CHSV(gHue, 255, gBrightness + val_offset));
-      fill_solid(oPalette, 4, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
-    }
-  }
-  // Now blend the palette towards the target if we're switching
-  if(iPaletteSwitch) {
-    nblendPaletteTowardPalette(iPalette, iTargetPalette);
-    iPaletteSwitchCount++;
-    if(iPaletteSwitchCount == 24) {
-      iPaletteSwitch = !iPaletteSwitch;
-      iPaletteSwitchCount = 0;
-    }
-  }
-  if(oPaletteSwitch) {
-    nblendPaletteTowardPalette(oPalette, oTargetPalette);
-    oPaletteSwitchCount++;
-    if(oPaletteSwitchCount == 24) {
-      oPaletteSwitch = !oPaletteSwitch;
-      oPaletteSwitchCount = 0;
-    }
+    oPalette = CRGBPalette16(CRGB::Black);
+    fill_solid(oPalette, 4, ColorFromPalette(gPalette, gHue, gBrightness+val_offset, gBlending));
   }
 }
 
 void update_WhiteBlack_p(uint8_t shell) {
   // Fill appropriate palette with black first then the first 4 indices with white
   if(shell == 0) {
-    if(iPaletteSwitch) {
-      iTargetPalette = CRGBPalette16(CRGB::Black);
-      fill_solid(iTargetPalette, 4, CHSV(0, 0, gBrightness + val_offset));
-    }
-    else {
-      iPalette = CRGBPalette16(CRGB::Black);
-      fill_solid(iPalette, 4, CHSV(0, 0, gBrightness + val_offset));
-    }
+    iPalette = CRGBPalette16(CRGB::Black);
+    fill_solid(iPalette, 4, CHSV(0, 0, gBrightness));
   }
   else if (shell == 1) {
-    if(oPaletteSwitch) {
-      oTargetPalette = CRGBPalette16(CRGB::Black);
-      fill_solid(oTargetPalette, 4, CHSV(0, 0, gBrightness + val_offset));
-    }
-    else {
-      oPalette = CRGBPalette16(CRGB::Black);
-      fill_solid(oPalette, 4, CHSV(0, 0, gBrightness + val_offset));
-    }
-  }
-  // Now blend the palette towards the target if we're switching
-  if(iPaletteSwitch) {
-    nblendPaletteTowardPalette(iPalette, iTargetPalette);
-    iPaletteSwitchCount++;
-    if(iPaletteSwitchCount == 24) {
-      iPaletteSwitch = !iPaletteSwitch;
-      iPaletteSwitchCount = 0;
-    }
-  }
-  if(oPaletteSwitch) {
-    nblendPaletteTowardPalette(oPalette, oTargetPalette);
-    oPaletteSwitchCount++;
-    if(oPaletteSwitchCount == 24) {
-      oPaletteSwitch = !oPaletteSwitch;
-      oPaletteSwitchCount = 0;
-    }
+    oPalette = CRGBPalette16(CRGB::Black);
+    fill_solid(oPalette, 4, CHSV(0, 0, gBrightness));
   }
 }
 
@@ -315,10 +124,10 @@ void update_RedBlack_p(uint8_t shell) {
   for (uint8_t i = 0; i < 16; i++) {
     if (i % 4 == 0) {
       if(shell == 0) {
-        iPalette[i] = CHSV(0, 255, gBrightness);
+        iPalette[i] = CRGB::Red;
       }
       if(shell == 1) {
-        oPalette[i] = CHSV(0, 255, gBrightness);
+        oPalette[i] = CRGB::Red;
       }
     }
     else {
@@ -1080,10 +889,10 @@ void updateGPalette() {
       update_ColLead_p(INNER);
       break;
     case 4:
-      update_WhiteBlack_p(INNER);
+      update_Rainbow_p(INNER);
       break;
     case 5:
-      update_Rainbow_p(INNER);
+      update_WhiteBlack_p(INNER);
       break;
   }
   switch (oPaletteCounter) {
