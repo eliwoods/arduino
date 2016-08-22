@@ -190,15 +190,16 @@ void bar_wrap_overlay(uint16_t width) {
   
   // If anything is fucked up about this animation its right here vvvvv
   for(uint8_t ww = 0; ww < width; ww++) {
-    if(index+ww == out_strips-1) {
-      leds(in_LED_tot + (index+ww)*strip_len, led_tot-1) = led_tmplt;
-    }
-    else if (index+ww >= out_strips) {
-      leds(in_LED_tot + ((index+ww)%out_strips)*strip_len, in_LED_tot + ((index+ww+1)%out_strips)*strip_len -1 ) = led_tmplt;
-    }
-    else {
-      leds(in_LED_tot + (index+ww)*strip_len, in_LED_tot + (index+ww+1)*strip_len - 1) = led_tmplt;
-    }
+    leds(in_LED_tot + ((index + ww) % out_strips) * strip_len, in_LED_tot + strip_len * (((index + ww) % out_strips) + 1) - 1) = led_tmplt;
+    //if(index+ww == out_strips-1) {
+    //  leds(in_LED_tot + (index+ww)*strip_len, led_tot-1) = led_tmplt;
+    //}
+    //else if (index+ww >= out_strips) {
+    //  leds(in_LED_tot + ((index+ww)%out_strips)*strip_len, in_LED_tot + ((index+ww+1)%out_strips)*strip_len -1 ) = led_tmplt;
+    //}
+    //else {
+    //  leds(in_LED_tot + (index+ww)*strip_len, in_LED_tot + (index+ww+1)*strip_len - 1) = led_tmplt;
+    //}
   }
 
 }
@@ -228,8 +229,8 @@ void randomize_combinations() {
   gPaletteCounter = random8(numPalettes);
 
   // Randomize Animations
-  iAnimCounter = random8(iNumAnimation);
-  oAnimCounter = random8(oNumAnimation);
+  iAnimCounter = random8(numAnimation);
+  oAnimCounter = random8(numAnimation);
 
   // Also reset all of the overlay flags (including the BRB)
   do_not_pressed = false;
@@ -250,8 +251,9 @@ void randomize_combinations() {
 }
 
 void do_not_press_response() {
+  do_not_pressed = false;
   // First flash the whole thing red, alternating between inner and outer shells
-  for(uint8_t itr = 0; itr < 30; itr++) {
+  for(uint8_t itr = 0; itr < 4; itr++) {
     if (itr %2 == 0) {
       fill_solid(in_leds, in_LED_tot, CRGB::Red);
     }

@@ -16,15 +16,15 @@
 // Some variables for the various controllers
 const uint16_t laser_base = 20; // Actual baseline is around 19-20, set a little lower just for safety sake
 const uint16_t laser_thresh = 10;
+const uint16_t piezo_baseline = 500; // Actual range is roughly 600-800
+const uint16_t piezo_tol_up = 350;
+const uint16_t piezo_tol_down = 350;
+boolean triggered[] = {false, false, false, false};
 
 void setup() {
   // Set the pin modes for the outputs
-  pinMode(LASER0_OUT, OUTPUT);
-  pinMode(LASER1_OUT, OUTPUT);
-  pinMode(LASER2_OUT, OUTPUT);
-  pinMode(LASER3_OUT, OUTPUT);
-  pinMode(PIEZO0_OUT, OUTPUT);
-  pinMode(PIEZO1_OUT, OUTPUT);
+  Serial.begin(9600);
+
 }
 
 void loop() {
@@ -32,6 +32,22 @@ void loop() {
   check_lasers();
   //check_piezos();
 
+
+  //Serial.print(analogRead(PIEZO0_IN));
+  //Serial.print("\t");
+  //Serial.println(analogRead(PIEZO1_IN));
+  //delay(200);
+
+
+
+  //Serial.print(analogRead(LASER0_IN));
+  //Serial.print("\t");
+  //Serial.print(analogRead(LASER1_IN));
+  //Serial.print("\t");
+  //Serial.print(analogRead(LASER2_IN));
+  //Serial.print("\t");
+  //Serial.println(analogRead(LASER3_IN));
+  //delay(200);
 }
 
 // Check which lasers are being broken and send out an interrupt signal from the right port. Also check that if 
@@ -48,17 +64,21 @@ void check_lasers() {
       // Write HIGH to the correct output
       if (ch == LASER0_IN) {
         digitalWrite(LASER0_OUT, HIGH);
+        Serial.println("LASER0");
         delay(500);
       }
       else if (ch == LASER1_IN) {
         digitalWrite(LASER1_OUT, HIGH);
+        Serial.println("LASER1");
         delay(500);
       }
       else if (ch == LASER2_IN) {
         digitalWrite(LASER2_OUT, HIGH);
+        Serial.println("LASER2");
         delay(500);
       }
       else if (ch == LASER3_IN) {
+        Serial.println("LASER3");
         digitalWrite(LASER3_OUT, HIGH);
         delay(500);
       }
@@ -83,8 +103,9 @@ void check_lasers() {
 void check_piezos() {
   // Check the first piezo and set the flag to start the timer if it is over the threshold
   if(analogRead(PIEZO0_IN) == 1023 || analogRead(PIEZO0_IN) == 0) {
-    analogWrite(PIEZO0_OUT, HIGH);
-    delay(50);
+    Serial.println("PIEZO0_HIGH");
+    Serial.println(analogRead(PIEZO0_IN));
+    delay(200);
   }
   else {
     analogWrite(PIEZO0_OUT, LOW);
@@ -92,11 +113,13 @@ void check_piezos() {
 
   // Check the first piezo and set the flag to start the timer if it is over the threshold
   if(analogRead(PIEZO1_IN) == 1023 || analogRead(PIEZO1_IN) == 0) {
-    analogWrite(PIEZO1_OUT, HIGH);
-    delay(50);
+    Serial.println("PIEZO1_HIGH");
+    Serial.println(analogRead(PIEZO1_IN));
+    delay(200);
   }
   else {
     analogWrite(PIEZO1_OUT, LOW);
   }
+
 
 }

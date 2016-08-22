@@ -59,7 +59,7 @@ CRGBArray<out_LED_tot> out_leds;
 CRGBArray<led_tot> leds;
 
 // For controlling the brightness, again might not need this variability.
-const uint8_t maxBrightness = 75;
+const uint8_t maxBrightness = 100;
 uint8_t gBrightness = maxBrightness; // CHANGE THIS ONCE YOU HAVE ANOTHER POTENTIOMETER
 
 // Setup and global variable delcaration for palettes
@@ -76,8 +76,7 @@ boolean use_white = false;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t iNumAnimation = 8; 
-const uint8_t oNumAnimation = 8; 
+const uint8_t numAnimation = 5; 
 uint8_t iAnimCounter, oAnimCounter;
 boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
 uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
@@ -93,6 +92,10 @@ volatile boolean piezo1_flicked = false;
 volatile uint32_t last_millis;
 const uint32_t debounce_time = 15; // In seconds
 
+// Some variables for the piezo strobbing
+uint16_t piezo0_timer, piezo1_timer;
+const uint16_t piezo_max = 3000;
+
 void setup() {
   // Initialize the leds, specifially to use OctoWS2811 controller
   LEDS.addLeds<OCTOWS2811>(leds, strip_len * num_per_group); // No need to declare pin numbers since they are preset with parallel output
@@ -103,14 +106,11 @@ void setup() {
   gBrightness = maxBrightness;
   gBlending = LINEARBLEND;
   iPaletteCounter = 0;
-  oPaletteCounter = iPaletteCounter+3;
+  oPaletteCounter = iPaletteCounter + 2;
+  gPaletteCounter = 0;
 
   iAnimCounter = 0;
-  oAnimCounter = 0;
-  iAnimSwitch = false;
-  oAnimSwitch = false;
-  iAnimSwitchCount = 0;
-  oAnimSwitchCount = 0;
+  oAnimCounter = iAnimCounter + 2;
   gRate = 0;
   gHue = 0;
 
@@ -142,51 +142,51 @@ void setup() {
 
   // Initialize the gyroscope. If it's not on, turn the whole display red
   // as an easy indication
-  if (!bno.begin()) {
-    fill_solid(leds, led_tot, CHSV(0, 255, gBrightness));
-    LEDS.show();
-    while(1);
-  }
+  //if (!bno.begin()) {
+  //  fill_solid(leds, led_tot, CHSV(0, 255, gBrightness));
+  //  LEDS.show();
+  //  while(1);
+  //}
 
-  bno.setExtCrystalUse(true);
+  //bno.setExtCrystalUse(true);
 
 }
 
 void loop() {
   // Read in events from the gyroscope/accelerometer
-  static imu::Vector<3> accel;
-  static sensors_event_t event;
-  EVERY_N_MILLISECONDS(20) {
-    bno.getEvent(&event);
-    accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-  }
+  //static imu::Vector<3> accel;
+  //static sensors_event_t event;
+  //EVERY_N_MILLISECONDS(20) {
+  //  bno.getEvent(&event);
+  //  accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+  //}
 
-  // Check if the BNO has stopped moving below some threshold
-  if(accel.x() < acc_thresh && accel.y() < acc_thresh) {
-    // Only do these calculations if the accelerometer is currently being read from
-    if(bno_running) {
-      curr_second = millis()*1000;
-      // Add the difference to the cummulative time if we're not on the same second
-      if(curr_second > last_second) {
-        cumm_time += curr_second - last_second;
-      }
-      // Turn BNO off if it's sad idle for too long
-      if(cumm_time >= bno_off_time) {
-        bno_running = false;
-      }
-    }
-  }
-  // If the BNO has moved, use it's orientation to control animation rate and colors
-  else if(accel.x() > acc_thresh || accel.y() > acc_thresh) {
-    bno_running = true;
-    cumm_time = 0;
+  //// Check if the BNO has stopped moving below some threshold
+  //if(accel.x() < acc_thresh && accel.y() < acc_thresh) {
+  //  // Only do these calculations if the accelerometer is currently being read from
+  //  if(bno_running) {
+  //    curr_second = millis()*1000;
+  //    // Add the difference to the cummulative time if we're not on the same second
+  //    if(curr_second > last_second) {
+  //      cumm_time += curr_second - last_second;
+  //    }
+  //    // Turn BNO off if it's sad idle for too long
+  //    if(cumm_time >= bno_off_time) {
+  //      bno_running = false;
+  //    }
+  //  }
+  //}
+  //// If the BNO has moved, use it's orientation to control animation rate and colors
+  //else if(accel.x() > acc_thresh || accel.y() > acc_thresh) {
+  //  bno_running = true;
+  //  cumm_time = 0;
 
-    // Convert the heading to the color index
-    gHue = map(event.orientation.x, 0, 359, 0, 255);
+  //  // Convert the heading to the color index
+  //  gHue = map(event.orientation.x, 0, 359, 0, 255);
 
-    // Convert the pitch to that rate at which the animation index is changed
-    gRate = map(event.orientation.y, -180, 180, 5, 150);
-  }
+  //  // Convert the pitch to that rate at which the animation index is changed
+  //  gRate = map(event.orientation.y, -180, 180, 5, 150);
+  //}
   // If the the bno is sitting still, run the animations and hue change at a constant rate
   if(!bno_running) {
     gRate = 10;
@@ -197,129 +197,94 @@ void loop() {
 
   // Handle switching between outer shell animations. Don't do this if we're
   // already switching the inner shell though, don't want to figure that out
-  if(!iAnimSwitch) {
-    EVERY_N_SECONDS(60) {
-      oAnimCounter = (oAnimCounter + 1) % oNumAnimation;
-      oAnimSwitch = true;
-      // Store the current palette and overwite it with all black
-      tempPalette = oPalette;
-      oPalette = CRGBPalette16(CRGB::Black);
-    }
+  EVERY_N_SECONDS(55) {
+    oAnimCounter = (oAnimCounter + 1) % numAnimation;
   }
 
   // Same deal for the inner shell
-  if(!oAnimSwitch) {
-    EVERY_N_SECONDS(40) {
-      iAnimCounter = (iAnimCounter + 1) % iNumAnimation;
-      iAnimSwitch = true;
-      // Store the current palette and overwrite with all black
-      tempPalette = iPalette;
-      iPalette = CRGBPalette16(CRGB::Black);
-    }
+  EVERY_N_SECONDS(125) {
+    iAnimCounter = (iAnimCounter + 1) % numAnimation;
   }
 
   // Update the global color palette. This is just the color scheme
   // that we will then repackage to have different spacial distributions
-  if(!iAnimSwitch && !oAnimSwitch) {
-    EVERY_N_SECONDS(100) {
-      gPaletteCounter = (gPaletteCounter+1)%numPalettes;
-    }
-    updatePaletteScheme();
+  EVERY_N_SECONDS(280) {
+    gPaletteCounter = (gPaletteCounter+1)%numPalettes;
   }
+  updatePaletteScheme();
 
   // Update the palette style for the inner and outer shells. This
   // is basically how we package the given color palette.
-  if(!oAnimSwitch) {
-    EVERY_N_SECONDS(45) {
-      oPaletteCounter = (oPaletteCounter +1) % numPalStyles;
-    }
+  EVERY_N_SECONDS(175) {
+    oPaletteCounter = (oPaletteCounter +1) % numPalStyles;
   }
   // For the inner palette, switch it up so that every other time it uses
   // a white palette.
-  if(!iAnimSwitch) {
-    EVERY_N_SECONDS(135) {
-      if(use_white) {
-        tmp_iPaletteCounter = iPaletteCounter;
-        iPaletteCounter = 5;
-        use_white = !use_white;
-      }
-      //  The white black is no longer part of the usual rotation
-      // though since it alternates every time the timer is up.
-      else {
-        iPaletteCounter = (iPaletteCounter + 1) % (numPalStyles - 1);
-      }
-    }
+  EVERY_N_SECONDS(225) {
+    //  The white black is no longer part of the usual rotation
+    // though since it alternates every time the timer is up.
+      iPaletteCounter = (iPaletteCounter + 1) % numPalStyles;
   }
 
   // Do some checks to make sure we don't have some shitty combination of animations and palettes
-  if(!oAnimSwitch && !iAnimSwitch) {
-    if(oAnimCounter%2 == 0 && (oPaletteCounter == 0 || oPaletteCounter == 4)) {
-      // Doign this in two if statements so I don't have a ridiculously long line. This whole check
-      // just makes sure that we don't have both of the shells solid colors at the same time
-      if( iAnimCounter%2 == 0 && iPaletteCounter == 0) {
-        oPaletteCounter = random8(numPalStyles);
-        while (oPaletteCounter == 0) {
-          oPaletteCounter = random8(numPalStyles);
-        }
-      }
-    }
-    // This check makes sure we don't have the rainbow palette going when doing the crazier animations.
-    // It just looks way too hectic when that happens
-    if(oAnimCounter == 4 || oAnimCounter == 6) {
-      oPaletteCounter = random8(numPalStyles);
-      while (oPaletteCounter == 5) {
-        oPaletteCounter = random8(numPalStyles);
-      }
-    }
-    if(iAnimCounter == 4 || iAnimCounter == 6) {
-      iPaletteCounter = random8(numPalStyles-1);
-      while(iPaletteCounter == 4) {
-        iPaletteCounter = random8(numPalStyles-1);
-      }
-    }
-  }
+  //if(!oAnimSwitch && !iAnimSwitch) {
+    //if(oAnimCounter%2 == 0 && (oPaletteCounter == 0 || oPaletteCounter == 4)) {
+    //  // Doign this in two if statements so I don't have a ridiculously long line. This whole check
+    //  // just makes sure that we don't have both of the shells solid colors at the same time
+    //  if( iAnimCounter%2 == 0 && iPaletteCounter == 0) {
+    //    oPaletteCounter = random8(numPalStyles);
+    //    while (oPaletteCounter == 0) {
+    //      oPaletteCounter = random8(numPalStyles);
+    //    }
+    //  }
+    //}
+    //// This check makes sure we don't have the rainbow palette going when doing the crazier animations.
+    //// It just looks way too hectic when that happens
+    //if(oAnimCounter == 4 || oAnimCounter == 6) {
+    //  oPaletteCounter = random8(numPalStyles);
+    //  while (oPaletteCounter == 5) {
+    //    oPaletteCounter = random8(numPalStyles);
+    //  }
+    //}
+    //if(iAnimCounter == 4 || iAnimCounter == 6) {
+    //  iPaletteCounter = random8(numPalStyles-1);
+    //  while(iPaletteCounter == 4) {
+    //    iPaletteCounter = random8(numPalStyles-1);
+    //  }
+    //}
+  //}
   updateGPalette();
 
   // These are the main animations. First we check if we weant to stobe the whole thing though. If we don't
   // do this we end up with white over the animations and not a total strobe takeover.
-  if(!piezo0_flicked) { 
-    // Check if the antistrobe spring has been flicked
-    if(piezo1_flicked) {
-      EVERY_N_MILLISECONDS(20) {
-        clear_all();
-        LEDS.show();
-        LEDS.delay(10);
-      }
-    }
+  //if(!piezo0_flicked) { 
+  //  // Check if the antistrobe spring has been flicked
+  //  if(piezo1_flicked) {
+  //    piezo1_timer = 0;
+  //    if(piezo1_timer < piezo_max) {
+  //      clear_all();
+  //      LEDS.show();
+  //      LEDS.delay(20);
+  //      piezo1_timer += 20;
+  //    }
+  //  }
 
     switch (iAnimCounter) {
       case 0:
         chase_straight(INNER, false);
         break;
       case 1:
-        shell_wrap(INNER, 1, false);
+        chase_spiral(INNER, 16, false);
         break;
       case 2:
-        chase_spiral(INNER, 4, false);
-        break;
-      case 3:
-        shell_wrap(INNER, 0, false);
-        break;
-      case 4:
         static uint8_t oOffset = 0;
-        EVERY_N_MILLISECONDS(200) {
+        EVERY_N_MILLISECONDS(100) {
           oOffset++;
         }
         chase_spiral(INNER, oOffset, false);
         break;
-      case 5:
-        shell_wrap(INNER, 2, false);
-        break;
-      case 6:
-        chase_helix(INNER, 4, false);
-        break;
-      case 7:
-        shell_wrap(INNER, 3, false);
+      case 3:
+        chase_mod(INNER, false);
         break;
     }
     switch (oAnimCounter) {
@@ -327,49 +292,22 @@ void loop() {
         chase_straight(OUTER, true);
         break;
       case 1:
-        shell_wrap(OUTER, 1, true);
-        break;
-      case 2:
         chase_spiral(OUTER, 24, true);
         break;
-      case 3:
-        shell_wrap(OUTER, 0, true);
-        break;
-      case 4:
+      case 2:
         static uint8_t oOffset = 0;
         EVERY_N_MILLISECONDS(100) {
           oOffset++;
         }
         chase_spiral(OUTER, oOffset, true);
         break;
-      case 5:
-        shell_wrap(OUTER, 2, true);
-        break;
-      case 6:
-        chase_helix(OUTER, 24, true);
-        break;
-      case 7:
-        shell_wrap(OUTER, 3, true);
+      case 3:
+        chase_mod(OUTER, true);
         break;
     }
 
     // Merge each shell to the whole LED array and push to the lights
     merge_animations();
-
-    // Try the animation fading here. This way the animations will have time to 
-    // render once before we start the blending process
-    if(oAnimSwitch) {
-      nblendPaletteTowardPalette(oPalette, tempPalette, 100);
-      if(oPalette == tempPalette) {
-        oAnimSwitch = false;
-      }
-    }
-    if(iAnimSwitch) {
-      nblendPaletteTowardPalette(iPalette, tempPalette, 100);
-      if(iPalette == tempPalette) {
-        iAnimSwitch = false;
-      }
-    }
 
     // Now turn on the overlay animations if they're meant to be
     if (laser0_on) {
@@ -381,25 +319,28 @@ void loop() {
     if (laser2_on) {
       bar_wrap_overlay(5);
     }
-    if (laser3_on) {
-      overlay_snow(100, 0.10);
-    }
-    if (laser0_on || laser1_on || laser2_on || laser3_on) {
+    //if (laser3_on) {
+    //  overlay_snow(50, 0.25);
+    //}
+    if (laser0_on || laser1_on || laser2_on) {
       LEDS.show();
     }
-  }
+  //}
 
   // Strobe the lights if the springs are moving above a threshold determined
   // by the other arduino
-  if(piezo0_flicked) {
-    EVERY_N_MILLISECONDS(20) {
-      fill_solid(leds, led_tot, CHSV(255, 0, maxBrightness));
-      LEDS.show();
-      clear_all();
-    }
-  }
+  //if(piezo0_flicked) {
+  //  piezo0_timer = 0;
+  //  while(piezo0_timer < piezo_max) {
+  //    fill_solid(leds, led_tot, CHSV(255, 0, maxBrightness));
+  //    LEDS.show();
+  //    clear_all();
+  //    delay(20);
+  //    piezo0_timer += 20;
+  //  }
+  //}
 
-  // Check if the big red button has been pressed. Do this up here
+  //// Check if the big red button has been pressed. Do this up here
   if(do_not_pressed) {
     do_not_press_response();
   }
