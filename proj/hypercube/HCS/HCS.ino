@@ -203,7 +203,7 @@ void loop() {
   // Handle switching between outer shell animations. Don't do this if we're
   // already switching the inner shell though, don't want to figure that out
   EVERY_N_SECONDS(10) {
-    oAnimCounter = (oAnimCounter + 1) % 3;
+    oAnimCounter = (oAnimCounter + 1) % 4;
   }
 
   // Same deal for the inner shell
@@ -272,9 +272,9 @@ void loop() {
       }
       chase_spiral(OUTER, oOffset, true);
       break;
-    //case 3:
-    //  chase_mod(OUTER, true);
-    //  break;
+    case 4:
+      chase_mod(OUTER, true);
+      break;
     //case 4:
     //  snow_anim(OUTER, 50, 0.3);
     //  break;
