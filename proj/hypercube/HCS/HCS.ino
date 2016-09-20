@@ -272,7 +272,7 @@ void loop() {
       }
       chase_spiral(OUTER, oOffset, true);
       break;
-    case 4:
+    case 3:
       chase_mod(OUTER, true);
       break;
     //case 4:
