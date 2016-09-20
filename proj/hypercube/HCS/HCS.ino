@@ -76,19 +76,20 @@ boolean use_white = false;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 4; 
+const uint8_t numAnimation = 5; 
 uint8_t iAnimCounter, oAnimCounter;
 boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
 uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
+boolean skip_merge = false;
 
 // These are the flags that will get flipped during the ISR
 volatile boolean do_not_pressed = false;
-volatile boolean laser0_on = false;
-volatile boolean laser1_on = false;
-volatile boolean laser2_on = false;
-volatile boolean laser3_on = false;
-volatile boolean piezo0_flicked = false;
-volatile boolean piezo1_flicked = false;
+//volatile boolean laser0_on = false;
+//volatile boolean laser1_on = false;
+//volatile boolean laser2_on = false;
+//volatile boolean laser3_on = false;
+//volatile boolean piezo0_flicked = false;
+//volatile boolean piezo1_flicked = false;
 volatile uint32_t last_millis;
 const uint32_t debounce_time = 15; // In seconds
 
@@ -281,6 +282,7 @@ void loop() {
         break;
       case 2:
         ring_bounce_opp(INNER, 10);
+        skip_merge = true;
         break;
       case 3:
         static uint8_t oOffset = 0;
@@ -292,6 +294,10 @@ void loop() {
       case 4:
         chase_mod(INNER, false);
         break;
+      case 5:
+        snow_anim(INNER, 100, 0.5);
+        skip_merge = true;
+        break;
     }
     switch (oAnimCounter) {
       case 0:
@@ -302,6 +308,7 @@ void loop() {
         break;
       case 2:
         ring_bounce_opp(OUTER, 10);
+        skip_merge = true;
         break;
       case 3:
         static uint8_t oOffset = 0;
@@ -313,10 +320,19 @@ void loop() {
       case 4:
         chase_mod(OUTER, true);
         break;
+      case 5:
+        snow_anim(OUTER, 50, 0.3);
+        skip_merge = true;
+        break;
     }
 
     // Merge each shell to the whole LED array and push to the lights
-    merge_animations();
+    if(skip_merge) {
+      skip_merge = false;
+    }
+    else {
+      merge_animations();
+    }
 
     // Now turn on the overlay animations if they're meant to be
     //if (laser0_on) {

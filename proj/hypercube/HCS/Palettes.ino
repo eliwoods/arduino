@@ -120,14 +120,14 @@ void update_WhiteBlack_p(uint8_t shell) {
 
 // Don't bother doing any fancy palette switching with this one since we always
 // want to jump straight to it when "The Button" is pressed
-void update_RedBlack_p(uint8_t shell) {
+void update_ColBlack_p(uint8_t shell, CRGB col) {
   for (uint8_t i = 0; i < 16; i++) {
     if (i % 4 == 0) {
       if(shell == 0) {
-        iPalette[i] = CRGB::Red;
+        iPalette[i] = col;
       }
       if(shell == 1) {
-        oPalette[i] = CRGB::Red;
+        oPalette[i] = col;
       }
     }
     else {

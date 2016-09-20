@@ -234,12 +234,12 @@ void randomize_combinations() {
 
   // Also reset all of the overlay flags (including the BRB)
   do_not_pressed = false;
-  piezo0_flicked = false;
-  piezo1_flicked = false;
-  laser0_on = false;
-  laser1_on = false;
-  laser2_on = false;
-  laser3_on = false;
+  //piezo0_flicked = false;
+  //piezo1_flicked = false;
+  //laser0_on = false;
+  //laser1_on = false;
+  //laser2_on = false;
+  //laser3_on = false;
 
   // Set all the flags for switching animations and palettes to
   // false incase we were in the middle of one. Don't want to get caught in some
@@ -252,14 +252,17 @@ void randomize_combinations() {
 
 void do_not_press_response() {
   do_not_pressed = false;
-  
+
+  // First grab a random color
+  CRGB rnd_col = ColorFromPalette(gPalette, random8(), maxBrightness, gBlending);
+
   // First flash the whole thing red, alternating between inner and outer shells
   for(uint8_t itr = 0; itr < 4; itr++) {
     if (itr %2 == 0) {
-      fill_solid(in_leds, in_LED_tot, CRGB::Red);
+      fill_solid(in_leds, in_LED_tot, rnd_col);
     }
     else {
-      fill_solid(out_leds, out_LED_tot, CRGB::Red);
+      fill_solid(out_leds, out_LED_tot, rnd_col);
     }
     merge_animations();
     clear_all();
@@ -270,8 +273,8 @@ void do_not_press_response() {
   // maximum length between packets
   uint8_t temp_index = 0;
   while(temp_index < 150) {
-    update_RedBlack_p(INNER);
-    update_RedBlack_p(OUTER);
+    update_ColBlack_p(INNER, rnd_col);
+    update_ColBlack_p(OUTER, rnd_col);
     chaser_mod(leds, led_tot, temp_index, iPalette);
     temp_index++;
     LEDS.show();

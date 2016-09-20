@@ -338,11 +338,13 @@ void ring_bounce_opp(uint8_t shell, uint8_t width) {
   // we can get a nice smooth color transition
   if(shell == INNER) {
     clear_in();
-    draw_circle(strip_index, width, ColorFromPalette(gPalette, gHue, maxBrightness, gBlending), INNER);
+    //draw_circle(strip_index, width, ColorFromPalette(gPalette, gHue, maxBrightness, gBlending), INNER);
+    draw_circle(strip_index, width, CRGB::Red, INNER);
   }
   if (shell == OUTER) {
     clear_out();
-    draw_circle(strip_len - strip_index, width, ColorFromPalette(gPalette, (gHue+128)%256, maxBrightness, gBlending), OUTER);
+    //draw_circle(strip_len - strip_index, width, ColorFromPalette(gPalette, (gHue+128)%256, maxBrightness, gBlending), OUTER);
+    draw_circle(strip_len - strip_index, width, CRGB::Red, OUTER);
   }
 
   // Now update the index depending on direction
@@ -366,4 +368,32 @@ void ring_bounce_opp(uint8_t shell, uint8_t width) {
     strip_index++;
     _rev = false;
   }
+}
+
+void snow_anim(uint8_t shell, uint16_t del, double density) {
+  // Error check
+  if(density >= 1) {
+    density = 0.5;
+  }
+
+  static double rnd;
+  EVERY_N_MILLISECONDS(gRate) {
+    if(shell == INNER) {
+      for(uint16_t pxl = 0; pxl < in_LED_tot; pxl++) {
+        rnd = random16(1001)/1000.;
+        if(rnd < density) {
+          leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
+        }
+      }
+    }
+    if(shell == OUTER) {
+      for(uint16_t pxl = in_LED_tot; pxl < led_tot; pxl++) {
+        rnd = random16(1001)/1000.;
+        if(rnd < density) {
+          leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
+        }
+      }
+    }
+  }
+
 }
