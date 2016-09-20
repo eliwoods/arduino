@@ -274,7 +274,7 @@ void loop() {
       break;
     case 3:
       chase_mod(OUTER, true);
-      iPaletteCounter + 2break;
+      break;
     //case 4:
     //  snow_anim(OUTER, 50, 0.3);
     //  break;
