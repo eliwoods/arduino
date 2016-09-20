@@ -328,6 +328,7 @@ void loop() {
 
     // Merge each shell to the whole LED array and push to the lights
     if(skip_merge) {
+      LEDS.show();
       skip_merge = false;
     }
     else {

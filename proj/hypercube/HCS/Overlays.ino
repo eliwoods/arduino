@@ -17,7 +17,7 @@ void draw_circle(uint16_t index, uint16_t width, CRGB col, uint16_t shell) {
         for (uint16_t cc = 0; cc < width; cc++) {
           // Check that we don't go out of bounds for the strip
           if (ss * strip_len + index + cc <= (ss + 1)*strip_len - 1) {
-            leds[ss * strip_len + index + cc] = col;
+            in_leds[ss * strip_len + index + cc] = col;
           }
         }
       } // End even strip loop
@@ -25,7 +25,7 @@ void draw_circle(uint16_t index, uint16_t width, CRGB col, uint16_t shell) {
         for (uint16_t cc = 0; cc < width; cc++) {
           // Check for bounds
           if ((ss + 1)*strip_len - 1 - (index+cc) >= ss * strip_len) {
-            leds[(ss + 1)*strip_len - 1 - (index+cc)] = col;
+            in_leds[(ss + 1)*strip_len - 1 - (index+cc)] = col;
           }
         }
       } // End odd strip loop
@@ -39,7 +39,7 @@ void draw_circle(uint16_t index, uint16_t width, CRGB col, uint16_t shell) {
         for (uint16_t cc = 0; cc < width; cc++) {
           // Check that we don't go out of bounds for the strip
           if (ss * strip_len + index + cc <= (ss + 1)*strip_len - 1) {
-            leds[in_LED_tot + ss * strip_len + index + cc] = col;
+            out_leds[ss * strip_len + index + cc] = col;
           }
         }
       } // End even strip loop
@@ -48,7 +48,7 @@ void draw_circle(uint16_t index, uint16_t width, CRGB col, uint16_t shell) {
         for (uint16_t cc = 0; cc < width; cc++) {
           // Check for bounds
           if ((ss + 1)*strip_len - 1 - (index + cc) >= ss * strip_len) {
-            leds[in_LED_tot + (ss + 1)*strip_len - 1 - (index+cc)] = col;
+            out_leds[(ss + 1)*strip_len - 1 - (index+cc)] = col;
           }
         }
       } // End odd strip loop

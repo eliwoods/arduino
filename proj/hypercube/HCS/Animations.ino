@@ -382,15 +382,15 @@ void snow_anim(uint8_t shell, uint16_t del, double density) {
       for(uint16_t pxl = 0; pxl < in_LED_tot; pxl++) {
         rnd = random16(1001)/1000.;
         if(rnd < density) {
-          leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
+          in_leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
         }
       }
     }
     if(shell == OUTER) {
-      for(uint16_t pxl = in_LED_tot; pxl < led_tot; pxl++) {
+      for(uint16_t pxl = 0; pxl < out_LED_tot; pxl++) {
         rnd = random16(1001)/1000.;
         if(rnd < density) {
-          leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
+          out_leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
         }
       }
     }
