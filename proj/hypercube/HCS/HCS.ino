@@ -80,7 +80,6 @@ const uint8_t numAnimation = 6;
 uint8_t iAnimCounter, oAnimCounter;
 boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
 uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
-boolean skip_merge = false;
 
 // These are the flags that will get flipped during the ISR
 volatile boolean do_not_pressed = false;
@@ -282,7 +281,6 @@ void loop() {
         break;
       case 2:
         ring_bounce_opp(INNER, 10);
-        skip_merge = true;
         break;
       case 3:
         static uint8_t oOffset = 0;
@@ -296,7 +294,6 @@ void loop() {
         break;
       case 5:
         snow_anim(INNER, 100, 0.5);
-        skip_merge = true;
         break;
     }
     switch (oAnimCounter) {
@@ -308,7 +305,6 @@ void loop() {
         break;
       case 2:
         ring_bounce_opp(OUTER, 10);
-        skip_merge = true;
         break;
       case 3:
         static uint8_t oOffset = 0;
@@ -322,18 +318,11 @@ void loop() {
         break;
       case 5:
         snow_anim(OUTER, 50, 0.3);
-        skip_merge = true;
         break;
     }
 
     // Merge each shell to the whole LED array and push to the lights
-    if(skip_merge) {
-      LEDS.show();
-      skip_merge = false;
-    }
-    else {
-      merge_animations();
-    }
+    merge_animations();
 
     // Now turn on the overlay animations if they're meant to be
     //if (laser0_on) {
