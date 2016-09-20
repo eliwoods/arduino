@@ -106,7 +106,7 @@ void setup() {
   gBrightness = maxBrightness;
   gBlending = LINEARBLEND;
   iPaletteCounter = 0;
-  oPaletteCounter = 3;
+  oPaletteCounter = 5;
   gPaletteCounter = 0;
 
   iAnimCounter = 0;
@@ -274,7 +274,7 @@ void loop() {
       break;
     case 3:
       chase_mod(OUTER, true);
-      break;
+      iPaletteCounter + 2break;
     //case 4:
     //  snow_anim(OUTER, 50, 0.3);
     //  break;
