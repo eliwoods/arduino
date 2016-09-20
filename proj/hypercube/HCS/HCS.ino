@@ -76,7 +76,7 @@ boolean use_white = false;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 5; 
+const uint8_t numAnimation = 6; 
 uint8_t iAnimCounter, oAnimCounter;
 boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
 uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
@@ -106,11 +106,11 @@ void setup() {
   gBrightness = maxBrightness;
   gBlending = LINEARBLEND;
   iPaletteCounter = 0;
-  oPaletteCounter = iPaletteCounter + 2;
+  oPaletteCounter = iPaletteCounter;
   gPaletteCounter = 0;
 
   iAnimCounter = 0;
-  oAnimCounter = iAnimCounter + 2;
+  oAnimCounter = iAnimCounter;
   gRate = 0;
   gHue = 0;
 
@@ -198,7 +198,7 @@ void loop() {
 
   // Handle switching between outer shell animations. Don't do this if we're
   // already switching the inner shell though, don't want to figure that out
-  EVERY_N_SECONDS(55) {
+  EVERY_N_SECONDS(10) {
     oAnimCounter = (oAnimCounter + 1) % numAnimation;
   }
 
@@ -272,27 +272,30 @@ void loop() {
 
     // Add the random strobe to this list of animations since we aren't going to use it
     // for the overlays
-    switch (iAnimCounter) {
-      case 0:
-        chase_straight(INNER, false);
-        break;
-      case 1:
-        chase_spiral(INNER, 16, false);
-        break;
-      case 2:
-        static uint8_t oOffset = 0;
-        EVERY_N_MILLISECONDS(100) {
-          oOffset++;
-        }
-        chase_spiral(INNER, oOffset, false);
-        break;
-      case 3:
-        chase_mod(INNER, false);
-        break;
-      case 4:
-        snow_anim(INNER, 50, 0.5);
-        break;
-    }
+    //switch (iAnimCounter) {
+    //  case 0:
+    //    chase_straight(INNER, false);
+    //    break;
+    //  case 1:
+    //    chase_spiral(INNER, 16, false);
+    //    break;
+    //  case 2:
+    //    static uint8_t oOffset = 0;
+    //    EVERY_N_MILLISECONDS(100) {
+    //      oOffset++;
+    //    }
+    //    chase_spiral(INNER, oOffset, false);
+    //    break;
+    //  case 3:
+    //    chase_mod(INNER, false);
+    //    break;
+    //  case 4:
+    //    snow_anim(INNER, 50, 0.5);
+    //    break;
+    //  case 5:
+    //    fill_shell(INNER);
+    //    break;
+    //}
     switch (oAnimCounter) {
       case 0:
         chase_straight(OUTER, true);
@@ -312,6 +315,9 @@ void loop() {
         break;
       case 4:
         snow_anim(OUTER, 50, 0.3);
+        break;
+      case 5:
+        fill_shell(OUTER);
         break;
     }
 

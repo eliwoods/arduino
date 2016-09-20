@@ -403,3 +403,12 @@ void snow_anim(uint8_t shell, uint16_t del, double density) {
   }
 
 }
+
+void fill_shell(uint8_t shell) {
+  if(shell == INNER) {
+    fill_solid(in_leds, in_LED_tot, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+  }
+  if (shell == OUTER) {
+    fill_solid(out_leds, out_LED_tot, ColorFromPalette(gPalette, (gHue+128)%256, gBrightness, gBlending));
+  }
+}
