@@ -320,3 +320,50 @@ void shell_wrap(uint16_t shell, boolean reverse) {
     }
   }
 }
+
+void ring_bounce_opp(uint8_t shell, uint8_t width) {
+  // Quick error check
+  if (width < 1) {
+    width = 1;
+  }
+
+  // Let's use some of our own indexing for this function instead of the
+  // global since we care a little more about it's position.
+  static uint8_t strip_index = 0;
+
+  // Some boolean flags to let us know which direction we're headinging
+  static boolean _rev = false;
+
+  // First draw the circles. Lets ignore the palette style here so
+  // we can get a nice smooth color transition
+  if(shell == INNER) {
+    clear_in();
+    draw_circle(strip_index, width, ColorFromPalette(gPalette, gHue, maxBrightness, gBlending), INNER);
+  }
+  if (shell == OUTER) {
+    clear_out();
+    draw_circle(strip_len - strip_index, width, ColorFromPalette(gPalette, (gHue+128)%256, maxBrightness, gBlending), OUTER);
+  }
+
+  // Now update the index depending on direction
+  EVERY_N_MILLISECONDS_I(thisTimer, 20) {
+    thisTimer.setPeriod(gRate);
+    if (!_rev) {
+      strip_index++;
+    }
+    else {
+      strip_index--;
+    }
+  }
+
+  // Check if we're at one of the extremes of a strip. Move the index and flip the flag
+  // according to which extreme we're at
+  if (strip_index == strip_len && !_rev) {
+    strip_index -= 2;
+    _rev = true;
+  }
+  if (strip_index == 0 && _rev) {
+    strip_index++;
+    _rev = false;
+  }
+}

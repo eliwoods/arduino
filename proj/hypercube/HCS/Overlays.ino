@@ -59,7 +59,7 @@ void draw_circle(uint16_t index, uint16_t width, CRGB col, uint16_t shell) {
 // Send rings of x width bouncing in opposite directions. Needs to have clear_all() run
 // before it does, or at least another animation that totally overwrites what's going on.
 // Breaking these into two different functions so it's not such a monstrosity.
-void ring_bounce_opp(uint8_t width) {
+void ring_bounce_overlay(uint8_t width) {
   // Quick error check
   if (width < 1) {
     width = 1;
@@ -252,6 +252,7 @@ void randomize_combinations() {
 
 void do_not_press_response() {
   do_not_pressed = false;
+  
   // First flash the whole thing red, alternating between inner and outer shells
   for(uint8_t itr = 0; itr < 4; itr++) {
     if (itr %2 == 0) {

@@ -9,18 +9,18 @@
 #endif
 
 // BNO055 Includes
-#include <i2c_t3.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055_t3.h>
-#include <utility/imumaths.h>
+//#include <i2c_t3.h>
+//#include <Adafruit_Sensor.h>
+//#include <Adafruit_BNO055_t3.h>
+//#include <utility/imumaths.h>
 
 // Digital Pins for Interrupts (may be subject to change)
-#define LASER0 0
-#define LASER1 1
-#define LASER2 17
-#define LASER3 22
-#define PIEZO0 18
-#define PIEZO1 19
+//#define LASER0 0
+//#define LASER1 1
+//#define LASER2 17
+//#define LASER3 22
+//#define PIEZO0 18
+//#define PIEZO1 19
 #define DONOTPRS 23
 // NEED TO DECIDE ON A PIN TO USE FOR LASER BREAK RESET SWITCH
 
@@ -31,12 +31,12 @@
 #define OUTER 1
 
 // Object for our accelerometer and other variables
-Adafruit_BNO055 bno = Adafruit_BNO055(WIRE1_BUS, -1, BNO055_ADDRESS_A, I2C_MASTER, I2C_PINS_29_30, I2C_PULLUP_INT, I2C_RATE_100, I2C_OP_MODE_ISR);
+//Adafruit_BNO055 bno = Adafruit_BNO055(WIRE1_BUS, -1, BNO055_ADDRESS_A, I2C_MASTER, I2C_PINS_29_30, I2C_PULLUP_INT, I2C_RATE_100, I2C_OP_MODE_ISR);
 boolean bno_running = false;
-double acc_thresh = 10; // TOTALLY ARBITRARY VALUE RN
-uint32_t curr_second, last_second;
-uint8_t cumm_time;
-const uint8_t bno_off_time = 5; // Turn off after 10 seconds of being idle
+//double acc_thresh = 10; // TOTALLY ARBITRARY VALUE RN
+//uint32_t curr_second, last_second;
+//uint8_t cumm_time;
+//const uint8_t bno_off_time = 5; // Turn off after 10 seconds of being idle
 
 
 // Constants describing numbers of LEDs and strips
@@ -76,7 +76,7 @@ boolean use_white = false;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 5; 
+const uint8_t numAnimation = 4; 
 uint8_t iAnimCounter, oAnimCounter;
 boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
 uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
@@ -119,23 +119,23 @@ void setup() {
   random16_add_entropy(analogRead(UNUSED));
 
   // Setup for the interrupts, names hould be pretty self explanatory
-  pinMode(LASER0, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(LASER0), laser0_ISR, RISING);
+  //pinMode(LASER0, INPUT_PULLUP);
+  //attachInterrupt(digitalPinToInterrupt(LASER0), laser0_ISR, RISING);
 
-  pinMode(LASER1, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(LASER1), laser1_ISR, RISING);
+  //pinMode(LASER1, INPUT_PULLUP);
+  //attachInterrupt(digitalPinToInterrupt(LASER1), laser1_ISR, RISING);
 
-  pinMode(LASER2, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(LASER2), laser2_ISR, RISING);
+  //pinMode(LASER2, INPUT_PULLUP);
+  //attachInterrupt(digitalPinToInterrupt(LASER2), laser2_ISR, RISING);
 
-  pinMode(LASER3, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(LASER3), laser3_ISR, RISING);
+  //pinMode(LASER3, INPUT_PULLUP);
+  //attachInterrupt(digitalPinToInterrupt(LASER3), laser3_ISR, RISING);
 
-  pinMode(PIEZO0, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(PIEZO0), piezo0_ISR, CHANGE);
+  //pinMode(PIEZO0, INPUT_PULLUP);
+  //attachInterrupt(digitalPinToInterrupt(PIEZO0), piezo0_ISR, CHANGE);
 
-  pinMode(PIEZO1, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(PIEZO1), piezo1_ISR, CHANGE);
+  //pinMode(PIEZO1, INPUT_PULLUP);
+  //attachInterrupt(digitalPinToInterrupt(PIEZO1), piezo1_ISR, CHANGE);
 
   pinMode(DONOTPRS, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(DONOTPRS), debounce_do_not_press, RISING);
@@ -187,6 +187,7 @@ void loop() {
   //  // Convert the pitch to that rate at which the animation index is changed
   //  gRate = map(event.orientation.y, -180, 180, 5, 150);
   //}
+
   // If the the bno is sitting still, run the animations and hue change at a constant rate
   if(!bno_running) {
     gRate = 10;
@@ -269,6 +270,8 @@ void loop() {
   //    }
   //  }
 
+    // Add the random strobe to this list of animations since we aren't going to use it
+    // for the overlays
     switch (iAnimCounter) {
       case 0:
         chase_straight(INNER, false);
@@ -277,13 +280,16 @@ void loop() {
         chase_spiral(INNER, 16, false);
         break;
       case 2:
+        ring_bounce_opp(INNER, 10);
+        break;
+      case 3:
         static uint8_t oOffset = 0;
         EVERY_N_MILLISECONDS(100) {
           oOffset++;
         }
         chase_spiral(INNER, oOffset, false);
         break;
-      case 3:
+      case 4:
         chase_mod(INNER, false);
         break;
     }
@@ -295,13 +301,16 @@ void loop() {
         chase_spiral(OUTER, 24, true);
         break;
       case 2:
+        ring_bounce_opp(OUTER, 10);
+        break;
+      case 3:
         static uint8_t oOffset = 0;
         EVERY_N_MILLISECONDS(100) {
           oOffset++;
         }
         chase_spiral(OUTER, oOffset, true);
         break;
-      case 3:
+      case 4:
         chase_mod(OUTER, true);
         break;
     }
@@ -310,21 +319,21 @@ void loop() {
     merge_animations();
 
     // Now turn on the overlay animations if they're meant to be
-    if (laser0_on) {
-      ring_bounce_opp(10);
-    }
-    if (laser1_on) {
-      helix_spiral_overlay(5, 28);
-    }
-    if (laser2_on) {
-      bar_wrap_overlay(5);
-    }
+    //if (laser0_on) {
+    //  ring_bounce_overlay(10);
+    //}
+    //if (laser1_on) {
+    //  helix_spiral_overlay(5, 28);
+    //}
+    //if (laser2_on) {
+    //  bar_wrap_overlay(5);
+    //}
     //if (laser3_on) {
     //  overlay_snow(50, 0.25);
+    ////}
+    //if (laser0_on || laser1_on || laser2_on) {
+    //  LEDS.show();
     //}
-    if (laser0_on || laser1_on || laser2_on) {
-      LEDS.show();
-    }
   //}
 
   // Strobe the lights if the springs are moving above a threshold determined
