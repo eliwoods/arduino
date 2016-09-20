@@ -76,7 +76,7 @@ boolean use_white = false;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 6; 
+const uint8_t numAnimation = 5; 
 uint8_t iAnimCounter, oAnimCounter;
 boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
 uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
@@ -280,20 +280,17 @@ void loop() {
         chase_spiral(INNER, 16, false);
         break;
       case 2:
-        ring_bounce_opp(INNER, 10);
-        break;
-      case 3:
         static uint8_t oOffset = 0;
         EVERY_N_MILLISECONDS(100) {
           oOffset++;
         }
         chase_spiral(INNER, oOffset, false);
         break;
-      case 4:
+      case 3:
         chase_mod(INNER, false);
         break;
-      case 5:
-        snow_anim(INNER, 100, 0.5);
+      case 4:
+        snow_anim(INNER, 50, 0.5);
         break;
     }
     switch (oAnimCounter) {
@@ -304,19 +301,16 @@ void loop() {
         chase_spiral(OUTER, 24, true);
         break;
       case 2:
-        ring_bounce_opp(OUTER, 10);
-        break;
-      case 3:
         static uint8_t oOffset = 0;
         EVERY_N_MILLISECONDS(100) {
           oOffset++;
         }
         chase_spiral(OUTER, oOffset, true);
         break;
-      case 4:
+      case 3:
         chase_mod(OUTER, true);
         break;
-      case 5:
+      case 4:
         snow_anim(OUTER, 50, 0.3);
         break;
     }

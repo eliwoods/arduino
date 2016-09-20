@@ -384,6 +384,9 @@ void snow_anim(uint8_t shell, uint16_t del, double density) {
         if(rnd < density) {
           in_leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
         }
+        else {
+          in_leds[pxl] = CRGB::Black;
+        }
       }
     }
     if(shell == OUTER) {
@@ -391,6 +394,9 @@ void snow_anim(uint8_t shell, uint16_t del, double density) {
         rnd = random16(1001)/1000.;
         if(rnd < density) {
           out_leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
+        }
+        else {
+          in_leds[pxl] = CRGB::Black;
         }
       }
     }
