@@ -273,7 +273,7 @@ void loop() {
       chase_spiral(OUTER, oOffset, true);
       break;
     case 3:
-      chase_mod(OUTER, true);
+      chase_mod(OUTER);
       break;
     //case 4:
     //  snow_anim(OUTER, 50, 0.3);
