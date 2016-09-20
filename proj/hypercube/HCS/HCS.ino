@@ -32,7 +32,7 @@
 
 // Object for our accelerometer and other variables
 //Adafruit_BNO055 bno = Adafruit_BNO055(WIRE1_BUS, -1, BNO055_ADDRESS_A, I2C_MASTER, I2C_PINS_29_30, I2C_PULLUP_INT, I2C_RATE_100, I2C_OP_MODE_ISR);
-boolean bno_running = false;
+//boolean bno_running = false;
 //double acc_thresh = 10; // TOTALLY ARBITRARY VALUE RN
 //uint32_t curr_second, last_second;
 //uint8_t cumm_time;
@@ -189,11 +189,15 @@ void loop() {
   //}
 
   // If the the bno is sitting still, run the animations and hue change at a constant rate
-  if(!bno_running) {
-    gRate = 10;
-    EVERY_N_MILLISECONDS(20) {
-      gHue++;
-    }
+  //if(!bno_running) {
+  //  gRate = 10;
+  //  EVERY_N_MILLISECONDS(20) {
+  //    gHue++;
+  //  }
+  //}
+  gRate = 10;
+  EVERY_N_MILLISECONDS(20) {
+    gHue++;
   }
 
   // Handle switching between outer shell animations. Don't do this if we're
