@@ -106,7 +106,7 @@ void setup() {
   gBrightness = maxBrightness;
   gBlending = LINEARBLEND;
   iPaletteCounter = 0;
-  oPaletteCounter = 5;
+  oPaletteCounter = 3;
   gPaletteCounter = 0;
 
   iAnimCounter = 0;
@@ -203,7 +203,7 @@ void loop() {
   // Handle switching between outer shell animations. Don't do this if we're
   // already switching the inner shell though, don't want to figure that out
   EVERY_N_SECONDS(10) {
-    oAnimCounter = (oAnimCounter + 1) % 4;
+    oAnimCounter = (oAnimCounter + 1) % 5;
   }
 
   // Same deal for the inner shell
@@ -278,9 +278,9 @@ void loop() {
     //case 4:
     //  snow_anim(OUTER, 50, 0.3);
     //  break;
-    //case 5:
-    //  fill_shell(OUTER);
-    //  break;
+    case 4:
+      fill_shell(OUTER);
+      break;
   }
 
   // Merge each shell to the whole LED array and push to the lights
