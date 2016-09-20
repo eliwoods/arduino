@@ -106,7 +106,7 @@ void chase_straight(uint16_t shell, boolean reverse) {
   }
 }
 
-void chase_mod(uint16_t shell, boolean reverse) {
+void chase_mod(uint16_t shell) {
   static uint8_t index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 10) {
     thisTimer.setPeriod(gRate);
@@ -114,20 +114,10 @@ void chase_mod(uint16_t shell, boolean reverse) {
   }
 
   if(shell == INNER) {
-    if(reverse) {
-      chaser_mod(in_leds(in_LED_tot-1, 0), in_LED_tot, index, iPalette);
-    }
-    else {
-      chaser_mod(in_leds, in_LED_tot, index, iPalette);
-    }
+    chaser_mod(in_leds, in_LED_tot, index, iPalette);
   }
   if(shell == OUTER) {
-    if(reverse) {
-      chaser_mod(out_leds(out_LED_tot-1, 0), out_LED_tot, index, oPalette);
-    }
-    else {
-      chaser_mod(out_leds, out_LED_tot, index, oPalette);
-    }
+    chaser_mod(out_leds, out_LED_tot, index, oPalette);
   }
 
 }
