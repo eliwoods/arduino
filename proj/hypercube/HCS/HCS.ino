@@ -106,7 +106,7 @@ void setup() {
   gBrightness = maxBrightness;
   gBlending = LINEARBLEND;
   iPaletteCounter = 0;
-  oPaletteCounter = iPaletteCounter;
+  oPaletteCounter = iPaletteCounter + 2;
   gPaletteCounter = 0;
 
   iAnimCounter = 0;
