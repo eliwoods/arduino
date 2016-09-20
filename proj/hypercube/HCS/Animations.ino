@@ -386,7 +386,7 @@ void snow_anim(uint8_t shell, uint16_t del, double density) {
           out_leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
         }
         else {
-          in_leds[pxl] = CRGB::Black;
+          out_leds[pxl] = CRGB::Black;
         }
       }
     }
@@ -396,9 +396,9 @@ void snow_anim(uint8_t shell, uint16_t del, double density) {
 
 void fill_shell(uint8_t shell) {
   if(shell == INNER) {
-    fill_solid(in_leds, in_LED_tot, ColorFromPalette(gPalette, gHue, gBrightness, gBlending));
+    fill_solid(in_leds, in_LED_tot, ColorFromPalette(gPalette, gHue, maxBrightness, gBlending));
   }
   if (shell == OUTER) {
-    fill_solid(out_leds, out_LED_tot, ColorFromPalette(gPalette, (gHue+128)%256, gBrightness, gBlending));
+    fill_solid(out_leds, out_LED_tot, ColorFromPalette(gPalette, (gHue+128)%256, maxBrightness, gBlending));
   }
 }
