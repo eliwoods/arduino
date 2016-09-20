@@ -776,7 +776,7 @@ DEFINE_GRADIENT_PALETTE( mellon_ball_surprise_gp ) {
 // that need to get accounted for :(
 //const uint8_t numPalettes = 29;
 const uint8_t numPalettes = 22;
-const uint8_t numPalStyles = 6;
+const uint8_t numPalStyles = 5;
 
 // This handles the switching of palettes based on the global palette counter. Need to add palettes to this function
 // whenever they are added up above. Declare it down here so we can get away with not having to use the Gradient Palette
@@ -886,12 +886,9 @@ void updateGPalette() {
       update_TwoCol_p(INNER);
       break;
     case 3:
-      update_ColLead_p(INNER);
-      break;
-    case 4:
       update_Rainbow_p(INNER);
       break;
-    case 5:
+    case 4:
       update_WhiteBlack_p(INNER);
       break;
   }
@@ -906,12 +903,9 @@ void updateGPalette() {
       update_TwoCol_p(OUTER);
       break;
     case 3:
-      update_ColLead_p(OUTER);
-      break;
-    case 4:
       update_WhiteBlack_p(OUTER);
       break;
-    case 5:
+    case 4:
       update_Rainbow_p(OUTER);
       break;
   }

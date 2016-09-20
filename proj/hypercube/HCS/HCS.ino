@@ -230,136 +230,64 @@ void loop() {
     // though since it alternates every time the timer is up.
       iPaletteCounter = (iPaletteCounter + 1) % numPalStyles;
   }
-
-  // Do some checks to make sure we don't have some shitty combination of animations and palettes
-  //if(!oAnimSwitch && !iAnimSwitch) {
-    //if(oAnimCounter%2 == 0 && (oPaletteCounter == 0 || oPaletteCounter == 4)) {
-    //  // Doign this in two if statements so I don't have a ridiculously long line. This whole check
-    //  // just makes sure that we don't have both of the shells solid colors at the same time
-    //  if( iAnimCounter%2 == 0 && iPaletteCounter == 0) {
-    //    oPaletteCounter = random8(numPalStyles);
-    //    while (oPaletteCounter == 0) {
-    //      oPaletteCounter = random8(numPalStyles);
-    //    }
-    //  }
-    //}
-    //// This check makes sure we don't have the rainbow palette going when doing the crazier animations.
-    //// It just looks way too hectic when that happens
-    //if(oAnimCounter == 4 || oAnimCounter == 6) {
-    //  oPaletteCounter = random8(numPalStyles);
-    //  while (oPaletteCounter == 5) {
-    //    oPaletteCounter = random8(numPalStyles);
-    //  }
-    //}
-    //if(iAnimCounter == 4 || iAnimCounter == 6) {
-    //  iPaletteCounter = random8(numPalStyles-1);
-    //  while(iPaletteCounter == 4) {
-    //    iPaletteCounter = random8(numPalStyles-1);
-    //  }
-    //}
-  //}
   updateGPalette();
 
-  // These are the main animations. First we check if we weant to stobe the whole thing though. If we don't
-  // do this we end up with white over the animations and not a total strobe takeover.
-  //if(!piezo0_flicked) { 
-  //  // Check if the antistrobe spring has been flicked
-  //  if(piezo1_flicked) {
-  //    piezo1_timer = 0;
-  //    if(piezo1_timer < piezo_max) {
-  //      clear_all();
-  //      LEDS.show();
-  //      LEDS.delay(20);
-  //      piezo1_timer += 20;
+  // Add the random strobe to this list of animations since we aren't going to use it
+  // for the overlays
+  //switch (iAnimCounter) {
+  //  case 0:
+  //    chase_straight(INNER, false);
+  //    break;
+  //  case 1:
+  //    chase_spiral(INNER, 16, false);
+  //    break;
+  //  case 2:
+  //    static uint8_t oOffset = 0;
+  //    EVERY_N_MILLISECONDS(100) {
+  //      oOffset++;
   //    }
-  //  }
-
-    // Add the random strobe to this list of animations since we aren't going to use it
-    // for the overlays
-    //switch (iAnimCounter) {
-    //  case 0:
-    //    chase_straight(INNER, false);
-    //    break;
-    //  case 1:
-    //    chase_spiral(INNER, 16, false);
-    //    break;
-    //  case 2:
-    //    static uint8_t oOffset = 0;
-    //    EVERY_N_MILLISECONDS(100) {
-    //      oOffset++;
-    //    }
-    //    chase_spiral(INNER, oOffset, false);
-    //    break;
-    //  case 3:
-    //    chase_mod(INNER, false);
-    //    break;
-    //  case 4:
-    //    snow_anim(INNER, 50, 0.5);
-    //    break;
-    //  case 5:
-    //    fill_shell(INNER);
-    //    break;
-    //}
-    switch (oAnimCounter) {
-      case 0:
-        chase_straight(OUTER, true);
-        break;
-      case 1:
-        chase_spiral(OUTER, 24, true);
-        break;
-      case 2:
-        static uint8_t oOffset = 0;
-        EVERY_N_MILLISECONDS(100) {
-          oOffset++;
-        }
-        chase_spiral(OUTER, oOffset, true);
-        break;
-      case 3:
-        chase_mod(OUTER, true);
-        break;
-      case 4:
-        snow_anim(OUTER, 50, 0.3);
-        break;
-      case 5:
-        fill_shell(OUTER);
-        break;
-    }
-
-    // Merge each shell to the whole LED array and push to the lights
-    merge_animations();
-
-    // Now turn on the overlay animations if they're meant to be
-    //if (laser0_on) {
-    //  ring_bounce_overlay(10);
-    //}
-    //if (laser1_on) {
-    //  helix_spiral_overlay(5, 28);
-    //}
-    //if (laser2_on) {
-    //  bar_wrap_overlay(5);
-    //}
-    //if (laser3_on) {
-    //  overlay_snow(50, 0.25);
-    ////}
-    //if (laser0_on || laser1_on || laser2_on) {
-    //  LEDS.show();
-    //}
+  //    chase_spiral(INNER, oOffset, false);
+  //    break;
+  //  case 3:
+  //    chase_mod(INNER, false);
+  //    break;
+  //  case 4:
+  //    snow_anim(INNER, 50, 0.5);
+  //    break;
+  //  case 5:
+  //    fill_shell(INNER);
+  //    break;
   //}
+  switch (oAnimCounter) {
+    case 0:
+      chase_straight(OUTER, true);
+      break;
+    case 1:
+      chase_spiral(OUTER, 24, true);
+      break;
+    case 2:
+      static uint8_t oOffset = 0;
+      EVERY_N_MILLISECONDS(100) {
+        oOffset++;
+      }
+      chase_spiral(OUTER, oOffset, true);
+      break;
+    case 3:
+      chase_mod(OUTER, true);
+      break;
+    case 4:
+      snow_anim(OUTER, 50, 0.3);
+      break;
+    case 5:
+      fill_shell(OUTER);
+      break;
+  }
 
-  // Strobe the lights if the springs are moving above a threshold determined
-  // by the other arduino
-  //if(piezo0_flicked) {
-  //  piezo0_timer = 0;
-  //  while(piezo0_timer < piezo_max) {
-  //    fill_solid(leds, led_tot, CHSV(255, 0, maxBrightness));
-  //    LEDS.show();
-  //    clear_all();
-  //    delay(20);
-  //    piezo0_timer += 20;
-  //  }
-  //}
+  // Merge each shell to the whole LED array and push to the lights
+  merge_animations();
 
-  //// Check if the big red button has been pressed. Do this up here
+
+  // Check if the big red button has been pressed. Do this up here
   if(do_not_pressed) {
     do_not_press_response();
   }
