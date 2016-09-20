@@ -113,7 +113,7 @@ void chase_mod(uint16_t shell, boolean reverse) {
     index++;
   }
 
-  if(shell == 0) {
+  if(shell == INNER) {
     if(reverse) {
       chaser_mod(in_leds(in_LED_tot-1, 0), in_LED_tot, index, iPalette);
     }
@@ -121,7 +121,7 @@ void chase_mod(uint16_t shell, boolean reverse) {
       chaser_mod(in_leds, in_LED_tot, index, iPalette);
     }
   }
-  if(shell == 1) {
+  if(shell == OUTER) {
     if(reverse) {
       chaser_mod(out_leds(out_LED_tot-1, 0), out_LED_tot, index, oPalette);
     }
