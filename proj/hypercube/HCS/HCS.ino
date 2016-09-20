@@ -249,10 +249,10 @@ void loop() {
   //    chase_spiral(INNER, oOffset, false);
   //    break;
   //  case 3:
-  //    chase_mod(INNER, false);
+  //    chase_mod(INNER, true);
   //    break;
   //  case 4:
-  //    snow_anim(INNER, 50, 0.5);
+  //    snow_anim(INNER, 0.3);
   //    break;
   //  case 5:
   //    fill_shell(INNER);
@@ -273,10 +273,10 @@ void loop() {
       chase_spiral(OUTER, oOffset, true);
       break;
     case 3:
-      chase_mod(OUTER);
+      chase_mod(OUTER, true);
       break;
     case 4:
-      snow_anim(OUTER, 50, 0.3);
+      snow_anim(OUTER, 0.2);
       break;
     case 5:
       fill_shell(OUTER);

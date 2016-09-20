@@ -106,7 +106,7 @@ void chase_straight(uint16_t shell, boolean reverse) {
   }
 }
 
-void chase_mod(uint16_t shell) {
+void chase_mod(uint16_t shell, boolean reverse) {
   static uint8_t index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 10) {
     thisTimer.setPeriod(gRate);
@@ -114,10 +114,46 @@ void chase_mod(uint16_t shell) {
   }
 
   if(shell == INNER) {
-    chaser_mod(in_leds, in_LED_tot, index, iPalette);
+    chaser_mod(led_tmplt, strip_len, index, iPalette);
+    for (uint16_t s = 0; s < out_strips; s++) {
+      if (s % 2 == 0) {
+        if (reverse) {
+          in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
+        }
+        else {
+          in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+        }
+      }
+      else {
+        if (reverse) {
+          in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
+        }
+        else {
+          in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+        }
+      }
+    }
   }
   if(shell == OUTER) {
-    chaser_mod(out_leds, out_LED_tot, index, oPalette);
+    chaser_mod(led_tmplt, strip_len, index, oPalette);
+    for (uint16_t s = 0; s < out_strips; s++) {
+      if (s % 2 == 0) {
+        if (reverse) {
+          out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
+        }
+        else {
+          out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+        }
+      }
+      else {
+        if (reverse) {
+          out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
+        }
+        else {
+          out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+        }
+      }
+    }
   }
 
 }
@@ -360,30 +396,34 @@ void ring_bounce_opp(uint8_t shell, uint8_t width) {
   }
 }
 
-void snow_anim(uint8_t shell, uint16_t del, double density) {
+void snow_anim(uint8_t shell, double density) {
   // Error check
   if(density >= 1) {
     density = 0.5;
   }
 
   static double rnd;
-  EVERY_N_MILLISECONDS(gRate) {
-    if(shell == INNER) {
+  if(shell == INNER) {
+    EVERY_N_MILLISECONDS_I(thisTimer, 10) {
+      thisTimer.setPeriod(gRate*1.25);
       for(uint16_t pxl = 0; pxl < in_LED_tot; pxl++) {
         rnd = random16(1001)/1000.;
         if(rnd < density) {
-          in_leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
+          in_leds[pxl] = CHSV(ColorFromPalette(gPalette, random8(), gBrightness, gBlending), 255, maxBrightness);
         }
         else {
           in_leds[pxl] = CRGB::Black;
         }
       }
     }
-    if(shell == OUTER) {
+  }
+  if(shell == OUTER) {
+    EVERY_N_MILLISECONDS_I(thisTimer, 10) {
+      thisTimer.setPeriod(gRate*1.25);
       for(uint16_t pxl = 0; pxl < out_LED_tot; pxl++) {
         rnd = random16(1001)/1000.;
         if(rnd < density) {
-          out_leds[pxl] = CHSV(ColorFromPalette(gPalette, gHue, gBrightness, gBlending), 255, maxBrightness);
+          out_leds[pxl] = CHSV(ColorFromPalette(gPalette, random8(), gBrightness, gBlending), 255, maxBrightness);
         }
         else {
           out_leds[pxl] = CRGB::Black;
@@ -396,9 +436,9 @@ void snow_anim(uint8_t shell, uint16_t del, double density) {
 
 void fill_shell(uint8_t shell) {
   if(shell == INNER) {
-    fill_solid(in_leds, in_LED_tot, ColorFromPalette(gPalette, gHue, maxBrightness, gBlending));
+    fill_solid(in_leds, in_LED_tot, ColorFromPalette(gPalette, gHue, maxBrightness*0.8, gBlending));
   }
   if (shell == OUTER) {
-    fill_solid(out_leds, out_LED_tot, ColorFromPalette(gPalette, (gHue+128)%256, maxBrightness, gBlending));
+    fill_solid(out_leds, out_LED_tot, ColorFromPalette(gPalette, (gHue+128)%256, maxBrightness*0.8, gBlending));
   }
 }
