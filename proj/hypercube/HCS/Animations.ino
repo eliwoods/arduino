@@ -159,7 +159,7 @@ void chase_mod(uint16_t shell, boolean reverse) {
 }
 
 // The same as the chase, except that we offset each strand by some integer amoutn.
-void chase_spiral(uint16_t shell, uint16_t offset, boolean reverse) {
+void chase_spiral_static(uint16_t shell, uint16_t offset, boolean reverse) {
   // Local index control
   static uint8_t index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 10) {
@@ -214,6 +214,72 @@ void chase_spiral(uint16_t shell, uint16_t offset, boolean reverse) {
   }
 }
 
+// The same as the chase, except that we offset each strand by some integer amoutn.
+void chase_spiral_mod(uint16_t shell, boolean reverse) {
+  // Local index control
+  static uint8_t index = 0;
+  EVERY_N_MILLISECONDS_I(thisTimer, 10) {
+    thisTimer.setPeriod(gRate);
+    index++;
+  }
+
+  static uint8_t iOffset = 0;
+  static uint8_t oOffset = 0;
+  EVERY_N_MILLISECONDS(100) {
+    if(shell == INNER) {
+      iOffset++;
+    }
+    if(shell == OUTER) {
+      oOffset++;
+    }
+  }
+
+  // First do the inner cylider since it's smaller
+  if (shell == INNER) {
+    for (uint16_t s = 0; s < in_strips; s++) {
+      chaser(led_tmplt, strip_len, index + iOffset * s, iPalette);
+      if (s % 2 == 0) {
+        if (reverse) {
+          in_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt(strip_len-1, 0);
+        }
+        else {
+          in_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt;
+        }
+      }
+      else {
+        if (reverse) {
+          in_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt(strip_len -1, 0);
+        }
+        else  {
+          in_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt;
+        }
+      }
+    }
+  }
+
+  // Next do the outer cylinder
+  if (shell == OUTER) {
+    for (uint16_t s = 0; s < out_strips; s++) {
+      chaser(led_tmplt, strip_len, index + oOffset * s, oPalette);
+      if (s % 2 == 0) {
+        if (reverse) {
+          out_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt(strip_len -1 , 0);
+        }
+        else {
+          out_leds(s * strip_len, strip_len * (s + 1) - 1) = led_tmplt;
+        }
+      }
+      else {
+        if(reverse) {
+          out_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt(strip_len -1, 0);
+        }
+        else {
+          out_leds(strip_len * (s + 1) - 1, s * strip_len) = led_tmplt;
+        }
+      }
+    }
+  }
+}
 
 // Like the theater chase, except that we mirror it at the center of the strip. This when combined
 // with an offset will give us a sick helix motion
@@ -299,13 +365,13 @@ void shell_wrap(uint16_t shell, boolean reverse, uint8_t fade_opt) {
   // Update the positions of both the strips and reset the array
   if(shell == INNER) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(gRate);
+      thisTimer.setPeriod(in_rate_increase*gRate);
       in_pos = (in_pos+1) % in_strips;
     }
   }
   if (shell == OUTER) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(gRate);
+      thisTimer.setPeriod(out_rate_increase*gRate);
       out_pos = (out_pos+1) % out_strips;
     }
   }

@@ -278,17 +278,13 @@ void loop() {
       shell_wrap(OUTER, true, 0);
       break;
     case 2:
-      chase_spiral(OUTER, 24, true);
+      chase_spiral_static(OUTER, 24, true);
       break;
     case 3:
       shell_wrap(OUTER, true, 1);
       break;
     case 4:
-      static uint8_t oOffset = 0;
-      EVERY_N_MILLISECONDS(100) {
-        oOffset++;
-      }
-      chase_spiral(OUTER, oOffset, true);
+      chase_spiral_mod(OUTER, true);
       break;
     case 5:
       shell_wrap(OUTER, true, 2);
