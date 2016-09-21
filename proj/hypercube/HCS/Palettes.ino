@@ -1325,10 +1325,10 @@ void updateGPalette() {
       update_ColLead_p(OUTER);
       break;
     case 4:
-      update_WhiteBlack_p(OUTER);
+      update_Rainbow_p(OUTER);
       break;
     case 5:
-      update_Rainbow_p(OUTER);
+      update_WhiteBlack_p(OUTER);
       break;
   }
 }
