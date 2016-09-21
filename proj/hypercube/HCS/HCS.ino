@@ -202,7 +202,7 @@ void loop() {
 
   // Handle switching between outer shell animations. Don't do this if we're
   // already switching the inner shell though, don't want to figure that out
-  EVERY_N_SECONDS(5) {
+  EVERY_N_SECONDS(2) {
     oAnimCounter = (oAnimCounter + 1) % numAnimation;
     if((oAnimCounter == 7 || oAnimCounter == 9) && oPaletteCounter == 5) {
       oAnimCounter++;
@@ -216,7 +216,7 @@ void loop() {
   }
 
   // Same deal for the inner shell
-  EVERY_N_SECONDS(3) {
+  EVERY_N_SECONDS(1) {
     iAnimCounter = (iAnimCounter + 1) % numAnimation;
     if((iAnimCounter == 7 || iAnimCounter == 9) && iPaletteCounter == 5) {
       iAnimCounter++;
