@@ -489,11 +489,11 @@ void shell_wrap(uint16_t shell, boolean reverse, uint8_t fade_opt) {
   }
   if (in_pos == 0) {
     in_pal_index +=  12;
-    //if(!iAnimSwitch) {
-    //  while(is_black(ColorFromPalette(iPalette, in_pal_index, gBrightness, gBlending))) {
-    //    out_pal_index += 12;
-    //  }
-    //}
+    if(!iAnimSwitch) {
+      while(is_black(ColorFromPalette(iPalette, in_pal_index, gBrightness, gBlending))) {
+        out_pal_index += 1;
+      }
+    }
   }
 
   // This wraps around the shell, and makes the wrap fade to black so that it looks like a tracer

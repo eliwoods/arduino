@@ -110,7 +110,7 @@ void setup() {
   gPaletteCounter = 0;
 
   iAnimCounter = 0;
-  oAnimCounter = iAnimCounter;
+  oAnimCounter = iAnimCounter+3;
   gRate = 0;
   gHue = 0;
 
