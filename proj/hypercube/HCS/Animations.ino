@@ -491,7 +491,7 @@ void shell_wrap(uint16_t shell, boolean reverse, uint8_t fade_opt) {
     in_pal_index +=  12;
     if(!iAnimSwitch) {
       while(is_black(ColorFromPalette(iPalette, in_pal_index, gBrightness, gBlending))) {
-        out_pal_index += 1;
+        in_pal_index += 1;
       }
     }
   }
