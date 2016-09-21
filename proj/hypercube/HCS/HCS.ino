@@ -216,6 +216,7 @@ void loop() {
   }
 
   // Same deal for the inner shell
+  //
   EVERY_N_SECONDS(1) {
     iAnimCounter = (iAnimCounter + 1) % numAnimation;
     //if((iAnimCounter == 7 || iAnimCounter == 9) && iPaletteCounter == 5) {
