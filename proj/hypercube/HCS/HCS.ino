@@ -213,7 +213,7 @@ void loop() {
 
   // Update the global color palette. This is just the color scheme
   // that we will then repackage to have different spacial distributions
-  EVERY_N_SECONDS(280) {
+  EVERY_N_SECONDS(300) {
     gPaletteCounter = (gPaletteCounter+1)%numPalettes;
   }
   updatePaletteScheme();
