@@ -283,7 +283,7 @@ void chase_helix(uint16_t shell, uint16_t offset, boolean reverse) {
 
 // Sends whole strands around the two shells. Can either be run as a solid
 // band or have it fade as it goes around like a tracer
-void shell_wrap(uint16_t shell, boolean reverse) {
+void shell_wrap(uint16_t shell, boolean reverse, uint8_t fade_opt) {
   // We'll have to use a separate counter for these than the global index
   static uint16_t in_pos = 0;
   static uint16_t out_pos = 0;
@@ -297,52 +297,165 @@ void shell_wrap(uint16_t shell, boolean reverse) {
   static const double out_rate_increase = 1.75;
 
   // Update the positions of both the strips and reset the array
-  if(shell == 0) {
-      in_pos = (in_pos) % in_strips;
+  if(shell == INNER) {
+    EVERY_N_MILLISECONDS_I(thisTimer, 10) {
+      thisTimer.setPeriod(gRate);
+      in_pos = (in_pos+1) % in_strips;
+    }
   }
-  else if (shell == 1) {
-      out_pos = (out_pos) % out_strips;
+  if (shell == OUTER) {
+    EVERY_N_MILLISECONDS_I(thisTimer, 10) {
+      thisTimer.setPeriod(gRate);
+      out_pos = (out_pos+1) % out_strips;
+    }
   }
+
 
   // Update the palette index whenever one of the shells makes a full revolution
-  //if (out_pos == 0) {
-  //  out_pal_index += 12;
-  //  if(!oAnimSwitch) {
-  //    while(is_black(ColorFromPalette(oPalette, out_pal_index, gBrightness, gBlending))) {
-  //      out_pal_index += 12;
-  //    }
-  //  }
-  //}
-  //if (in_pos == 0) {
-  //  in_pal_index +=  12;
-  //  if(!iAnimSwitch) {
-  //    while(is_black(ColorFromPalette(iPalette, in_pal_index, gBrightness, gBlending))) {
-  //      out_pal_index += 12;
-  //    }
-  //  }
-  //}
-
-  // If fade_out is turned on, the strips will leave tracers so that it goes from full brightness to full
-  // dim around the whole shell
-  // This one does not fade out, but just overwrites the previous rotations color
-  // Inner shell
-  if(shell == 0) {
-    fill_solid(led_tmplt, strip_len, ColorFromPalette(iPalette, in_pal_index, maxBrightness, gBlending));
-    if(reverse) {
-      in_leds(strip_len * (in_strips - in_pos -1), strip_len * (in_strips - in_pos) - 1) = led_tmplt;
-    }
-    else {
-      in_leds(strip_len * in_pos, strip_len * (in_pos + 1) - 1) = led_tmplt;
+  if (out_pos == 0) {
+    out_pal_index += 12;
+    if(!oAnimSwitch) {
+      while(is_black(ColorFromPalette(oPalette, out_pal_index, gBrightness, gBlending))) {
+        out_pal_index += 12;
+      }
     }
   }
-  // Outer shell
-  else if(shell == 1) {
-    fill_solid(led_tmplt, strip_len, ColorFromPalette(oPalette, out_pal_index, maxBrightness, gBlending));
-    if(reverse) {
-      out_leds((out_strips - out_pos - 1) * strip_len, strip_len * (out_strips - out_pos) - 1) = led_tmplt;
+  if (in_pos == 0) {
+    in_pal_index +=  12;
+    if(!iAnimSwitch) {
+      while(is_black(ColorFromPalette(iPalette, in_pal_index, gBrightness, gBlending))) {
+        out_pal_index += 12;
+      }
     }
-    else {
-      out_leds(out_pos * strip_len, strip_len * (out_pos + 1) - 1) = led_tmplt;
+  }
+
+  // This wraps around the shell, and makes the wrap fade to black so that it looks like a tracer
+  if (fade_opt == 0) {
+    // Inner shell
+    if (shell == INNER) {
+      for (uint16_t ss = 0; ss < in_strips; ss++) {
+        fill_solid(led_tmplt, strip_len, ColorFromPalette(iPalette, in_pal_index, maxBrightness * (in_strips - ss + 1) / (double)(in_strips + 1)));
+        if(reverse) {
+          in_leds(strip_len * ((in_pos + (in_strips-ss-1)) % in_strips), strip_len * (((in_pos + (in_strips-ss-1)) % in_strips) + 1) - 1) = led_tmplt;
+        }
+        else {
+          in_leds(strip_len * ((in_pos + ss) % in_strips), strip_len * (((in_pos + ss) % in_strips) + 1) - 1) = led_tmplt;
+        }
+      }
+    }
+    // Outer shell
+    else if (shell == OUTER) {
+      for (uint16_t ss = 0; ss < out_strips; ss++ ) {
+        fill_solid(led_tmplt, strip_len, ColorFromPalette(oPalette, out_pal_index, maxBrightness * (out_strips - ss + 1) / (double)(out_strips + 1)));
+        if(reverse) {
+          out_leds(strip_len * ((out_pos + (out_strips-ss-1)) % out_strips), strip_len * (((out_pos + (out_strips-ss-1)) % out_strips) + 1) - 1) = led_tmplt;
+        }
+        else {
+          out_leds(strip_len * ((out_pos + ss) % out_strips), strip_len * (((out_pos + ss) % out_strips) + 1) - 1) = led_tmplt;
+        }
+      }
+    }
+  }
+  // Like the one above, except that the fade length varies with time
+  else if(fade_opt == 1) {
+    // Inner shell
+    if (shell == INNER) {
+      // First draw the  animation, same method as fade_opt == 0
+      for (uint16_t ss = 0; ss < in_fade_length; ss++) {
+        fill_solid(led_tmplt, strip_len, ColorFromPalette(iPalette, in_pal_index, maxBrightness * (in_fade_length - ss + 1) / (double)(in_fade_length + 1)));
+        if(reverse) {
+          in_leds(strip_len * ((in_pos + (in_strips-ss-1)) % in_strips), strip_len * (((in_pos + (in_strips-ss-1)) % in_strips) + 1) - 1) = led_tmplt;
+        }
+        else {
+          in_leds(strip_len * ((in_pos + ss) % in_strips), strip_len * (((in_pos + ss) % in_strips) + 1) - 1) = led_tmplt;
+        }
+      }
+      // Change the fade length according to direction of travel
+      if(!in_fade_rev) {
+        in_fade_length--;
+      }
+      else {
+        in_fade_length++;
+      }
+      // Check if we are at one of the bounds of length
+      if (in_fade_length == 0 && !in_fade_rev) {
+        in_fade_rev = true;
+        in_fade_length += 2;
+      }
+      if (in_fade_length == in_strips && in_fade_rev) {
+        in_fade_rev = false;
+        in_fade_length -= 2;
+      }
+    }
+    // Outer Shell
+    if (shell == OUTER) {
+      // First draw the  animation, same method as fade_opt == 0
+      for (uint16_t ss = 0; ss < in_fade_length; ss++) {
+        fill_solid(led_tmplt, strip_len, ColorFromPalette(oPalette, out_pal_index, maxBrightness * (out_fade_length - ss + 1) / (double)(out_fade_length + 1)));
+        if(reverse) {
+          out_leds(strip_len * ((out_pos + (out_strips-ss-1)) % out_strips), strip_len * (((out_pos + (out_strips-ss-1)) % out_strips) + 1) - 1) = led_tmplt;
+        }
+        else {
+          out_leds(strip_len * ((out_pos + ss) % out_strips), strip_len * (((out_pos + ss) % out_strips) + 1) - 1) = led_tmplt;
+        }
+      }
+      // Change the fade length according to direction of travel
+      if(!out_fade_rev) {
+        out_fade_length--;
+      }
+      else {
+        out_fade_length++;
+      }
+      // Check if we are at one of the bounds of length
+      if (out_fade_length == 0 && !out_fade_rev) {
+        out_fade_rev = true;
+        out_fade_length += 2;
+      }
+      if (out_fade_length == out_strips && out_fade_rev) {
+        out_fade_rev = false;
+        out_fade_length -= 2;
+      }
+    }
+  }
+  // This one does not fade out, but just overwrites the previous rotations color
+  else if(fade_opt == 2) {
+    // Inner shell
+    if(shell == INNER) {
+      fill_solid(led_tmplt, strip_len, ColorFromPalette(iPalette, in_pal_index, maxBrightness, gBlending));
+      if(reverse) {
+        in_leds(strip_len * (in_strips - in_pos -1), strip_len * (in_strips - in_pos) - 1) = led_tmplt;
+      }
+      else {
+        in_leds(strip_len * in_pos, strip_len * (in_pos + 1) - 1) = led_tmplt;
+      }
+    }
+    // Outer shell
+    else if(shell == OUTER) {
+      fill_solid(led_tmplt, strip_len, ColorFromPalette(oPalette, out_pal_index, maxBrightness, gBlending));
+      if(reverse) {
+        out_leds((out_strips - out_pos - 1) * strip_len, strip_len * (out_strips - out_pos) - 1) = led_tmplt;
+      }
+      else {
+        out_leds(out_pos * strip_len, strip_len * (out_pos + 1) - 1) = led_tmplt;
+      }
+    }
+  }
+
+  // This just draws one strip at a time, similar to the one above it except that we clear it before each redraw.
+  else if (fade_opt == 3) {
+    // Inner shell
+    if (shell == INNER) {
+      clear_in();
+      fill_solid(led_tmplt, strip_len, ColorFromPalette(iPalette, in_pal_index, maxBrightness, gBlending));
+      in_leds(strip_len*in_pos, strip_len*(in_pos+1) - 1) = led_tmplt;
+    }
+    // Outer shell, do this a few strips at a time since there's more of them
+    else if(shell == OUTER) {
+      clear_out();
+      fill_solid(led_tmplt, strip_len, ColorFromPalette(oPalette, out_pal_index, maxBrightness, gBlending));
+      for (uint16_t ss = 0; ss < 3; ss++) {
+        out_leds(((out_pos + ss) % out_strips) * strip_len, strip_len * (((out_pos + ss) % out_strips) + 1) - 1) = led_tmplt;
+      }
     }
   }
 }
@@ -405,7 +518,7 @@ void snow_anim(uint8_t shell, double density) {
   static double rnd;
   if(shell == INNER) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(gRate*1.25);
+      thisTimer.setPeriod(gRate*5);
       for(uint16_t pxl = 0; pxl < in_LED_tot; pxl++) {
         rnd = random16(1001)/1000.;
         if(rnd < density) {
@@ -419,7 +532,7 @@ void snow_anim(uint8_t shell, double density) {
   }
   if(shell == OUTER) {
     EVERY_N_MILLISECONDS_I(thisTimer, 10) {
-      thisTimer.setPeriod(gRate*1.25);
+      thisTimer.setPeriod(gRate*5);
       for(uint16_t pxl = 0; pxl < out_LED_tot; pxl++) {
         rnd = random16(1001)/1000.;
         if(rnd < density) {

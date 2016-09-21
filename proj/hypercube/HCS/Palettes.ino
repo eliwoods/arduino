@@ -771,11 +771,395 @@ DEFINE_GRADIENT_PALETTE( mellon_ball_surprise_gp ) {
     255, 229, 36, 62
 };
 
+// Gradient palette "njbath_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/njgs/tn/njbath.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 192 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( njbath_gp ) {
+    0,   1,  1, 64,
+    5,   1,  1, 64,
+    5,   1,  1, 71,
+   11,   1,  1, 71,
+   11,   1,  3, 73,
+   22,   1,  3, 73,
+   22,   1,  7, 92,
+   33,   1,  7, 92,
+   33,   1,  8, 96,
+   44,   1,  8, 96,
+   44,   1, 10,105,
+   55,   1, 10,105,
+   55,   1, 17,115,
+   66,   1, 17,115,
+   66,   1, 21,130,
+   77,   1, 21,130,
+   77,   1, 30,144,
+   88,   1, 30,144,
+   88,   1, 31,144,
+   99,   1, 31,144,
+   99,   1, 44,162,
+  110,   1, 44,162,
+  110,   1, 54,178,
+  121,   1, 54,178,
+  121,   2, 59,182,
+  133,   2, 59,182,
+  133,   5, 68,190,
+  144,   5, 68,190,
+  144,  10, 85,190,
+  155,  10, 85,190,
+  155,  14, 95,190,
+  166,  14, 95,190,
+  166,  21,105,207,
+  177,  21,105,207,
+  177,  32,117,207,
+  188,  32,117,207,
+  188,  38,128,207,
+  199,  38,128,207,
+  199,  52,151,207,
+  210,  52,151,207,
+  210,  58,161,207,
+  221,  58,161,207,
+  221,  73,180,214,
+  232,  73,180,214,
+  232,  90,197,226,
+  243,  90,197,226,
+  243, 101,213,226,
+  255, 101,213,226};
+
+// Gradient palette "cyan_mauve_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/km/tn/cyan-mauve.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 260 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( cyan_mauve_gp ) {
+    0,   0, 82,123,
+    3,   1, 82,120,
+    7,   1, 81,117,
+   11,   1, 81,114,
+   15,   1, 80,111,
+   19,   1, 80,108,
+   23,   1, 79,105,
+   27,   1, 79,102,
+   31,   1, 78, 99,
+   35,   1, 78, 98,
+   39,   1, 77, 95,
+   43,   1, 77, 92,
+   47,   1, 75, 89,
+   51,   1, 75, 87,
+   55,   2, 75, 84,
+   59,   2, 74, 82,
+   63,   3, 74, 80,
+   67,   3, 73, 78,
+   71,   4, 73, 75,
+   75,   4, 72, 73,
+   79,   5, 72, 71,
+   83,   6, 71, 69,
+   87,   7, 71, 67,
+   91,   8, 70, 65,
+   95,   9, 70, 63,
+   99,  10, 69, 62,
+  103,  11, 69, 60,
+  107,  12, 68, 57,
+  111,  13, 68, 56,
+  115,  15, 67, 54,
+  119,  16, 67, 52,
+  123,  18, 66, 52,
+  127,  19, 65, 50,
+  131,  21, 65, 48,
+  135,  22, 63, 47,
+  139,  24, 63, 45,
+  143,  26, 62, 44,
+  147,  28, 62, 42,
+  151,  30, 61, 42,
+  155,  32, 61, 40,
+  159,  35, 60, 38,
+  163,  38, 60, 37,
+  167,  40, 59, 36,
+  171,  43, 58, 35,
+  175,  46, 58, 34,
+  179,  48, 57, 33,
+  183,  51, 57, 31,
+  187,  54, 56, 31,
+  191,  58, 56, 30,
+  195,  61, 55, 29,
+  199,  65, 55, 28,
+  203,  68, 55, 27,
+  207,  72, 54, 26,
+  211,  75, 54, 25,
+  215,  80, 53, 24,
+  219,  84, 53, 23,
+  223,  88, 52, 22,
+  227,  92, 51, 22,
+  231,  97, 51, 21,
+  235, 103, 50, 20,
+  239, 107, 50, 19,
+  243, 112, 49, 19,
+  247, 117, 48, 18,
+  251, 123, 48, 17,
+  255, 128, 47, 17};
+
+// Gradient palette "purple_orange_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/km/tn/purple-orange.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 260 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( purple_orange_gp ) {
+    0,  29, 19, 80,
+    3,  33, 20, 83,
+    7,  39, 22, 85,
+   11,  44, 24, 87,
+   15,  49, 26, 89,
+   19,  56, 28, 92,
+   23,  63, 31, 93,
+   27,  69, 33, 96,
+   31,  77, 36, 98,
+   35,  84, 39,100,
+   39,  91, 42,102,
+   43, 100, 45,105,
+   47, 107, 49,106,
+   51, 115, 53,109,
+   55, 123, 56,111,
+   59, 132, 61,114,
+   63, 139, 66,115,
+   67, 146, 71,119,
+   71, 153, 77,122,
+   75, 159, 82,123,
+   79, 165, 88,127,
+   83, 171, 95,130,
+   87, 175,101,133,
+   91, 179,108,137,
+   95, 184,117,140,
+   99, 186,124,145,
+  103, 188,133,149,
+  107, 188,141,153,
+  111, 188,151,158,
+  115, 188,159,164,
+  119, 186,169,170,
+  123, 184,180,176,
+  127, 179,189,182,
+  131, 188,187,164,
+  135, 197,186,147,
+  139, 203,182,132,
+  143, 210,178,117,
+  147, 215,175,103,
+  151, 222,169, 91,
+  155, 227,164, 79,
+  159, 232,159, 69,
+  163, 234,154, 60,
+  167, 237,147, 52,
+  171, 239,141, 43,
+  175, 239,135, 37,
+  179, 239,128, 31,
+  183, 239,121, 26,
+  187, 239,115, 21,
+  191, 237,108, 17,
+  195, 232,101, 14,
+  199, 229, 95, 11,
+  203, 224, 87,  9,
+  207, 220, 81,  7,
+  211, 213, 74,  5,
+  215, 208, 69,  4,
+  219, 201, 62,  3,
+  223, 192, 57,  2,
+  227, 186, 52,  1,
+  231, 177, 46,  1,
+  235, 169, 42,  1,
+  239, 159, 37,  1,
+  243, 152, 33,  1,
+  247, 142, 29,  1,
+  251, 133, 26,  1,
+  255, 125, 22,  1};
+
+// Gradient palette "green_purple_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/km/tn/green-purple.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 260 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( green_purple_gp ) {
+    0,   1, 63,  4,
+    3,   1, 69,  5,
+    7,   1, 74,  7,
+   11,   1, 80,  9,
+   15,   1, 86, 11,
+   19,   1, 92, 13,
+   23,   2, 99, 16,
+   27,   2,104, 19,
+   31,   3,111, 22,
+   35,   4,117, 27,
+   39,   5,124, 31,
+   43,   7,130, 35,
+   47,   8,136, 41,
+   51,  10,142, 47,
+   55,  12,149, 52,
+   59,  15,154, 60,
+   63,  18,159, 66,
+   67,  22,164, 73,
+   71,  26,169, 82,
+   75,  31,175, 89,
+   79,  36,178, 98,
+   83,  42,182,105,
+   87,  49,186,114,
+   91,  57,189,122,
+   95,  66,191,130,
+   99,  77,193,138,
+  103,  87,193,145,
+  107, 100,195,155,
+  111, 113,195,160,
+  115, 128,195,168,
+  119, 144,193,174,
+  123, 161,193,178,
+  127, 179,189,182,
+  131, 184,180,176,
+  135, 186,169,170,
+  139, 188,159,164,
+  143, 188,151,158,
+  147, 188,141,153,
+  151, 188,133,149,
+  155, 186,124,145,
+  159, 184,117,140,
+  163, 179,108,137,
+  167, 175,101,133,
+  171, 171, 95,130,
+  175, 165, 88,127,
+  179, 159, 82,123,
+  183, 153, 77,122,
+  187, 146, 71,119,
+  191, 139, 66,115,
+  195, 132, 61,114,
+  199, 123, 56,111,
+  203, 115, 53,109,
+  207, 107, 49,106,
+  211, 100, 45,105,
+  215,  91, 42,102,
+  219,  84, 39,100,
+  223,  77, 36, 98,
+  227,  69, 33, 96,
+  231,  63, 31, 93,
+  235,  56, 28, 92,
+  239,  49, 26, 89,
+  243,  44, 24, 87,
+  247,  39, 22, 85,
+  251,  33, 20, 83,
+  255,  29, 19, 80};
+
+// Gradient palette "blue_tan_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/km/tn/blue-tan.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 260 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( blue_tan_gp ) {
+    0,   4, 61,201,
+    3,   5, 66,203,
+    7,   6, 69,205,
+   11,   7, 73,207,
+   15,   7, 77,210,
+   19,   8, 81,212,
+   23,  10, 86,212,
+   27,  11, 90,214,
+   31,  12, 95,214,
+   35,  14, 99,214,
+   39,  16,103,216,
+   43,  18,108,216,
+   47,  21,112,216,
+   51,  23,117,214,
+   55,  26,122,214,
+   59,  30,127,214,
+   63,  33,131,212,
+   67,  38,136,212,
+   71,  42,141,210,
+   75,  47,144,210,
+   79,  53,149,207,
+   83,  59,154,205,
+   87,  66,157,203,
+   91,  74,162,201,
+   95,  82,166,199,
+   99,  91,169,199,
+  103, 101,173,197,
+  107, 112,176,194,
+  111, 123,180,192,
+  115, 137,182,190,
+  119, 150,186,186,
+  123, 165,187,184,
+  127, 179,189,182,
+  131, 182,189,168,
+  135, 184,189,153,
+  139, 186,187,140,
+  143, 186,186,127,
+  147, 188,184,114,
+  151, 188,182,103,
+  155, 188,178, 92,
+  159, 188,175, 83,
+  163, 186,171, 73,
+  167, 186,168, 65,
+  171, 184,164, 56,
+  175, 182,159, 50,
+  179, 179,154, 43,
+  183, 177,149, 37,
+  187, 175,144, 32,
+  191, 171,139, 27,
+  195, 167,133, 23,
+  199, 163,128, 19,
+  203, 159,122, 16,
+  207, 155,117, 14,
+  211, 152,111, 11,
+  215, 146,105,  9,
+  219, 140,100,  7,
+  223, 135, 93,  6,
+  227, 130, 88,  5,
+  231, 125, 82,  3,
+  235, 120, 78,  2,
+  239, 115, 72,  2,
+  243, 109, 68,  1,
+  247, 103, 62,  1,
+  251,  98, 57,  1,
+  255,  92, 53,  1};
+
+// Gradient palette "es_autumn_02_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/es/autumn/tn/es_autumn_02.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 20 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( es_autumn_02_gp ) {
+    0,  86,  6,  1,
+  127, 255,255,125,
+  153, 255,255,125,
+  242, 194, 96,  1,
+  255, 194, 96,  1};
+
+// Gradient palette "es_emerald_dragon_01_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/es/emerald_dragon/tn/es_emerald_dragon_01.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 20 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( es_emerald_dragon_01_gp ) {
+    0,   1,  1,  1,
+   79,   1, 19,  7,
+  130,   1, 59, 25,
+  229,  28,255,255,
+  255,  28,255,255};
+
+// Gradient palette "Whisper_gp", originally from
+// http://soliton.vm.bytemark.co.uk/pub/cpt-city/colo/lightningmccarl/tn/Whisper.png.index.html
+// converted for FastLED with gammas (2.6, 2.2, 2.5)
+// Size: 40 bytes of program space.
+
+DEFINE_GRADIENT_PALETTE( Whisper_gp ) {
+    0, 210,133,210,
+   12, 210,133,210,
+   12, 161, 79,160,
+   38, 161, 79,160,
+   38, 120, 45,120,
+  104, 120, 45,120,
+  104,  61, 29, 63,
+  132,  61, 29, 63,
+  132,  30, 20, 31,
+  255,  30, 20, 31};
+
 
 // This has to be hand counted and updated whenever we add more palettes. There are also some predefined palettes
 // that need to get accounted for :(
 //const uint8_t numPalettes = 29;
-const uint8_t numPalettes = 22;
+const uint8_t numPalettes = 30;
 const uint8_t numPalStyles = 6;
 
 // This handles the switching of palettes based on the global palette counter. Need to add palettes to this function
@@ -869,6 +1253,38 @@ void updatePaletteScheme() {
       break;
     case 21:
       nPalette = RainbowColors_p;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 22:
+      nPalette = njbath_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 23:
+      nPalette = cyan_mauve_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 24:
+      nPalette = purple_orange_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 25:
+      nPalette = green_purple_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 26:
+      nPalette = blue_tan_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 27:
+      nPalette = es_autumn_02_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 28:
+      nPalette = es_emerald_dragon_01_gp;
+      nblendPaletteTowardPalette(gPalette, nPalette);
+      break;
+    case 29:
+      nPalette = Whisper_gp;
       nblendPaletteTowardPalette(gPalette, nPalette);
       break;
   }

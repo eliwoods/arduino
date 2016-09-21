@@ -76,7 +76,7 @@ boolean use_white = false;
 uint8_t gHue;
 
 // For animation switching, this number needs to be hard coded unforunately
-const uint8_t numAnimation = 6; 
+const uint8_t numAnimation = 10; 
 uint8_t iAnimCounter, oAnimCounter;
 boolean iAnimSwitch, oAnimSwitch; // Use this flag so that we fade the color palette into each animation
 uint8_t iAnimSwitchCount, oAnimSwitchCount; // Use this to count how many times we've faded to the 
@@ -239,22 +239,34 @@ void loop() {
   //    chase_straight(INNER, false);
   //    break;
   //  case 1:
-  //    chase_spiral(INNER, 16, false);
+  //    shell_wrap(INNER, false, 0);
   //    break;
   //  case 2:
-  //    static uint8_t oOffset = 0;
-  //    EVERY_N_MILLISECONDS(100) {
-  //      oOffset++;
-  //    }
-  //    chase_spiral(INNER, oOffset, false);
+  //    chase_spiral(INNER, 16, false);
   //    break;
   //  case 3:
-  //    chase_mod(INNER, true);
+  //    shell_wrap(INNER, false, 1);
   //    break;
   //  case 4:
-  //    snow_anim(INNER, 0.3);
+  //    static uint8_t iOffset = 0;
+  //    EVERY_N_MILLISECONDS(100) {
+  //      iOffset++;
+  //    }
+  //    chase_spiral(INNER, iOffset, false);
   //    break;
   //  case 5:
+  //    shell_wrap(INNER, false, 2);
+  //    break;
+  //  case 6:
+  //    chase_mod(INNER, false);
+  //    break;
+  //  case 7:
+  //    shell_wrap(INNER, false, 3);
+  //    break;
+  //  case 8:
+  //    snow_anim(INNER, 0.3);
+  //    break;
+  //  case 9:
   //    fill_shell(INNER);
   //    break;
   //}
@@ -263,22 +275,34 @@ void loop() {
       chase_straight(OUTER, true);
       break;
     case 1:
-      chase_spiral(OUTER, 24, true);
+      shell_wrap(OUTER, true, 0);
       break;
     case 2:
+      chase_spiral(OUTER, 24, true);
+      break;
+    case 3:
+      shell_wrap(OUTER, true, 1);
+      break;
+    case 4:
       static uint8_t oOffset = 0;
       EVERY_N_MILLISECONDS(100) {
         oOffset++;
       }
       chase_spiral(OUTER, oOffset, true);
       break;
-    case 3:
+    case 5:
+      shell_wrap(OUTER, true, 2);
+      break;
+    case 6:
       chase_mod(OUTER, true);
       break;
-    case 4:
+    case 7:
+      shell_wrap(OUTER, true, 3);
+      break;
+    case 8:
       snow_anim(OUTER, 0.2);
       break;
-    case 5:
+    case 9:
       fill_shell(OUTER);
       break;
   }
