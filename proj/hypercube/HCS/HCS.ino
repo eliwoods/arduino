@@ -213,19 +213,19 @@ void loop() {
 
   // Update the global color palette. This is just the color scheme
   // that we will then repackage to have different spacial distributions
-  EVERY_N_SECONDS(300) {
+  EVERY_N_SECONDS(480) {
     gPaletteCounter = (gPaletteCounter+1)%numPalettes;
   }
   updatePaletteScheme();
 
   // Update the palette style for the inner and outer shells. This
   // is basically how we package the given color palette.
-  EVERY_N_SECONDS(175) {
+  EVERY_N_SECONDS(130) {
     oPaletteCounter = (oPaletteCounter +1) % numPalStyles;
   }
   // For the inner palette, switch it up so that every other time it uses
   // a white palette.
-  EVERY_N_SECONDS(225) {
+  EVERY_N_SECONDS(190) {
     //  The white black is no longer part of the usual rotation
     // though since it alternates every time the timer is up.
       iPaletteCounter = (iPaletteCounter + 1) % numPalStyles;

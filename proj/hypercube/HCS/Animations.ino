@@ -360,7 +360,7 @@ void shell_wrap(uint16_t shell, boolean reverse, uint8_t fade_opt) {
   static boolean in_fade_rev = false;
   static boolean out_fade_rev = false;
   static const double in_rate_increase = 1.2;
-  static const double out_rate_increase = 2.5;
+  static const double out_rate_increase = 3;
 
   // Update the positions of both the strips and reset the array
   if(shell == INNER) {
