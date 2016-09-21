@@ -204,72 +204,77 @@ void loop() {
   // already switching the inner shell though, don't want to figure that out
   EVERY_N_SECONDS(10) {
     oAnimCounter = (oAnimCounter + 1) % numAnimation;
+    if(oAnimCounter == 0) {
+      oPaletteCounter = (oPaletteCounter + 1) % numPalStyles;
+      if(oPaletteCounter == 0) {
+        gPaletteCounter = (gPaletteCounter+1)%numPalettes;
+      }
+    }
   }
 
   // Same deal for the inner shell
-  EVERY_N_SECONDS(125) {
-    iAnimCounter = (iAnimCounter + 1) % numAnimation;
-  }
+  //EVERY_N_SECONDS(125) {
+  //  iAnimCounter = (iAnimCounter + 1) % numAnimation;
+  //}
 
-  // Update the global color palette. This is just the color scheme
-  // that we will then repackage to have different spacial distributions
-  EVERY_N_SECONDS(480) {
-    gPaletteCounter = (gPaletteCounter+1)%numPalettes;
-  }
+  //// Update the global color palette. This is just the color scheme
+  //// that we will then repackage to have different spacial distributions
+  //EVERY_N_SECONDS(480) {
+  //  gPaletteCounter = (gPaletteCounter+1)%numPalettes;
+  //}
   updatePaletteScheme();
 
   // Update the palette style for the inner and outer shells. This
   // is basically how we package the given color palette.
-  EVERY_N_SECONDS(130) {
-    oPaletteCounter = (oPaletteCounter +1) % numPalStyles;
-  }
-  // For the inner palette, switch it up so that every other time it uses
-  // a white palette.
-  EVERY_N_SECONDS(190) {
-    //  The white black is no longer part of the usual rotation
-    // though since it alternates every time the timer is up.
-      iPaletteCounter = (iPaletteCounter + 1) % numPalStyles;
-  }
+  //EVERY_N_SECONDS(130) {
+  //  oPaletteCounter = (oPaletteCounter +1) % numPalStyles;
+  //}
+  //// For the inner palette, switch it up so that every other time it uses
+  //// a white palette.
+  //EVERY_N_SECONDS(190) {
+  //  //  The white black is no longer part of the usual rotation
+  //  // though since it alternates every time the timer is up.
+  //    iPaletteCounter = (iPaletteCounter + 1) % numPalStyles;
+  //}
   updateGPalette();
 
   // Add the random strobe to this list of animations since we aren't going to use it
   // for the overlays
-  //switch (iAnimCounter) {
-  //  case 0:
-  //    chase_straight(INNER, false);
-  //    break;
-  //  case 1:
-  //    shell_wrap(INNER, false, 0);
-  //    break;
-  //  case 2:
-  //    chase_spiral(INNER, 16, false);
-  //    break;
-  //  case 3:
-  //    shell_wrap(INNER, false, 1);
-  //    break;
-  //  case 4:
-  //    static uint8_t iOffset = 0;
-  //    EVERY_N_MILLISECONDS(100) {
-  //      iOffset++;
-  //    }
-  //    chase_spiral(INNER, iOffset, false);
-  //    break;
-  //  case 5:
-  //    shell_wrap(INNER, false, 2);
-  //    break;
-  //  case 6:
-  //    chase_mod(INNER, false);
-  //    break;
-  //  case 7:
-  //    shell_wrap(INNER, false, 3);
-  //    break;
-  //  case 8:
-  //    snow_anim(INNER, 0.3);
-  //    break;
-  //  case 9:
-  //    fill_shell(INNER);
-  //    break;
-  //}
+  switch (iAnimCounter) {
+    case 0:
+      chase_straight(INNER, false);
+      break;
+    case 1:
+      shell_wrap(INNER, false, 0);
+      break;
+    case 2:
+      chase_mod(INNER, 0, false);
+      break;
+    case 3:
+      chase_spiral_static(INNER, 16, false);
+      break;
+    case 4:
+      shell_wrap(INNER, false, 1);
+      break;
+    case 5:
+      chase_mod(INNER, 1, false);
+      break;
+    case 6:
+      chase_spiral_mod(INNER, false);
+      break;
+    case 7:
+      shell_wrap(INNER, false, 2);
+      break;
+    case 8:
+      chase_mod(INNER, 2, false);
+      break;
+    case 9:
+      shell_wrap(INNER, false, 3);
+      break;
+    case 10:
+      fill_shell(INNER);
+      break;
+  }
   switch (oAnimCounter) {
     case 0:
       chase_straight(OUTER, true);
