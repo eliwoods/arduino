@@ -481,19 +481,19 @@ void shell_wrap(uint16_t shell, boolean reverse, uint8_t fade_opt) {
   // Update the palette index whenever one of the shells makes a full revolution
   if (out_pos == 0) {
     out_pal_index += 12;
-    if(!oAnimSwitch) {
-      while(is_black(ColorFromPalette(oPalette, out_pal_index, gBrightness, gBlending))) {
-        out_pal_index += 12;
-      }
-    }
+    //if(!oAnimSwitch) {
+    //  while(is_black(ColorFromPalette(oPalette, out_pal_index, gBrightness, gBlending))) {
+    //    out_pal_index += 12;
+    //  }
+    //}
   }
   if (in_pos == 0) {
     in_pal_index +=  12;
-    if(!iAnimSwitch) {
-      while(is_black(ColorFromPalette(iPalette, in_pal_index, gBrightness, gBlending))) {
-        out_pal_index += 12;
-      }
-    }
+    //if(!iAnimSwitch) {
+    //  while(is_black(ColorFromPalette(iPalette, in_pal_index, gBrightness, gBlending))) {
+    //    out_pal_index += 12;
+    //  }
+    //}
   }
 
   // This wraps around the shell, and makes the wrap fade to black so that it looks like a tracer

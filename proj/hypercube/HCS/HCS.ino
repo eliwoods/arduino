@@ -247,41 +247,41 @@ void loop() {
 
   // Add the random strobe to this list of animations since we aren't going to use it
   // for the overlays
-  switch (iAnimCounter) {
-    case 0:
-      chase_straight(INNER, false);
-      break;
-    case 1:
-      shell_wrap(INNER, false, 0);
-      break;
-    case 2:
-      chase_mod(INNER, 0, false);
-      break;
-    case 3:
-      chase_spiral_static(INNER, 16, false);
-      break;
-    case 4:
-      shell_wrap(INNER, false, 1);
-      break;
-    case 5:
-      chase_mod(INNER, 1, false);
-      break;
-    case 6:
-      chase_spiral_mod(INNER, false);
-      break;
-    case 7:
-      shell_wrap(INNER, false, 2);
-      break;
-    case 8:
-      chase_mod(INNER, 2, false);
-      break;
-    case 9:
-      shell_wrap(INNER, false, 3);
-      break;
-    case 10:
-      fill_shell(INNER);
-      break;
-  }
+  //switch (iAnimCounter) {
+  //  case 0:
+  //    chase_straight(INNER, false);
+  //    break;
+  //  case 1:
+  //    shell_wrap(INNER, false, 0);
+  //    break;
+  //  case 2:
+  //    chase_mod(INNER, 0, false);
+  //    break;
+  //  case 3:
+  //    chase_spiral_static(INNER, 16, false);
+  //    break;
+  //  case 4:
+  //    shell_wrap(INNER, false, 1);
+  //    break;
+  //  case 5:
+  //    chase_mod(INNER, 1, false);
+  //    break;
+  //  case 6:
+  //    chase_spiral_mod(INNER, false);
+  //    break;
+  //  case 7:
+  //    shell_wrap(INNER, false, 2);
+  //    break;
+  //  case 8:
+  //    chase_mod(INNER, 2, false);
+  //    break;
+  //  case 9:
+  //    shell_wrap(INNER, false, 3);
+  //    break;
+  //  case 10:
+  //    fill_shell(INNER);
+  //    break;
+  //}
   switch (oAnimCounter) {
     case 0:
       chase_straight(OUTER, true);
