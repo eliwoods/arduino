@@ -202,7 +202,7 @@ void loop() {
 
   // Handle switching between outer shell animations. Don't do this if we're
   // already switching the inner shell though, don't want to figure that out
-  EVERY_N_SECONDS(2) {
+  EVERY_N_SECONDS(90) {
     oAnimCounter = (oAnimCounter + 1) % numAnimation;
     //if((oAnimCounter == 7 || oAnimCounter == 9) && oPaletteCounter == 5) {
     //  oAnimCounter++;
@@ -217,7 +217,7 @@ void loop() {
 
   // Same deal for the inner shell
   //
-  EVERY_N_SECONDS(1) {
+  EVERY_N_SECONDS(66) {
     iAnimCounter = (iAnimCounter + 1) % numAnimation;
     //if((iAnimCounter == 7 || iAnimCounter == 9) && iPaletteCounter == 5) {
     //  iAnimCounter++;
@@ -247,41 +247,41 @@ void loop() {
 
   // Add the random strobe to this list of animations since we aren't going to use it
   // for the overlays
-  //switch (iAnimCounter) {
-  //  case 0:
-  //    chase_straight(INNER, false);
-  //    break;
-  //  case 1:
-  //    shell_wrap(INNER, false, 0);
-  //    break;
-  //  case 2:
-  //    chase_mod(INNER, 0, false);
-  //    break;
-  //  case 3:
-  //    chase_spiral_static(INNER, 16, false);
-  //    break;
-  //  case 4:
-  //    shell_wrap(INNER, false, 1);
-  //    break;
-  //  case 5:
-  //    chase_mod(INNER, 1, false);
-  //    break;
-  //  case 6:
-  //    chase_spiral_mod(INNER, false);
-  //    break;
-  //  case 7:
-  //    shell_wrap(INNER, false, 2);
-  //    break;
-  //  case 8:
-  //    chase_mod(INNER, 2, false);
-  //    break;
-  //  case 9:
-  //    shell_wrap(INNER, false, 3);
-  //    break;
-  //  case 10:
-  //    fill_shell(INNER);
-  //    break;
-  //}
+  switch (iAnimCounter) {
+    case 0:
+      chase_straight(INNER, false);
+      break;
+    case 1:
+      shell_wrap(INNER, false, 0);
+      break;
+    case 2:
+      chase_mod(INNER, 0, false);
+      break;
+    case 3:
+      chase_spiral_static(INNER, 16, false);
+      break;
+    case 4:
+      shell_wrap(INNER, false, 1);
+      break;
+    case 5:
+      chase_mod(INNER, 1, false);
+      break;
+    case 6:
+      chase_spiral_mod(INNER, false);
+      break;
+    case 7:
+      shell_wrap(INNER, false, 2);
+      break;
+    case 8:
+      chase_mod(INNER, 2, false);
+      break;
+    case 9:
+      shell_wrap(INNER, false, 3);
+      break;
+    case 10:
+      fill_shell(INNER);
+      break;
+  }
   switch (oAnimCounter) {
     case 0:
       chase_straight(OUTER, true);
