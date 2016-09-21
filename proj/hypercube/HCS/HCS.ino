@@ -204,9 +204,9 @@ void loop() {
   // already switching the inner shell though, don't want to figure that out
   EVERY_N_SECONDS(2) {
     oAnimCounter = (oAnimCounter + 1) % numAnimation;
-    if((oAnimCounter == 7 || oAnimCounter == 9) && oPaletteCounter == 5) {
-      oAnimCounter++;
-    }
+    //if((oAnimCounter == 7 || oAnimCounter == 9) && oPaletteCounter == 5) {
+    //  oAnimCounter++;
+    //}
     if(oAnimCounter == 0) {
       oPaletteCounter = (oPaletteCounter + 1) % numPalStyles;
       if(oPaletteCounter == 0) {
@@ -218,9 +218,9 @@ void loop() {
   // Same deal for the inner shell
   EVERY_N_SECONDS(1) {
     iAnimCounter = (iAnimCounter + 1) % numAnimation;
-    if((iAnimCounter == 7 || iAnimCounter == 9) && iPaletteCounter == 5) {
-      iAnimCounter++;
-    }
+    //if((iAnimCounter == 7 || iAnimCounter == 9) && iPaletteCounter == 5) {
+    //  iAnimCounter++;
+    //}
     if(iAnimCounter == 0) {
       iPaletteCounter = (iPaletteCounter +1) % numPalStyles;
     }
