@@ -278,27 +278,30 @@ void loop() {
       shell_wrap(OUTER, true, 0);
       break;
     case 2:
-      chase_spiral_static(OUTER, 24, true);
+      chase_mod(OUTER, 0, true);
       break;
     case 3:
-      shell_wrap(OUTER, true, 1);
+      chase_spiral_static(OUTER, 24, true);
       break;
     case 4:
-      chase_spiral_mod(OUTER, true);
+      shell_wrap(OUTER, true, 1);
       break;
     case 5:
-      shell_wrap(OUTER, true, 2);
+      chase_mod(OUTER, 1, true);
       break;
     case 6:
-      chase_mod(OUTER, true);
+      chase_spiral_mod(OUTER, true);
       break;
     case 7:
-      shell_wrap(OUTER, true, 3);
+      shell_wrap(OUTER, true, 2);
       break;
     case 8:
-      snow_anim(OUTER, 0.2);
+      chase_mod(OUTER, 2, true);
       break;
     case 9:
+      shell_wrap(OUTER, true, 3);
+      break;
+    case 10:
       fill_shell(OUTER);
       break;
   }

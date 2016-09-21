@@ -106,56 +106,157 @@ void chase_straight(uint16_t shell, boolean reverse) {
   }
 }
 
-void chase_mod(uint16_t shell, boolean reverse) {
+void chase_mod(uint16_t shell, uint8_t offset, boolean reverse) {
   static uint8_t index = 0;
   EVERY_N_MILLISECONDS_I(thisTimer, 10) {
     thisTimer.setPeriod(gRate);
     index++;
   }
 
-  if(shell == INNER) {
-    chaser_mod(led_tmplt, strip_len, index, iPalette);
-    for (uint16_t s = 0; s < out_strips; s++) {
-      if (s % 2 == 0) {
-        if (reverse) {
-          in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
-        }
-        else {
-          in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
-        }
-      }
-      else {
-        if (reverse) {
-          in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
-        }
-        else {
-          in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
-        }
-      }
-    }
-  }
-  if(shell == OUTER) {
-    chaser_mod(led_tmplt, strip_len, index, oPalette);
-    for (uint16_t s = 0; s < out_strips; s++) {
-      if (s % 2 == 0) {
-        if (reverse) {
-          out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
-        }
-        else {
-          out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
-        }
-      }
-      else {
-        if (reverse) {
-          out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
-        }
-        else {
-          out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
-        }
-      }
-    }
-  }
 
+  // No Offset
+  if( offset == 0) {
+    if(shell == INNER) {
+      chaser_mod(led_tmplt, strip_len, index, iPalette);
+      for (uint16_t s = 0; s < in_strips; s++) {
+        if (s % 2 == 0) {
+          if (reverse) {
+            in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+          }
+        }
+        else {
+          if (reverse) {
+            in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+          }
+        }
+      }
+    }
+    if(shell == OUTER) {
+      chaser_mod(led_tmplt, strip_len, index, oPalette);
+      for (uint16_t s = 0; s < out_strips; s++) {
+        if (s % 2 == 0) {
+          if (reverse) {
+            out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+          }
+        }
+        else {
+          if (reverse) {
+            out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+          }
+        }
+      }
+    }
+  }
+  // Static offset
+  if( offset == 1) {
+    if(shell == INNER) {
+      for (uint16_t s = 0; s < in_strips; s++) {
+        chaser_mod(led_tmplt, strip_len, index+s*16, iPalette);
+        if (s % 2 == 0) {
+          if (reverse) {
+            in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+          }
+        }
+        else {
+          if (reverse) {
+            in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+          }
+        }
+      }
+    }
+    if(shell == OUTER) {
+      for (uint16_t s = 0; s < out_strips; s++) {
+        chaser_mod(led_tmplt, strip_len, index+s*24, oPalette);
+        if (s % 2 == 0) {
+          if (reverse) {
+            out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+          }
+        }
+        else {
+          if (reverse) {
+            out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+          }
+        }
+      }
+    }
+  }
+  // Increasing offset
+  if( offset == 2) {
+    static uint8_t iOffset = 0;
+    static uint8_t oOffset = 0;
+    if(shell == INNER) {
+      EVERY_N_MILLISECONDS(100) {
+        iOffset++;
+      }
+      for (uint16_t s = 0; s < in_strips; s++) {
+        chaser_mod(led_tmplt, strip_len, index+s*16, iPalette);
+        if (s % 2 == 0) {
+          if (reverse) {
+            in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            in_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+          }
+        }
+        else {
+          if (reverse) {
+            in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            in_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+          }
+        }
+      }
+    }
+    if(shell == OUTER) {
+      EVERY_N_MILLISECONDS(100) {
+        oOffset++;
+      }
+      for (uint16_t s = 0; s < out_strips; s++) {
+        chaser_mod(led_tmplt, strip_len, index+s*24, oPalette);
+        if (s % 2 == 0) {
+          if (reverse) {
+            out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            out_leds(strip_len * s, strip_len * (s + 1) - 1) = led_tmplt;
+          }
+        }
+        else {
+          if (reverse) {
+            out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt(strip_len - 1, 0);
+          }
+          else {
+            out_leds(strip_len * (s + 1) - 1, strip_len * s) = led_tmplt;
+          }
+        }
+      }
+    }
+  }
 }
 
 // The same as the chase, except that we offset each strand by some integer amoutn.
@@ -359,8 +460,8 @@ void shell_wrap(uint16_t shell, boolean reverse, uint8_t fade_opt) {
   static uint16_t out_fade_length = out_strips;
   static boolean in_fade_rev = false;
   static boolean out_fade_rev = false;
-  static const double in_rate_increase = 1.2;
-  static const double out_rate_increase = 3;
+  static const double in_rate_increase = 4;
+  static const double out_rate_increase = 4;
 
   // Update the positions of both the strips and reset the array
   if(shell == INNER) {
