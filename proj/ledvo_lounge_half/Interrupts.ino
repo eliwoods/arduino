@@ -5,11 +5,14 @@
 
 // Increment the palette counter.
 void palette_inc_ISR() {
-  gPaletteCounter = (gPaletteCounter+1)%(numPalettes);
+  gPaletteCounter = (gPaletteCounter + 1) % (numPalStyles);
+  if(gPaletteCounter == 0) {
+    gSchemeNum = (gSchemeNum + 1) % numPalettes;
+  }
 }
 
 void debounce_palette_inc() {
-  if((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
     palette_inc_ISR();
     last_micros = micros();
   }
@@ -17,11 +20,30 @@ void debounce_palette_inc() {
 
 // Decrement the palette counter
 void palette_dec_ISR() {
-  gPaletteCounter = (gPaletteCounter-1)%(numPalettes);
+  if (gPaletteCounter == 0) {
+    gPaletteCounter = numPalStyles - 1;
+    if(gSchemeNum == 0) {
+      gSchemeNum = numPalettes - 1;
+    }
+    else {
+      gSchemeNum = gSchemeNum - 1;
+    }
+  }
+  else {
+    gPaletteCounter = gPaletteCounter - 1;
+    if (gPaletteCounter == 0) {
+      if(gSchemeNum == 0) {
+        gSchemeNum = numPalettes - 1;
+      }
+      else {
+        gSchemeNum = gSchemeNum - 1;
+      }
+    }
+  }
 }
 
 void debounce_palette_dec() {
-  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
     palette_dec_ISR();
     last_micros = micros();
   }
@@ -39,7 +61,7 @@ void palette_auto_ISR() {
 }
 
 void debounce_palette_auto() {
-  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
     palette_auto_ISR();
     last_micros = micros();
   }
@@ -47,11 +69,12 @@ void debounce_palette_auto() {
 
 // Increment global animation counter
 void anim_inc_ISR() {
-  gAnimCounter = (gAnimCounter+1)%numAnimation;
+  gAnimCounter = (gAnimCounter + 1) % numAnimation;
+  anim_switch = true;
 }
 
 void debounce_anim_inc() {
-  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
     anim_inc_ISR();
     last_micros = micros();
   }
@@ -59,11 +82,17 @@ void debounce_anim_inc() {
 
 // Decrement global animation counter
 void anim_dec_ISR() {
-  gAnimCounter = (gAnimCounter-1)%numAnimation;
+  if (gAnimCounter == 0) {
+    gAnimCounter = numAnimation - 1;
+  }
+  else {
+    gAnimCounter = gAnimCounter - 1;
+  }
+  anim_switch = true;
 }
 
 void debounce_anim_dec() {
-  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
     anim_dec_ISR();
     last_micros = micros();
   }
@@ -80,7 +109,7 @@ void anim_auto_ISR() {
 }
 
 void debounce_anim_auto() {
-  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
     anim_auto_ISR();
     last_micros = micros();
   }
@@ -99,7 +128,7 @@ void strobe_ISR() {
 }
 
 void debounce_strobe() {
-  if((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
     strobe_ISR();
     last_micros = micros();
   }
@@ -116,7 +145,7 @@ void blk_strobe_ISR() {
 }
 
 void debounce_blk_strobe() {
-  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
     blk_strobe_ISR();
     last_micros = micros();
   }
@@ -133,8 +162,24 @@ void anim_reverse_ISR() {
 }
 
 void debounce_anim_reverse() {
-  if ((int32_t)(micros() - last_micros) >= debounce_time*1000) {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
     anim_reverse_ISR();
+    last_micros = micros();
+  }
+}
+
+void kill_power_ISR() {
+  if (power_on) {
+    power_on = false;
+  }
+  else {
+    power_on = true;
+  }
+}
+
+void debounce_kill_power() {
+  if ((int32_t)(micros() - last_micros) >= debounce_time * 1000) {
+    kill_power_ISR();
     last_micros = micros();
   }
 }
