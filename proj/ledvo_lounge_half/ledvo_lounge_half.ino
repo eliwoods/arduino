@@ -201,48 +201,6 @@ void loop() {
 
     // Check if we want to autopilot the animations
     if (anim_autopilot) {
-      static boolean orientation = false;
-      static uint16_t num_switch = 0;
-      if (gAnimCounter == 6 || gAnimCounter == 7) {
-        EVERY_N_SECONDS(30) {
-          if (num_switch * 30 == 300) {
-            num_switch = 0;
-            orientation = false;
-            gAnimCounter = 8;
-          }
-          if (!orientation) {
-            gAnimCounter = 7;
-            orientation = true;
-            num_switch++;
-          }
-          else {
-            gAnimCounter = 6;
-            orientation = false;
-            num_switch++;
-          }
-          anim_switch = true;
-        }
-      }
-      if (gAnimCounter == 8 || gAnimCounter == 9) {
-        EVERY_N_SECONDS(30) {
-          if (num_switch * 30 == 300) {
-            num_switch = 0;
-            orientation = false;
-            gAnimCounter = 10;
-          }
-          if (!orientation) {
-            gAnimCounter = 9;
-            orientation = true;
-            num_switch++;
-          }
-          else {
-            gAnimCounter = 8;
-            orientation = false;
-            num_switch++;
-          }
-          anim_switch = true;
-        }
-      }
       EVERY_N_MINUTES(5) {
         gAnimCounter = (gAnimCounter + 1) % numAnimation;
         anim_switch = true;
@@ -305,14 +263,14 @@ void loop() {
     // The following are all checks for DJ animations that
     // interrupt the normal animations for some added IN YO FACE
     if (dj_control) {
-    else {
-      // Keep us from selecting certain palettes for certain animatinos
-      if (gAnimCounter == 3 || gAnimCounter == 4 || gAnimCounter == 5 || gAnimCounter == 8 || gAnimCounter == 9 || gAnimCounter == 10) {
-        while (gPaletteCounter == 0 || gPaletteCounter == 6 || gPaletteCounter == 7) {
-          gPaletteCounter = (gPaletteCounter + 1) % numPalettes;
-        }
+      if (run_strobe) {
+        strobes();
       }
-      if (gAnimCounter == 2 || gAnimCounter == 6 || gAnimCounter ==  7 || gAnimCounter == 11) {
-        while (gPaletteCounter == 3 ) {
-          gPaletteCounter++;
-        }
+    }
+  }
+  else {
+    reset_all();
+    FastLED.show();
+    FastLED.delay(1000);
+  }
+}

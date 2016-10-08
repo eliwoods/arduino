@@ -13,6 +13,8 @@
 // that is changed in the animations.                                           //
 //////////////////////////////////////////////////////////////////////////////////
 
+// Because for some reason the brightness needs to be kicked up when you use ColorFromPalette
+const uint8_t val_offset = 100;
 
 // RB|B|B|B repeating
 void update_PalBlack_p() {
@@ -49,8 +51,6 @@ void update_WhiteCol_p() {
   gPalette[12] = CHSV(255, 0, gBrightness);
 }
 
-// Hue adjustable palettes!!!
-const uint8_t val_offset = 100;
 
 void update_PureCol_p() {
   fill_solid(gPalette, 16, ColorFromPalette(gScheme, gHue, gBrightness + val_offset, gBlending));
@@ -1132,7 +1132,7 @@ const uint8_t numPalStyles = 9;
 // whenever they are added up above. Declare it down here so we can get away with not having to use the Gradient Palette
 // Pointer array.
 void updatePaletteScheme() {
-  switch (gPaletteCounter) {
+  switch (gSchemeNum) {
     case 0:
       nScheme = chroma_gp;
       nblendPaletteTowardPalette(gScheme, nScheme);
@@ -1254,38 +1254,40 @@ void updatePaletteScheme() {
       nblendPaletteTowardPalette(gScheme, nScheme);
       break;
     case 30:
-      nScheme = Rainbow_p;
+      nScheme = RainbowColors_p;
       nblendPaletteTowardPalette(gScheme, nScheme);
       break;
   }
 }
 
 void updateGPalette() {
-  case 0:
-    update_PureCol_p();
-    break;
-  case 1:
-    update_WhiteCol_p();
-    break;
-  case 2:
-    update_TwoCol_p();
-    break;
-  case 3:
-    update_ColLead_p();
-    break;
-  case 4:
-    update_Rainbow_p();
-    break;
-  case 5:
-    update_WhiteBlack_p();
-    break;
-  case 6:
-    update_PalBlack_p();
-    break;
-  case 7:
-    update_WhitePal_p();
-    break;
-  case 8:
-    update_FourCol_p();
-    break;
+  switch(gPaletteCounter) {
+    case 0:
+      update_PureCol_p();
+      break;
+    case 1:
+      update_WhiteCol_p();
+      break;
+    case 2:
+      update_TwoCol_p();
+      break;
+    case 3:
+      update_ColLead_p();
+      break;
+    case 4:
+      update_Rainbow_p();
+      break;
+    case 5:
+      update_WhiteBlack_p();
+      break;
+    case 6:
+      update_PalBlack_p();
+      break;
+    case 7:
+      update_WhitePal_p();
+      break;
+    case 8:
+      update_FourCol_p();
+      break;
+  }
 }
