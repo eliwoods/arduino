@@ -1,7 +1,7 @@
 #include <FastLED.h>
 
 #define LED 6
-#define NUMLED 340
+#define NUMLED 500
 
 CRGB leds[NUMLED];
 
