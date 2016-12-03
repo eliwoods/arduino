@@ -1,14 +1,14 @@
 #include <FastLED.h>
 
 // For the pin variables
-#define RIGHT_OUT 1
-#define LEFT_OUT 2
+#define RIGHT_OUT 9
+#define LEFT_OUT 10
 #define RIGHT_IN A0
-#define LEFT_IN A1
+#define LEFT_IN A2
 
 // LED stuff
 const uint8_t max_leg = 34;
-const uint8_t min_leg = 27;
+const uint8_t min_leg = 46;
 const uint16_t num_leg = max_leg+2*min_leg;
 
 CRGBArray<num_leg> left;
@@ -18,7 +18,7 @@ CRGBArray<num_leg> right;
 CRGBArray<max_leg> right_tmplt;
 
 // Stuff for the velostat
-const uint16_t vel_thresh = 30;
+const uint16_t vel_thresh = 20;
 
 // Variables for the heartbeat effect
 const uint8_t max_brightness = 255;
@@ -59,14 +59,14 @@ void loop() {
   if(analogRead(LEFT_IN) <= vel_thresh) {
     // If it's been pressed for long enough, just fill the whole array
     if(left_on == max_leg) {
-      fill_solid(left, num_leg, CHSV(0, 255, beatsin8(bpm, max_brightness/4., max_brightness)));
+      fill_solid(left, num_leg, CHSV(160, 255, beatsin8(bpm, max_brightness/4., max_brightness)));
     }
     else {
       // Increase the number of leds turned on
       EVERY_N_MILLISECONDS(5) {
         left_on++;
       }
-      fill_solid(left_tmplt, left_on, CHSV(0, 255, max_brightness));
+      fill_solid(left_tmplt, left_on, CHSV(160, 255, max_brightness));
 
       // "Paste" the template onto the real array that FastLED sees
       left(0, min_leg-1) = left_tmplt(0, min_leg-1);
@@ -84,7 +84,7 @@ void loop() {
         // Until we have turned off all the leds, rapidly turn off one
         // at a time
         left_on--;
-        fill_solid(left_tmplt, left_on, CHSV(0, 255, max_brightness));
+        fill_solid(left_tmplt, left_on, CHSV(160, 255, max_brightness));
       }
     }
 
@@ -98,14 +98,14 @@ void loop() {
   if(analogRead(RIGHT_IN) <= vel_thresh) {
     // If it's been pressed for long enough, just fill the whole array
     if(right_on == max_leg) {
-      fill_solid(right, num_leg, CHSV(0, 255, beatsin8(bpm, max_brightness/4, max_brightness)));
+      fill_solid(right, num_leg, CHSV(160, 255, beatsin8(bpm, max_brightness/4, max_brightness)));
     }
     else {
       // Increase the number of leds turned on
       EVERY_N_MILLISECONDS(5) {
         right_on++;
       }
-      fill_solid(right_tmplt, right_on, CHSV(0, 255, max_brightness));
+      fill_solid(right_tmplt, right_on, CHSV(160, 255, max_brightness));
 
       // "Paste" the template onto the real array that FastLED sees
       right(0, min_leg-1) = right_tmplt(0, min_leg-1);
@@ -123,7 +123,7 @@ void loop() {
         // Until we have turned off all the leds, rapidly turn off one
         // at a time
         right_on--;
-        fill_solid(right_tmplt, right_on, CHSV(0, 255, max_brightness));
+        fill_solid(right_tmplt, right_on, CHSV(160, 255, max_brightness));
       }
     }
 

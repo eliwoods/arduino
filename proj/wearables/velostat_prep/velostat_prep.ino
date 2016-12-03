@@ -1,15 +1,14 @@
+#define LEFT_IN A0
+#define RIGHT_IN A1
+#define HEART_IN A2
+
 void setup() {
   Serial.begin(9600);
-  pinMode(A1, INPUT_PULLUP); 
+  pinMode(LEFT_IN, INPUT_PULLUP); 
+  pinMode(RIGHT_IN, INPUT_PULLUP); 
 }
 
 void loop() {
-  if(analogRead(0) == 1023) {
-    Serial.print("Thumb On\t");
-  }
-  else {
-    Serial.print("Thumb Off\t");
-  }
-  Serial.println(analogRead(1));
+  Serial.println(analogRead(LEFT_IN));
   delay(100);
 }
