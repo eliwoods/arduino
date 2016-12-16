@@ -23,11 +23,13 @@ CRGBArray<num_arm> right;
 CRGBArray<max_arm> right_tmplt;
 
 // Stuff for the velostat
-const uint16_t vel_thresh = 30;
+const uint16_t left_vel_thresh = 125;
+const uint16_t right_vel_thresh = 130;
 
 // Variables for the heartbeat effect
 uint8_t heart_bright = 0;
-const uint8_t max_brightness = 255;
+const uint8_t max_brightness = 179; // 70% max brightness
+const uint8_t max_heart_bright = 128; // 50% max brightness
 const uint8_t bpm = 70; // A little bit faster than the average human
 
 // We'll use these to determine what lights and how many
@@ -64,7 +66,7 @@ void loop() {
   fill_solid(right_tmplt, max_arm, CRGB::Black);
 
   // Check if the left hand is being pressed
-  if (analogRead(LEFT_IN) <= vel_thresh) {
+  if (analogRead(LEFT_IN) <= left_vel_thresh) {
     // If it's been pressed for long enough, just fill the whole array
     if (left_on == max_arm) {
       fill_solid(left, num_arm, CHSV(160, 255, beatsin8(bpm, max_brightness / 4., max_brightness)));
@@ -103,7 +105,7 @@ void loop() {
   }
 
   // Check if the right hand is being pressed
-  if (analogRead(RIGHT_IN) <= vel_thresh) {
+  if (analogRead(RIGHT_IN) <= right_vel_thresh) {
     // If it's been pressed for long enough, just fill the whole array
     if (right_on == max_arm) {
       fill_solid(right, num_arm, CHSV(160, 255, beatsin8(bpm, max_brightness / 4, max_brightness)));
@@ -145,7 +147,7 @@ void loop() {
   if (analogRead(HEART_IN) == 1023) {
     // If the heart isn't at max brightness, ramp it up in increments
     // of 10 at the same rate that the veins light up;
-    heart_bright = beatsin8(bpm, max_brightness / 4., max_brightness);
+    heart_bright = beatsin8(bpm, max_brightness / 4., max_heart_bright);
     fill_solid(heart, num_heart, CHSV(0, 255, heart_bright));
   }
   // If the heart circuit isn't closed, fade it slowly until it's off

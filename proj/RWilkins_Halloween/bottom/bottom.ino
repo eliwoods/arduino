@@ -7,21 +7,26 @@
 #define LEFT_IN A2
 
 // LED stuff
-const uint8_t max_leg = 34;
-const uint8_t min_leg = 46;
-const uint16_t num_leg = max_leg+2*min_leg;
+//const uint8_t max_leg = 34;
+//const uint8_t min_leg = 46;
+const uint8_t max_leg = 46;
+const uint8_t left_min_leg = 37;
+const uint8_t right_min_leg = 36;
+const uint16_t left_num_leg = max_leg+2*left_min_leg;
+const uint16_t right_num_leg = max_leg+2*right_min_leg;
 
-CRGBArray<num_leg> left;
+CRGBArray<left_num_leg> left;
 CRGBArray<max_leg> left_tmplt;
 
-CRGBArray<num_leg> right;
+CRGBArray<right_num_leg> right;
 CRGBArray<max_leg> right_tmplt;
 
 // Stuff for the velostat
-const uint16_t vel_thresh = 20;
+const uint16_t right_vel_thresh = 30;
+const uint16_t left_vel_thresh = 40;
 
 // Variables for the heartbeat effect
-const uint8_t max_brightness = 255;
+const uint8_t max_brightness = 179;
 const uint8_t bpm = 70; // A little bit faster than the average human
 
 // We'll use these to determine what lights and how many
@@ -34,8 +39,8 @@ void setup() {
   Serial.begin(9600);
 
   // Setup the FastLED controller
-  FastLED.addLeds<WS2812B, LEFT_OUT, GRB>(left, num_leg);
-  FastLED.addLeds<WS2812B, RIGHT_OUT, GRB>(right, num_leg);
+  FastLED.addLeds<WS2812B, LEFT_OUT, GRB>(left, left_num_leg);
+  FastLED.addLeds<WS2812B, RIGHT_OUT, GRB>(right, right_num_leg);
   FastLED.show();
 
   // Initialize velostat sensors to input pullup. The applies a voltage
@@ -56,10 +61,10 @@ void loop() {
   fill_solid(right_tmplt, max_leg, CRGB::Black);
 
   // Check if the left hand is being pressed
-  if(analogRead(LEFT_IN) <= vel_thresh) {
+  if(analogRead(LEFT_IN) <= left_vel_thresh) {
     // If it's been pressed for long enough, just fill the whole array
     if(left_on == max_leg) {
-      fill_solid(left, num_leg, CHSV(160, 255, beatsin8(bpm, max_brightness/4., max_brightness)));
+      fill_solid(left, left_num_leg, CHSV(160, 255, beatsin8(bpm, max_brightness/4., max_brightness)));
     }
     else {
       // Increase the number of leds turned on
@@ -69,9 +74,9 @@ void loop() {
       fill_solid(left_tmplt, left_on, CHSV(160, 255, max_brightness));
 
       // "Paste" the template onto the real array that FastLED sees
-      left(0, min_leg-1) = left_tmplt(0, min_leg-1);
-      left(min_leg+max_leg, num_leg-1) = left_tmplt(0, min_leg-1);
-      left(max_leg+min_leg-1, min_leg) = left_tmplt;
+      left(0, left_min_leg-1) = left_tmplt(0, left_min_leg-1);
+      left(left_min_leg+max_leg, left_num_leg-1) = left_tmplt(0, left_min_leg-1);
+      left(max_leg+left_min_leg-1, left_min_leg) = left_tmplt;
     }
   }
   // If the pad isn't being pressed, rapidly turn off the leds one at a time
@@ -89,16 +94,16 @@ void loop() {
     }
 
     // Paste the decreasing templates into the main array
-    left(0, min_leg-1) = left_tmplt(0, min_leg-1);
-    left(min_leg+max_leg, num_leg-1) = left_tmplt(0, min_leg-1);
-    left(max_leg+min_leg-1, min_leg) = left_tmplt;
+    left(0, left_min_leg-1) = left_tmplt(0, left_min_leg-1);
+    left(left_min_leg+max_leg, left_num_leg-1) = left_tmplt(0, left_min_leg-1);
+    left(max_leg+left_min_leg-1, left_min_leg) = left_tmplt;
   }
 
   // Check if the right hand is being pressed
-  if(analogRead(RIGHT_IN) <= vel_thresh) {
+  if(analogRead(RIGHT_IN) <= right_vel_thresh) {
     // If it's been pressed for long enough, just fill the whole array
     if(right_on == max_leg) {
-      fill_solid(right, num_leg, CHSV(160, 255, beatsin8(bpm, max_brightness/4, max_brightness)));
+      fill_solid(right, right_num_leg, CHSV(160, 255, beatsin8(bpm, max_brightness/4, max_brightness)));
     }
     else {
       // Increase the number of leds turned on
@@ -108,9 +113,9 @@ void loop() {
       fill_solid(right_tmplt, right_on, CHSV(160, 255, max_brightness));
 
       // "Paste" the template onto the real array that FastLED sees
-      right(0, min_leg-1) = right_tmplt(0, min_leg-1);
-      right(min_leg+max_leg, num_leg-1) = right_tmplt(0, min_leg-1);
-      right(max_leg+min_leg-1, min_leg) = right_tmplt;
+      right(0, right_min_leg-1) = right_tmplt(0, right_min_leg-1);
+      right(right_min_leg+max_leg, right_num_leg-1) = right_tmplt(0, right_min_leg-1);
+      right(max_leg+right_min_leg-1, right_min_leg) = right_tmplt;
     }
   }
   // If the pad isn't being pressed, rapidly turn off the leds one at a time
@@ -128,9 +133,9 @@ void loop() {
     }
 
     // Paste the decreasing templates into the main array
-    right(0, min_leg-1) = right_tmplt(0, min_leg-1);
-    right(min_leg+max_leg, num_leg-1) = right_tmplt(0, min_leg-1);
-    right(max_leg+min_leg-1, min_leg) = right_tmplt;
+    right(0, right_min_leg-1) = right_tmplt(0, right_min_leg-1);
+    right(right_min_leg+max_leg, right_num_leg-1) = right_tmplt(0, right_min_leg-1);
+    right(max_leg+right_min_leg-1, right_min_leg) = right_tmplt;
   }
 
   // Now we've done manipulations on all of the led arrays. Dump the info
